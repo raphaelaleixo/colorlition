@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment, canClaimSegment } from '../../game/actions';
+import { DEMANDS } from '../../game/data/demands';
 import { Card } from '../shared/Card';
 import type { ColorlitionGameState, Card as GameCard, SegmentKey } from '../../game/types';
 
@@ -69,6 +70,11 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
           <Typography>You drew:</Typography>
           <Card card={pending.card} />
         </Stack>
+        {pending.card.kind === 'bloc' && (
+          <Typography sx={{ fontStyle: 'italic' }}>
+            We want: "{DEMANDS[pending.card.color]?.[pending.card.value]}"
+          </Typography>
+        )}
         <Typography>Place in which segment?</Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
           {gameState.segments.map((s) => (
