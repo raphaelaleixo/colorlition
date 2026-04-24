@@ -114,13 +114,10 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                 component="span"
                 sx={{
                   fontSize: 28,
-                  fontWeight: isEmpty ? 400 : 600,
-                  fontStyle: isEmpty ? 'italic' : 'normal',
-                  fontFamily: isEmpty
-                    ? '"Playfair Display", Georgia, serif'
-                    : '"Source Sans 3", system-ui, sans-serif',
-                  textTransform: isEmpty ? 'none' : 'uppercase',
-                  letterSpacing: isEmpty ? 'normal' : '0.04em',
+                  fontWeight: 600,
+                  fontFamily: '"Source Sans 3", system-ui, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
                   color: isEmpty
                     ? 'rgba(250, 248, 243, 0.65)'
                     : 'background.default',
