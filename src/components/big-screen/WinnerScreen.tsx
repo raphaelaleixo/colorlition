@@ -6,6 +6,7 @@ import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import type { ScoreBreakdown } from '../../game/types';
+import { deriveVictoryTitle } from '../../game/titles';
 
 export function WinnerScreen({
   breakdowns,
@@ -16,11 +17,19 @@ export function WinnerScreen({
   winnerIds: string[];
   nameFor: (playerId: string) => string;
 }) {
-  const winnerNames = winnerIds.map(nameFor).join(', ');
   return (
     <Stack spacing={2}>
       <Typography variant="h4">
-        {winnerIds.length === 1 ? `Winner: ${winnerNames}` : `Co-winners: ${winnerNames}`}
+        {(() => {
+          const lines = winnerIds.map((id) => {
+            const breakdown = breakdowns.find((b) => b.playerId === id);
+            const title = breakdown
+              ? deriveVictoryTitle(breakdown.positiveColors)
+              : '…the Unclassified Leader';
+            return `${nameFor(id)}, ${title}`;
+          });
+          return winnerIds.length === 1 ? lines[0] : `Co-winners: ${lines.join(' • ')}`;
+        })()}
       </Typography>
       <Table>
         <TableHead>
