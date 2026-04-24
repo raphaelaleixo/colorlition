@@ -65,13 +65,12 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
           px: 3,
           display: 'flex',
           alignItems: 'center',
-          borderRight: '1px solid',
-          borderColor: 'rgba(250, 248, 243, 0.2)',
+          bgcolor: 'error.main',
         }}
       >
         <Typography
           sx={{
-            color: 'error.main',
+            color: 'common.white',
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             fontWeight: 700,
