@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { FullscreenToggle } from 'react-gameroom';
@@ -31,7 +32,17 @@ export default function BigScreenPage() {
   }));
 
   return (
-    <Stack spacing={2} sx={{ p: 4 }}>
+    <Stack
+      spacing={2}
+      sx={{
+        p: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        height: { xs: 'auto', lg: '100vh' },
+        minHeight: '100vh',
+        overflow: { xs: 'visible', lg: 'hidden' },
+      }}
+    >
       <Stack
         direction="row"
         sx={{
@@ -74,10 +85,28 @@ export default function BigScreenPage() {
           ? 'Game over'
           : `${currentPlayer?.name ?? currentPlayerId}'s turn`}
       </Typography>
-      <DrawPile remaining={gameState.deck.length} />
-      <VoterSegments segments={gameState.segments} />
-      <PublicCoalitions rows={rows} />
-      <Leaderboard rows={rows} />
+
+      <Box
+        sx={{
+          flex: '1 1 auto',
+          minHeight: 0,
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
+          gap: 3,
+          overflow: 'hidden',
+        }}
+      >
+        <Stack spacing={2} sx={{ minHeight: 0, overflow: 'hidden' }}>
+          <VoterSegments segments={gameState.segments} />
+          <PublicCoalitions rows={rows} />
+        </Stack>
+        <Stack spacing={2} sx={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <DrawPile remaining={gameState.deck.length} />
+          <Leaderboard rows={rows} />
+          <HeadlineFeed headlines={gameState.headlines} />
+        </Stack>
+      </Box>
+
       {gameState.phase === 'ended' && gameState.scoreBreakdown && gameState.winnerIds && (
         <WinnerScreen
           breakdowns={gameState.scoreBreakdown}
@@ -87,7 +116,6 @@ export default function BigScreenPage() {
           }
         />
       )}
-      <HeadlineFeed headlines={gameState.headlines} />
     </Stack>
   );
 }
