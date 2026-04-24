@@ -6,6 +6,7 @@ import { useGame } from '../contexts/GameContext';
 import { CoalitionBase } from '../components/mobile/CoalitionBase';
 import { SegmentsReadonly } from '../components/mobile/SegmentsReadonly';
 import { WaitingView } from '../components/mobile/WaitingView';
+import { TurnActions } from '../components/mobile/TurnActions';
 
 export default function PlayerPage() {
   const { id, playerId } = useParams();
@@ -56,7 +57,7 @@ export default function PlayerPage() {
       )}
       <CoalitionBase base={myBase} />
       <SegmentsReadonly segments={gameState.segments} />
-      {/* TurnActions arrives in the next task */}
+      {isMyTurn && <TurnActions gameState={gameState} />}
     </Stack>
   );
 }
