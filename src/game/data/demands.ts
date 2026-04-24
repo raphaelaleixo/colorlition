@@ -91,3 +91,14 @@ export const BLOC_NAMES: Record<Color, string> = {
   yellow: 'Security & Order',
   grey: 'Traditionalists',
 };
+
+// User-facing label for any chip key — bloc colors resolve to their faction name,
+// non-blocs keep their descriptive label.
+export type LabelKey = Color | 'pivot' | 'grant' | 'exitPoll';
+
+export function labelFor(key: LabelKey): string {
+  if (key === 'pivot') return 'Pivot';
+  if (key === 'grant') return 'Public Grant';
+  if (key === 'exitPoll') return 'Exit Poll';
+  return BLOC_NAMES[key];
+}

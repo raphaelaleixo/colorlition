@@ -7,6 +7,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import type { ScoreBreakdown } from '../../game/types';
 import { deriveVictoryTitle } from '../../game/titles';
+import { labelFor } from '../../game/data/demands';
 
 export function WinnerScreen({
   breakdowns,
@@ -35,9 +36,9 @@ export function WinnerScreen({
         <TableHead>
           <TableRow>
             <TableCell>Player</TableCell>
-            <TableCell>Positive colors</TableCell>
+            <TableCell>Positive blocs</TableCell>
             <TableCell align="right">Positive</TableCell>
-            <TableCell>Negative colors</TableCell>
+            <TableCell>Negative blocs</TableCell>
             <TableCell align="right">Negative</TableCell>
             <TableCell align="right">Grants</TableCell>
             <TableCell align="right">Total</TableCell>
@@ -50,9 +51,9 @@ export function WinnerScreen({
             .map((b) => (
               <TableRow key={b.playerId}>
                 <TableCell>{nameFor(b.playerId)}</TableCell>
-                <TableCell>{b.positiveColors.join(', ') || '—'}</TableCell>
+                <TableCell>{b.positiveColors.map(labelFor).join(', ') || '—'}</TableCell>
                 <TableCell align="right">{b.positive}</TableCell>
-                <TableCell>{b.negativeColors.join(', ') || '—'}</TableCell>
+                <TableCell>{b.negativeColors.map(labelFor).join(', ') || '—'}</TableCell>
                 <TableCell align="right">{b.negative}</TableCell>
                 <TableCell align="right">{b.grants}</TableCell>
                 <TableCell align="right">{b.total}</TableCell>

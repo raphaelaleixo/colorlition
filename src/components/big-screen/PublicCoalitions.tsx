@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { summarizeCoalition } from '../../game/summarize';
 import { chipSxFor, type ChipKey } from '../../theme/colors';
+import { labelFor, type LabelKey } from '../../game/data/demands';
 import type { Card as GameCard } from '../../game/types';
 
 export type CoalitionRow = {
@@ -32,7 +33,7 @@ export function PublicCoalitions({ rows }: { rows: CoalitionRow[] }) {
               {summary.map((s) => (
                 <Chip
                   key={s.label}
-                  label={`${s.label} (${s.count})`}
+                  label={`${labelFor(s.label as LabelKey)} (${s.count})`}
                   sx={chipSxFor(s.label as ChipKey)}
                 />
               ))}

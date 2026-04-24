@@ -2,7 +2,7 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { chipSxFor } from '../../theme/colors';
-import { DEMANDS } from '../../game/data/demands';
+import { DEMANDS, labelFor } from '../../game/data/demands';
 import type { Card as GameCard } from '../../game/types';
 
 type Props = { card: GameCard; showDemand?: boolean };
@@ -10,13 +10,13 @@ type Props = { card: GameCard; showDemand?: boolean };
 export function Card({ card, showDemand = false }: Props) {
   let chip: React.ReactNode;
   if (card.kind === 'bloc') {
-    chip = <Chip label={`${card.color} #${card.value}`} sx={chipSxFor(card.color)} />;
+    chip = <Chip label={labelFor(card.color)} sx={chipSxFor(card.color)} />;
   } else if (card.kind === 'grant') {
-    chip = <Chip label="Public Grant" sx={chipSxFor('grant')} />;
+    chip = <Chip label={labelFor('grant')} sx={chipSxFor('grant')} />;
   } else if (card.kind === 'pivot') {
-    chip = <Chip label="Pivot" sx={chipSxFor('pivot')} />;
+    chip = <Chip label={labelFor('pivot')} sx={chipSxFor('pivot')} />;
   } else {
-    chip = <Chip label="Exit Poll" sx={chipSxFor('exitPoll')} />;
+    chip = <Chip label={labelFor('exitPoll')} sx={chipSxFor('exitPoll')} />;
   }
 
   if (!showDemand || card.kind !== 'bloc') return <>{chip}</>;
@@ -25,7 +25,7 @@ export function Card({ card, showDemand = false }: Props) {
   if (!demand) return <>{chip}</>;
 
   return (
-    <Stack spacing={0.25} sx={{ maxWidth: 160 }}>
+    <Stack spacing={0.25} sx={{ maxWidth: 200 }}>
       {chip}
       <Typography variant="caption" sx={{ fontStyle: 'italic', lineHeight: 1.2 }}>
         "{demand}"
