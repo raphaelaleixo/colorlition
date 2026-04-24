@@ -41,6 +41,7 @@ export interface GameContextValue {
   createRoom: () => Promise<string>;
   loadRoom: (roomId: string) => void;
   joinRoom: (roomId: string, name: string) => Promise<number>;
+  claimSlot: (roomId: string, slotId: number, name: string) => Promise<void>;
   startTheGame: () => Promise<void>;
   drawAndPlace: (segmentKey: SegmentKey) => Promise<void>;
   claim: (segmentKey: SegmentKey) => Promise<void>;
@@ -131,6 +132,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return emptySlot.id;
   }, []);
 
+  const claimSlot = useCallback(async (roomId: string, slotId: number, name: string) => {
+    const roomRef = ref(database, `rooms/${roomId}/room`);
+    const snapshot = await get(roomRef);
+    const currentRoom = snapshot.val();
+    if (!currentRoom) throw new Error('Room not found');
+
+    let room: RoomState<ColorlitionPlayerData>;
+    try {
+      room = deserializeRoom<ColorlitionPlayerData>(currentRoom);
+    } catch {
+      room = currentRoom as RoomState<ColorlitionPlayerData>;
+    }
+
+    if (room.status === 'started') throw new Error('Game has already started');
+
+    const slot = room.players.find((p) => p.id === slotId);
+    if (!slot) throw new Error('Invalid slot');
+    if (slot.status !== 'empty') throw new Error('Slot already taken');
+
+    const updated = joinPlayer(room, slotId, name);
+    await set(ref(database, `rooms/${roomId}/room`), updated);
+  }, []);
+
   const startTheGame = useCallback(async () => {
     if (!roomState) return;
     const roomId = roomState.roomId;
@@ -170,6 +194,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         createRoom,
         loadRoom,
         joinRoom,
+        claimSlot,
         startTheGame,
         drawAndPlace,
         claim,
