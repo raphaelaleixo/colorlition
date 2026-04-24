@@ -9,11 +9,21 @@ const tickerKeyframes = keyframes`
   to { transform: translateX(-50%); }
 `;
 
-const EMPTY_PLACEHOLDER = 'The wire is quiet. Awaiting the first move…';
+const EMPTY_PLACEHOLDER_TEXT = 'The wire is quiet. Awaiting the first move…';
+
+// Synthesized "headline" used when there are no real ones yet — keeps the
+// ticker animating so the user sees it's a live chyron rather than a panel.
+const PLACEHOLDER_ENTRY: Headline = {
+  id: 'placeholder',
+  kind: 'rising_demand',
+  segmentKey: 'industrial',
+  roundNumber: 0,
+  text: EMPTY_PLACEHOLDER_TEXT,
+};
 
 // Repeat enough that the scrolling track is always wider than the viewport —
-// prevents empty gaps when the headline list is short. Formula: aim for at
-// least ~4 items in the "base set" before doubling for the seamless loop.
+// prevents empty gaps when the headline list is short. Aim for at least ~4
+// items in the "base set" before doubling for the seamless loop.
 function repeatCountFor(itemCount: number): number {
   return Math.max(1, Math.ceil(4 / Math.max(1, itemCount)));
 }
@@ -24,16 +34,22 @@ function tickerDurationSeconds(doubledCount: number): number {
 }
 
 export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
-  const hasContent = headlines.length > 0;
-  let doubled: Headline[] = [];
-  let duration = 30;
-  if (hasContent) {
-    const repeat = repeatCountFor(headlines.length);
-    const base: Headline[] = [];
-    for (let i = 0; i < repeat; i++) base.push(...headlines);
-    doubled = [...base, ...base];
-    duration = tickerDurationSeconds(doubled.length);
-  }
+  // Firebase RTDB can return arrays as objects in some edge cases. Coerce
+  // so .length / .map never silently yield undefined.
+  const list: Headline[] = Array.isArray(headlines)
+    ? headlines
+    : Object.values((headlines ?? {}) as Record<string, Headline>);
+
+  // If there are no real headlines, use the placeholder as the single entry
+  // so the ticker still animates.
+  const isEmpty = list.length === 0;
+  const source: Headline[] = isEmpty ? [PLACEHOLDER_ENTRY] : list;
+
+  const repeat = repeatCountFor(source.length);
+  const base: Headline[] = [];
+  for (let i = 0; i < repeat; i++) base.push(...source);
+  const doubled: Headline[] = [...base, ...base];
+  const duration = tickerDurationSeconds(doubled.length);
 
   return (
     <Stack
@@ -78,59 +94,54 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
           alignItems: 'center',
         }}
       >
-        {hasContent ? (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              width: 'max-content',
-              flexShrink: 0,
-              whiteSpace: 'nowrap',
-              willChange: 'transform',
-              animation: `${tickerKeyframes} ${duration}s linear infinite`,
-              '&:hover': { animationPlayState: 'paused' },
-            }}
-          >
-            {doubled.map((h, i) => (
-              <Stack
-                key={`${h.id}-${i}`}
-                direction="row"
-                sx={{ alignItems: 'center', mr: 5 }}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: 'max-content',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+            willChange: 'transform',
+            animation: `${tickerKeyframes} ${duration}s linear infinite`,
+            '&:hover': { animationPlayState: 'paused' },
+          }}
+        >
+          {doubled.map((h, i) => (
+            <Stack
+              key={`${h.id}-${i}`}
+              direction="row"
+              sx={{ alignItems: 'center', mr: 5 }}
+            >
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: 28,
+                  fontWeight: isEmpty ? 400 : 600,
+                  fontStyle: isEmpty ? 'italic' : 'normal',
+                  fontFamily: isEmpty
+                    ? '"Playfair Display", Georgia, serif'
+                    : undefined,
+                  color: isEmpty ? 'text.secondary' : 'text.primary',
+                  lineHeight: 1,
+                }}
               >
-                <Typography
-                  component="span"
-                  sx={{ fontSize: 28, fontWeight: 600, lineHeight: 1 }}
-                >
-                  {h.text}
-                </Typography>
-                <Typography
-                  component="span"
-                  sx={{
-                    ml: 5,
-                    fontSize: 28,
-                    fontWeight: 700,
-                    color: 'error.main',
-                    lineHeight: 1,
-                  }}
-                >
-                  •
-                </Typography>
-              </Stack>
-            ))}
-          </Box>
-        ) : (
-          <Typography
-            sx={{
-              px: 3,
-              color: 'text.secondary',
-              fontFamily: '"Playfair Display", Georgia, serif',
-              fontStyle: 'italic',
-              fontSize: 22,
-            }}
-          >
-            {EMPTY_PLACEHOLDER}
-          </Typography>
-        )}
+                {h.text}
+              </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  ml: 5,
+                  fontSize: 28,
+                  fontWeight: 700,
+                  color: 'error.main',
+                  lineHeight: 1,
+                }}
+              >
+                •
+              </Typography>
+            </Stack>
+          ))}
+        </Box>
       </Box>
     </Stack>
   );
