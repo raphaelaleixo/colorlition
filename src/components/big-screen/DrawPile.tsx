@@ -3,8 +3,19 @@ import Typography from '@mui/material/Typography';
 
 export function DrawPile({ remaining }: { remaining: number }) {
   return (
-    <Stack sx={{ p: 1, border: '1px solid #ccc', display: 'inline-flex' }}>
-      <Typography>Draw Pile: {remaining} cards</Typography>
+    <Stack
+      direction="row"
+      sx={{ alignItems: 'baseline', gap: 1.5, py: 1 }}
+    >
+      <Typography
+        variant="h2"
+        sx={{ fontFeatureSettings: "'tnum' 1", minWidth: 60 }}
+      >
+        {remaining}
+      </Typography>
+      <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+        cards remaining
+      </Typography>
     </Stack>
   );
 }

@@ -32,17 +32,47 @@ export default function BigScreenPage() {
 
   return (
     <Stack spacing={2} sx={{ p: 4 }}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Color-lition — Round {gameState.roundNumber}</Typography>
-        <FullscreenToggle />
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: 3,
+          pb: 2,
+          borderBottom: '2px solid',
+          borderColor: 'rule.ink',
+        }}
+      >
+        <Stack direction="row" spacing={4} sx={{ alignItems: 'baseline' }}>
+          <Typography variant="h1">Color-lition</Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+            <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+              Room
+            </Typography>
+            <Typography
+              variant="h2"
+              sx={{ letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1" }}
+            >
+              {id}
+            </Typography>
+          </Stack>
+        </Stack>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'baseline' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Round {gameState.roundNumber}
+          </Typography>
+          {gameState.exitPollDrawn && (
+            <Typography variant="body2" sx={{ color: 'error.main', fontWeight: 700 }}>
+              FINAL ROUND
+            </Typography>
+          )}
+          <FullscreenToggle />
+        </Stack>
       </Stack>
-      {gameState.exitPollDrawn && (
-        <Typography variant="h5" color="warning.main">FINAL ROUND</Typography>
-      )}
-      <Typography>
+      <Typography variant="h3">
         {gameState.phase === 'ended'
           ? 'Game over'
-          : `Turn: ${currentPlayer?.name ?? currentPlayerId}`}
+          : `${currentPlayer?.name ?? currentPlayerId}'s turn`}
       </Typography>
       <DrawPile remaining={gameState.deck.length} />
       <VoterSegments segments={gameState.segments} />

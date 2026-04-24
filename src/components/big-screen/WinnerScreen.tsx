@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell';
 import type { ScoreBreakdown } from '../../game/types';
 import { deriveVictoryTitle } from '../../game/titles';
 import { labelFor } from '../../game/data/demands';
+import { Section } from '../shared/Section';
 
 export function WinnerScreen({
   breakdowns,
@@ -19,48 +20,50 @@ export function WinnerScreen({
   nameFor: (playerId: string) => string;
 }) {
   return (
-    <Stack spacing={2}>
-      <Typography variant="h4">
-        {(() => {
-          const lines = winnerIds.map((id) => {
-            const breakdown = breakdowns.find((b) => b.playerId === id);
-            const title = breakdown
-              ? deriveVictoryTitle(breakdown.positiveColors)
-              : '…the Unclassified Leader';
-            return `${nameFor(id)}, ${title}`;
-          });
-          return winnerIds.length === 1 ? lines[0] : `Co-winners: ${lines.join(' • ')}`;
-        })()}
-      </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Player</TableCell>
-            <TableCell>Positive blocs</TableCell>
-            <TableCell align="right">Positive</TableCell>
-            <TableCell>Negative blocs</TableCell>
-            <TableCell align="right">Negative</TableCell>
-            <TableCell align="right">Grants</TableCell>
-            <TableCell align="right">Total</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {breakdowns
-            .slice()
-            .sort((a, b) => b.total - a.total)
-            .map((b) => (
-              <TableRow key={b.playerId}>
-                <TableCell>{nameFor(b.playerId)}</TableCell>
-                <TableCell>{b.positiveColors.map(labelFor).join(', ') || '—'}</TableCell>
-                <TableCell align="right">{b.positive}</TableCell>
-                <TableCell>{b.negativeColors.map(labelFor).join(', ') || '—'}</TableCell>
-                <TableCell align="right">{b.negative}</TableCell>
-                <TableCell align="right">{b.grants}</TableCell>
-                <TableCell align="right">{b.total}</TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-    </Stack>
+    <Section>
+      <Stack spacing={3}>
+        <Typography variant="h1">
+          {(() => {
+            const lines = winnerIds.map((id) => {
+              const breakdown = breakdowns.find((b) => b.playerId === id);
+              const title = breakdown
+                ? deriveVictoryTitle(breakdown.positiveColors)
+                : '…the Unclassified Leader';
+              return `${nameFor(id)}, ${title}`;
+            });
+            return winnerIds.length === 1 ? lines[0] : `Co-winners: ${lines.join(' • ')}`;
+          })()}
+        </Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Player</TableCell>
+              <TableCell>Positive blocs</TableCell>
+              <TableCell align="right">Positive</TableCell>
+              <TableCell>Negative blocs</TableCell>
+              <TableCell align="right">Negative</TableCell>
+              <TableCell align="right">Grants</TableCell>
+              <TableCell align="right">Total</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {breakdowns
+              .slice()
+              .sort((a, b) => b.total - a.total)
+              .map((b) => (
+                <TableRow key={b.playerId}>
+                  <TableCell>{nameFor(b.playerId)}</TableCell>
+                  <TableCell>{b.positiveColors.map(labelFor).join(', ') || '—'}</TableCell>
+                  <TableCell align="right">{b.positive}</TableCell>
+                  <TableCell>{b.negativeColors.map(labelFor).join(', ') || '—'}</TableCell>
+                  <TableCell align="right">{b.negative}</TableCell>
+                  <TableCell align="right">{b.grants}</TableCell>
+                  <TableCell align="right">{b.total}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </Stack>
+    </Section>
   );
 }
