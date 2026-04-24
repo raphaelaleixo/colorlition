@@ -119,8 +119,8 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   color: isEmpty
-                    ? 'rgba(250, 248, 243, 0.65)'
-                    : 'background.default',
+                    ? 'rgba(255, 255, 255, 0.6)'
+                    : 'common.white',
                   lineHeight: 1,
                 }}
               >
@@ -132,7 +132,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   ml: 5,
                   fontSize: 28,
                   fontWeight: 800,
-                  color: 'common.white',
+                  color: 'error.main',
                   lineHeight: 1,
                 }}
               >
