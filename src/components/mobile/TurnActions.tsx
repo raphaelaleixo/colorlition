@@ -2,13 +2,27 @@ import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment, canClaimSegment } from '../../game/actions';
 import { DEMANDS } from '../../game/data/demands';
 import { Card } from '../shared/Card';
+import { Section } from '../shared/Section';
 import type { ColorlitionGameState, Card as GameCard, SegmentKey } from '../../game/types';
 
 type PendingDraw = { card: GameCard; exitPollTriggered: boolean };
+
+function RuledDivider({ label }: { label: string }) {
+  return (
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+      <Box sx={{ flex: 1, borderTop: '1px solid', borderColor: 'rule.hair' }} />
+      <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+        {label}
+      </Typography>
+      <Box sx={{ flex: 1, borderTop: '1px solid', borderColor: 'rule.hair' }} />
+    </Stack>
+  );
+}
 
 export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) {
   const { drawAndPlace, claim } = useGame();
@@ -18,17 +32,13 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
   const canDraw = gameState.deck.length > 0 && gameState.segments.some(canPlaceInSegment);
 
   const handleDraw = async () => {
-    // Simulate client-side draw to preview the card; don't write yet.
-    // We "peek" by copying the first card; the real write happens in handlePlace.
     const first = gameState.deck[0];
     if (!first) return;
     if (first.kind === 'exitPoll') {
       const second = gameState.deck[1];
       if (!second) {
-        // Exit Poll is last card — no placement. Fire drawAndPlace with any key; actions.ts skips placement.
         setBusy(true);
         try {
-          // Pass the first available segment key — drawAndPlace will short-circuit.
           await drawAndPlace(gameState.segments[0].key);
         } finally {
           setBusy(false);
@@ -62,54 +72,75 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
 
   if (pending) {
     return (
-      <Stack spacing={1} sx={{ p: 2, border: '1px solid #333' }}>
-        {pending.exitPollTriggered && (
-          <Typography color="warning.main">Exit Poll triggered — FINAL ROUND</Typography>
-        )}
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Typography>You drew:</Typography>
-          <Card card={pending.card} />
-        </Stack>
-        {pending.card.kind === 'bloc' && (
-          <Typography sx={{ fontStyle: 'italic' }}>
-            We want: "{DEMANDS[pending.card.color]?.[pending.card.value]}"
+      <Section dense>
+        <Stack spacing={2}>
+          {pending.exitPollTriggered && (
+            <Typography variant="body1" sx={{ color: 'error.main', fontWeight: 700 }}>
+              Exit Poll triggered — FINAL ROUND
+            </Typography>
+          )}
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+            You drew
           </Typography>
-        )}
-        <Typography>Place in which segment?</Typography>
-        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-          {gameState.segments.map((s) => (
-            <Button
-              key={s.key}
-              variant="contained"
-              disabled={busy || !canPlaceInSegment(s)}
-              onClick={() => handlePlace(s.key)}
+          <Box sx={{ alignSelf: 'flex-start' }}>
+            <Card card={pending.card} />
+          </Box>
+          {pending.card.kind === 'bloc' && (
+            <Typography
+              variant="body1"
+              sx={{ fontFamily: '"Playfair Display", Georgia, serif', fontStyle: 'italic' }}
             >
-              {s.label}
-            </Button>
-          ))}
+              We want: "{DEMANDS[pending.card.color]?.[pending.card.value]}"
+            </Typography>
+          )}
+          <RuledDivider label="place in" />
+          <Stack spacing={1}>
+            {gameState.segments.map((s) => (
+              <Button
+                key={s.key}
+                variant="contained"
+                color="primary"
+                disabled={busy || !canPlaceInSegment(s)}
+                onClick={() => handlePlace(s.key)}
+                sx={{ py: 1.5 }}
+              >
+                {s.label}
+              </Button>
+            ))}
+          </Stack>
         </Stack>
-      </Stack>
+      </Section>
     );
   }
 
   return (
-    <Stack spacing={1} sx={{ p: 2, border: '1px solid #333' }}>
-      <Button variant="contained" onClick={handleDraw} disabled={busy || !canDraw}>
-        Draw
-      </Button>
-      <Typography>— or claim a segment:</Typography>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {gameState.segments.map((s) => (
-          <Button
-            key={s.key}
-            variant="outlined"
-            disabled={busy || !canClaimSegment(s)}
-            onClick={() => handleClaim(s.key)}
-          >
-            Claim {s.label}
-          </Button>
-        ))}
+    <Section dense>
+      <Stack spacing={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleDraw}
+          disabled={busy || !canDraw}
+          sx={{ py: 1.75 }}
+        >
+          Draw
+        </Button>
+        <RuledDivider label="or claim" />
+        <Stack spacing={1}>
+          {gameState.segments.map((s) => (
+            <Button
+              key={s.key}
+              variant="contained"
+              color="claim"
+              disabled={busy || !canClaimSegment(s)}
+              onClick={() => handleClaim(s.key)}
+              sx={{ py: 1.5 }}
+            >
+              Claim {s.label}
+            </Button>
+          ))}
+        </Stack>
       </Stack>
-    </Stack>
+    </Section>
   );
 }
