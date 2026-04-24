@@ -6,6 +6,7 @@ import { FullscreenToggle } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
 import { DrawPile } from '../components/big-screen/DrawPile';
+import { HeadlineFeed } from '../components/big-screen/HeadlineFeed';
 import { PublicCoalitions } from '../components/big-screen/PublicCoalitions';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
 import { WinnerScreen } from '../components/big-screen/WinnerScreen';
@@ -45,6 +46,7 @@ export default function BigScreenPage() {
       </Typography>
       <DrawPile remaining={gameState.deck.length} />
       <VoterSegments segments={gameState.segments} />
+      <HeadlineFeed headlines={gameState.headlines} />
       <PublicCoalitions rows={rows} />
       <Leaderboard rows={rows} />
       {gameState.phase === 'ended' && gameState.scoreBreakdown && gameState.winnerIds && (
