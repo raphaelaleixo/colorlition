@@ -127,8 +127,9 @@ export default function BigScreenPage() {
       </Stack>
 
       <HeadlineTicker
-        headlines={gameState.headlines}
+        lastHeadline={gameState.lastHeadline}
         currentPlayerName={currentPlayer?.name ?? currentPlayerId}
+        currentPlayerIndex={gameState.currentPlayerIndex}
       />
     </Stack>
   );

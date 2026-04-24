@@ -68,7 +68,7 @@ export type ColorlitionGameState = {
   playerState: Record<string, PerPlayerState>;
   winnerIds: string[] | null;
   scoreBreakdown: ScoreBreakdown[] | null;
-  headlines: Headline[];
+  lastHeadline: Headline | null;
 };
 
 export type ColorlitionPlayerData = Record<string, never>; // empty in v1

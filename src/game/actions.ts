@@ -98,9 +98,8 @@ export function drawAndPlace(
   }
   const segmentBefore = { ...seg, cards: seg.cards.slice(), claimedBy: seg.claimedBy };
   seg.cards.push(card);
-  const seq = next.headlines.length;
-  const headline = deriveHeadline(segmentBefore, seg, card, next.roundNumber, seq);
-  if (headline) next.headlines.push(headline);
+  const headline = deriveHeadline(segmentBefore, seg, card, next.roundNumber, 0);
+  if (headline) next.lastHeadline = headline;
 
   // Implicit Exit Poll: if deck is empty after a non-exit-poll draw, mark final round.
   if (next.deck.length === 0 && !next.exitPollDrawn) {
@@ -158,6 +157,6 @@ export function buildInitialGameState(
     playerState,
     winnerIds: null,
     scoreBreakdown: null,
-    headlines: [],
+    lastHeadline: null,
   };
 }

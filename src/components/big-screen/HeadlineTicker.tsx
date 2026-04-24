@@ -9,49 +9,76 @@ const tickerKeyframes = keyframes`
   to { transform: translateX(-50%); }
 `;
 
-function buildPlaceholderEntry(currentPlayerName: string): Headline {
-  return {
-    id: 'placeholder',
-    kind: 'rising_demand',
-    segmentKey: 'industrial',
-    roundNumber: 0,
-    text: `Newsroom is waiting for ${currentPlayerName} to make next move`,
-  };
+// Rotating phrasings for "X is next to act" — rotates per turn so the ticker
+// feels alive rather than repeating the same phrase. Expand this list freely
+// to add more flavor; order doesn't matter since we index by turn count.
+const NEXT_VARIATIONS: Array<(name: string) => string> = [
+  (n) => `${n} is next to act`,
+  (n) => `Next on the floor: ${n}`,
+  (n) => `Newsroom awaits ${n}`,
+  (n) => `${n} on the clock`,
+  (n) => `All eyes on ${n}`,
+  (n) => `${n} steps to the rostrum`,
+  (n) => `The chamber turns to ${n}`,
+  (n) => `Cameras roll for ${n}`,
+  (n) => `Press corps leans in as ${n} deliberates`,
+  (n) => `${n} holds the floor`,
+  (n) => `The wire awaits ${n}`,
+  (n) => `${n} considers the next move`,
+  (n) => `${n} takes the podium`,
+  (n) => `Reporters crowd around ${n}`,
+  (n) => `${n} weighs their options`,
+];
+
+// Turn index alone would give the same phrasing whenever a given player comes
+// up. Mixing in a name hash breaks that pattern so players see different
+// phrasings across turns even if the rotation aligns unfavorably.
+function variationIndex(name: string, turnIndex: number): number {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 997;
+  return (hash + turnIndex) % NEXT_VARIATIONS.length;
+}
+
+function pickNextPhrase(name: string, turnIndex: number): string {
+  const fn = NEXT_VARIATIONS[variationIndex(name, turnIndex)];
+  return fn(name);
 }
 
 // Repeat enough that the scrolling track is always wider than the viewport —
-// prevents empty gaps when the headline list is short. Aim for at least ~4
+// prevents empty gaps when the source list is short. Aim for at least ~4
 // items in the "base set" before doubling for the seamless loop.
 function repeatCountFor(itemCount: number): number {
   return Math.max(1, Math.ceil(4 / Math.max(1, itemCount)));
 }
 
-// Duration tuned so scroll speed stays around ~100px/s regardless of list size.
+// Duration tuned so scroll speed stays around ~100px/s regardless of size.
 function tickerDurationSeconds(doubledCount: number): number {
   return Math.max(20, doubledCount * 4);
 }
 
 type Props = {
-  headlines: Headline[];
+  lastHeadline: Headline | null;
   currentPlayerName: string;
+  currentPlayerIndex: number;
 };
 
-export function HeadlineTicker({ headlines, currentPlayerName }: Props) {
-  // Firebase RTDB can return arrays as objects in some edge cases. Coerce
-  // so .length / .map never silently yield undefined.
-  const list: Headline[] = Array.isArray(headlines)
-    ? headlines
-    : Object.values((headlines ?? {}) as Record<string, Headline>);
+export function HeadlineTicker({
+  lastHeadline,
+  currentPlayerName,
+  currentPlayerIndex,
+}: Props) {
+  const nextPhrase = pickNextPhrase(currentPlayerName, currentPlayerIndex);
 
-  // If there are no real headlines, use the placeholder as the single entry
-  // so the ticker still animates — styled identically to real headlines.
-  const source: Headline[] =
-    list.length === 0 ? [buildPlaceholderEntry(currentPlayerName)] : list;
+  // Source is always at least the next-to-act line. If we have a real
+  // headline stored, append its text so the ticker alternates:
+  // "<next-to-act> • <last headline> • <next-to-act> • …"
+  const sourceTexts: string[] = [nextPhrase];
+  if (lastHeadline) sourceTexts.push(lastHeadline.text);
 
-  const repeat = repeatCountFor(source.length);
-  const base: Headline[] = [];
-  for (let i = 0; i < repeat; i++) base.push(...source);
-  const doubled: Headline[] = [...base, ...base];
+  const repeat = repeatCountFor(sourceTexts.length);
+  const base: string[] = [];
+  for (let i = 0; i < repeat; i++) base.push(...sourceTexts);
+  const doubled: string[] = [...base, ...base];
   const duration = tickerDurationSeconds(doubled.length);
 
   return (
@@ -106,9 +133,9 @@ export function HeadlineTicker({ headlines, currentPlayerName }: Props) {
             '&:hover': { animationPlayState: 'paused' },
           }}
         >
-          {doubled.map((h, i) => (
+          {doubled.map((text, i) => (
             <Stack
-              key={`${h.id}-${i}`}
+              key={`item-${i}`}
               direction="row"
               sx={{ alignItems: 'center', mr: 5 }}
             >
@@ -124,7 +151,7 @@ export function HeadlineTicker({ headlines, currentPlayerName }: Props) {
                   lineHeight: 1,
                 }}
               >
-                {h.text}
+                {text}
               </Typography>
               <Typography
                 component="span"
