@@ -5,7 +5,7 @@ import type { SxProps, Theme } from '@mui/material/styles';
 // stays high so each color remains identifiable, but lightness is pulled
 // down enough that white labels are legible. Yellow reads as deep mustard,
 // orange as rust; that's the cost of AA compliance. Pivot and Grant share
-// one "neutral" ink swatch. Exit Poll is a deeper alert-crimson distinct
+// one neutral ink swatch. Exit Poll is a deeper alert-crimson distinct
 // from bloc red.
 
 export type ChipKey =
@@ -20,28 +20,25 @@ export type ChipKey =
   | 'grant'
   | 'exitPoll';
 
-type Swatch = { bg: string; fg: string };
+const NEUTRAL = '#222222';
 
-const NEUTRAL: Swatch = { bg: '#222222', fg: '#ffffff' };
-
-export const PALETTE: Record<ChipKey, Swatch> = {
-  red:      { bg: '#A82929', fg: '#ffffff' },
-  purple:   { bg: '#7333B8', fg: '#ffffff' },
-  green:    { bg: '#1F7540', fg: '#ffffff' },
-  blue:     { bg: '#235A9E', fg: '#ffffff' },
-  orange:   { bg: '#A45A22', fg: '#ffffff' },
-  yellow:   { bg: '#8A6C14', fg: '#ffffff' },
-  grey:     { bg: '#5A5A5A', fg: '#ffffff' },
+export const PALETTE: Record<ChipKey, string> = {
+  red:      '#A82929',
+  purple:   '#7333B8',
+  green:    '#1F7540',
+  blue:     '#235A9E',
+  orange:   '#A45A22',
+  yellow:   '#8A6C14',
+  grey:     '#5A5A5A',
   pivot:    NEUTRAL,
   grant:    NEUTRAL,
-  exitPoll: { bg: '#911414', fg: '#ffffff' },
+  exitPoll: '#911414',
 };
 
 export function chipSxFor(key: ChipKey): SxProps<Theme> {
-  const { bg, fg } = PALETTE[key];
   return {
-    backgroundColor: bg,
-    color: fg,
+    backgroundColor: PALETTE[key],
+    color: '#ffffff',
     fontWeight: 500,
   };
 }
