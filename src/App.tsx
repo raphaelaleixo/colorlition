@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import { GameProvider } from './contexts/GameContext';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LobbyPage = lazy(() => import('./pages/LobbyPage'));
@@ -36,9 +37,11 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Suspense fallback={<RouteFallback />}>
-        <RouterProvider router={router} />
-      </Suspense>
+      <GameProvider>
+        <Suspense fallback={<RouteFallback />}>
+          <RouterProvider router={router} />
+        </Suspense>
+      </GameProvider>
     </ThemeProvider>
   );
 }
