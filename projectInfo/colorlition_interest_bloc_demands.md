@@ -8,6 +8,8 @@
 5. [cite_start]"We want worker-led boards for every major company"[cite: 1607, 2939].
 6. [cite_start]"We want a total jubilee on all consumer debts"[cite: 1607, 2940].
 7. [cite_start]"We want a maximum wealth cap for all citizens"[cite: 1608, 2941].
+8. "We want all rental properties seized for public housing".
+9. "We want a total ban on inherited wealth".
 
 ### ✊ Social Equality (Purple)
 1. [cite_start]"We want compulsory land redistribution for reparations"[cite: 1608, 2941].
@@ -17,6 +19,8 @@
 5. [cite_start]"We want the removal of all colonial-era monuments"[cite: 1610, 2944].
 6. [cite_start]"We want autonomous zones for indigenous self-governance"[cite: 1610, 2944].
 7. [cite_start]"We want the legalization of all personal-use substances"[cite: 1610, 2945].
+8. "We want the national flag and anthem replaced".
+9. "We want a monthly reparations check for all".
 
 ### 🌿 Sustainability (Green)
 1. [cite_start]"We want the cattle industry shuttered in the Amazon"[cite: 1611, 2945].
@@ -26,6 +30,8 @@
 5. [cite_start]"We want a total ban on chemical fertilizers nationwide"[cite: 1613, 2948].
 6. [cite_start]"We want life sentences for the crime of 'Ecocide'"[cite: 1613, 2949].
 7. [cite_start]"We want hydroelectric dams dismantled to restore our rivers"[cite: 1613, 2950].
+8. "We want a total ban on private jets and yachts".
+9. "We want denial of climate science criminalized".
 
 ### 📈 The Market (Blue)
 1. [cite_start]"We want the privatization of all water and healthcare"[cite: 1614, 2951].
@@ -35,6 +41,8 @@
 5. [cite_start]"We want zero corporate taxes for the next ten years"[cite: 1616, 2954].
 6. [cite_start]"We want AI-governance to replace the federal bureaucracy"[cite: 1616, 2955].
 7. [cite_start]"We want the inheritance tax zeroed-out to protect families"[cite: 1617, 2955].
+8. "We want the central bank privatized".
+9. "We want all labor unions abolished".
 
 ### 🚜 Agribusiness (Orange)
 1. [cite_start]"We want legalized private militias for property defense"[cite: 1617, 2956].
@@ -44,6 +52,8 @@
 5. [cite_start]"We want urban water diverted to our crop irrigation"[cite: 1619, 2959].
 6. [cite_start]"We want zero environmental licensing for new farms"[cite: 1619, 2959].
 7. [cite_start]"We want the arming of all rural workers for self-defense"[cite: 1619, 2960].
+8. "We want the right to sell land to foreign buyers".
+9. "We want environmental laws removed from farms".
 
 ### 🛡️ Security & Order (Yellow)
 1. [cite_start]"We want total legal immunity for police actions on duty"[cite: 1620, 2961].
@@ -53,6 +63,8 @@
 5. [cite_start]"We want offshore prison colonies for gang leadership"[cite: 1621, 2964].
 6. [cite_start]"We want a mandatory digital ID for all public travel"[cite: 1622, 2965].
 7. [cite_start]"We want the military deployed against strikes and protests"[cite: 1622, 2965].
+8. "We want a public loyalty score for every citizen".
+9. "We want all private encryption banned".
 
 ### ⛪ Traditionalists (Grey)
 1. [cite_start]"We want all 'Gender-Ideology' banned from public libraries"[cite: 1623, 2966].
@@ -62,3 +74,5 @@
 5. [cite_start]"We want mandatory prayer before every legislative session"[cite: 1624, 2969].
 6. [cite_start]"We want a tax on childless couples to fund large families"[cite: 1624, 2970].
 7. [cite_start]"We want a withdrawal from all international treaties"[cite: 1625, 2971].
+8. "We want marriage restricted to religious union".
+9. "We want all 'anti-traditional' media censored".
