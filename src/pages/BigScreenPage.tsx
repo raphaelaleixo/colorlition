@@ -6,6 +6,8 @@ import { FullscreenToggle } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
 import { DrawPile } from '../components/big-screen/DrawPile';
+import { PublicCoalitions } from '../components/big-screen/PublicCoalitions';
+import { Leaderboard } from '../components/big-screen/Leaderboard';
 
 export default function BigScreenPage() {
   const { id } = useParams();
@@ -19,6 +21,12 @@ export default function BigScreenPage() {
 
   const currentPlayerId = gameState.turnOrder[gameState.currentPlayerIndex];
   const currentPlayer = roomState.players.find((p) => String(p.id) === currentPlayerId);
+
+  const rows = gameState.turnOrder.map((pid) => ({
+    playerId: pid,
+    name: roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`,
+    base: gameState.playerState[pid]?.base ?? [],
+  }));
 
   return (
     <Stack spacing={2} sx={{ p: 4 }}>
@@ -36,6 +44,8 @@ export default function BigScreenPage() {
       </Typography>
       <DrawPile remaining={gameState.deck.length} />
       <VoterSegments segments={gameState.segments} />
+      <PublicCoalitions rows={rows} />
+      <Leaderboard rows={rows} />
     </Stack>
   );
 }
