@@ -1,17 +1,11 @@
+import { useEffect, useRef, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { keyframes } from '@emotion/react';
 import type { Headline } from '../../game/types';
 
-const tickerKeyframes = keyframes`
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-`;
-
 // Rotating phrasings for "X is next to act" — rotates per turn so the ticker
-// feels alive rather than repeating the same phrase. Expand this list freely
-// to add more flavor; order doesn't matter since we index by turn count.
+// feels alive rather than repeating the same phrase.
 const NEXT_VARIATIONS: Array<(name: string) => string> = [
   (n) => `${n} is next to act`,
   (n) => `Next on the floor: ${n}`,
@@ -30,9 +24,6 @@ const NEXT_VARIATIONS: Array<(name: string) => string> = [
   (n) => `${n} weighs their options`,
 ];
 
-// Turn index alone would give the same phrasing whenever a given player comes
-// up. Mixing in a name hash breaks that pattern so players see different
-// phrasings across turns even if the rotation aligns unfavorably.
 function variationIndex(name: string, turnIndex: number): number {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 997;
@@ -44,17 +35,13 @@ function pickNextPhrase(name: string, turnIndex: number): string {
   return fn(name);
 }
 
-// Repeat enough that the scrolling track is always wider than the viewport —
-// prevents empty gaps when the source list is short. Aim for at least ~4
-// items in the "base set" before doubling for the seamless loop.
-function repeatCountFor(itemCount: number): number {
-  return Math.max(1, Math.ceil(4 / Math.max(1, itemCount)));
-}
+// Scroll speed in px/sec.
+const SCROLL_SPEED = 100;
+// Number of copies of the initial phrase used to seed the track on mount.
+// Enough to fill a ~2x 1920px viewport at typical phrase widths.
+const SEED_COPIES = 6;
 
-// Duration tuned so scroll speed stays around ~100px/s regardless of size.
-function tickerDurationSeconds(doubledCount: number): number {
-  return Math.max(20, doubledCount * 4);
-}
+type TickerItem = { id: number; text: string };
 
 type Props = {
   lastHeadline: Headline | null;
@@ -67,19 +54,66 @@ export function HeadlineTicker({
   currentPlayerName,
   currentPlayerIndex,
 }: Props) {
-  const nextPhrase = pickNextPhrase(currentPlayerName, currentPlayerIndex);
+  const [items, setItems] = useState<TickerItem[]>([]);
+  const seqRef = useRef(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const hoverRef = useRef(false);
+  const lastFedPhraseKey = useRef<string | null>(null);
+  const lastFedHeadlineId = useRef<string | null>(null);
 
-  // Source is always at least the next-to-act line. If we have a real
-  // headline stored, append its text so the ticker alternates:
-  // "<next-to-act> • <last headline> • <next-to-act> • …"
-  const sourceTexts: string[] = [nextPhrase];
-  if (lastHeadline) sourceTexts.push(lastHeadline.text);
+  // Seed the track on mount so the first render isn't empty.
+  useEffect(() => {
+    const phrase = pickNextPhrase(currentPlayerName, currentPlayerIndex);
+    const seeds: TickerItem[] = [];
+    for (let i = 0; i < SEED_COPIES; i++) {
+      seeds.push({ id: seqRef.current++, text: phrase });
+    }
+    setItems(seeds);
+    lastFedPhraseKey.current = `${currentPlayerName}:${currentPlayerIndex}`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const repeat = repeatCountFor(sourceTexts.length);
-  const base: string[] = [];
-  for (let i = 0; i < repeat; i++) base.push(...sourceTexts);
-  const doubled: string[] = [...base, ...base];
-  const duration = tickerDurationSeconds(doubled.length);
+  // Append a new item whenever the current-player phrase changes, or a new
+  // headline arrives. Never remove existing items — they just keep scrolling
+  // out on the left.
+  useEffect(() => {
+    const phrase = pickNextPhrase(currentPlayerName, currentPlayerIndex);
+    const phraseKey = `${currentPlayerName}:${currentPlayerIndex}`;
+
+    const additions: TickerItem[] = [];
+    if (lastFedPhraseKey.current !== null && lastFedPhraseKey.current !== phraseKey) {
+      additions.push({ id: seqRef.current++, text: phrase });
+      lastFedPhraseKey.current = phraseKey;
+    }
+    if (lastHeadline && lastFedHeadlineId.current !== lastHeadline.id) {
+      additions.push({ id: seqRef.current++, text: lastHeadline.text });
+      lastFedHeadlineId.current = lastHeadline.id;
+    }
+    if (additions.length > 0) {
+      setItems((prev) => [...prev, ...additions]);
+    }
+  }, [lastHeadline, currentPlayerName, currentPlayerIndex]);
+
+  // rAF scroll loop — translates the track left at a constant pixel rate.
+  // Runs once on mount; the growing `items` array doesn't restart the loop.
+  useEffect(() => {
+    let raf = 0;
+    let prev = performance.now();
+    const tick = (now: number) => {
+      const dt = now - prev;
+      prev = now;
+      if (!hoverRef.current) {
+        offsetRef.current -= (SCROLL_SPEED * dt) / 1000;
+      }
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translateX(${offsetRef.current}px)`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   return (
     <Stack
@@ -120,8 +154,15 @@ export function HeadlineTicker({
           display: 'flex',
           alignItems: 'center',
         }}
+        onMouseEnter={() => {
+          hoverRef.current = true;
+        }}
+        onMouseLeave={() => {
+          hoverRef.current = false;
+        }}
       >
         <Box
+          ref={trackRef}
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -129,13 +170,11 @@ export function HeadlineTicker({
             flexShrink: 0,
             whiteSpace: 'nowrap',
             willChange: 'transform',
-            animation: `${tickerKeyframes} ${duration}s linear infinite`,
-            '&:hover': { animationPlayState: 'paused' },
           }}
         >
-          {doubled.map((text, i) => (
+          {items.map((item) => (
             <Stack
-              key={`item-${i}`}
+              key={item.id}
               direction="row"
               sx={{ alignItems: 'center', mr: 5 }}
             >
@@ -151,7 +190,7 @@ export function HeadlineTicker({
                   lineHeight: 1,
                 }}
               >
-                {text}
+                {item.text}
               </Typography>
               <Typography
                 component="span"
