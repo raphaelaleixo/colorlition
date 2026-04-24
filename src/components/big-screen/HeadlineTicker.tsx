@@ -1,7 +1,13 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { keyframes } from '@emotion/react';
 import type { Headline } from '../../game/types';
+
+const tickerKeyframes = keyframes`
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+`;
 
 const EMPTY_PLACEHOLDER = 'The wire is quiet. Awaiting the first move…';
 
@@ -78,11 +84,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
               display: 'inline-flex',
               whiteSpace: 'nowrap',
               alignItems: 'center',
-              animation: `ticker ${duration}s linear infinite`,
-              '@keyframes ticker': {
-                '0%': { transform: 'translateX(0)' },
-                '100%': { transform: 'translateX(-50%)' },
-              },
+              animation: `${tickerKeyframes} ${duration}s linear infinite`,
               '&:hover': { animationPlayState: 'paused' },
             }}
           >
