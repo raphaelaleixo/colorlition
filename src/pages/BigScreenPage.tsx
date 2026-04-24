@@ -33,9 +33,7 @@ export default function BigScreenPage() {
 
   return (
     <Stack
-      spacing={2}
       sx={{
-        p: 4,
         display: 'flex',
         flexDirection: 'column',
         height: { xs: 'auto', lg: '100vh' },
@@ -43,6 +41,17 @@ export default function BigScreenPage() {
         overflow: { xs: 'visible', lg: 'hidden' },
       }}
     >
+      <Stack
+        spacing={2}
+        sx={{
+          p: 4,
+          flex: { xs: 'none', lg: '1 1 auto' },
+          minHeight: 0,
+          overflow: { xs: 'visible', lg: 'hidden' },
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
       <Stack
         direction="row"
         sx={{
@@ -115,10 +124,9 @@ export default function BigScreenPage() {
           }
         />
       )}
+      </Stack>
 
-      <Box sx={{ mx: -4, mb: -4 }}>
-        <HeadlineTicker headlines={gameState.headlines} />
-      </Box>
+      <HeadlineTicker headlines={gameState.headlines} />
     </Stack>
   );
 }
