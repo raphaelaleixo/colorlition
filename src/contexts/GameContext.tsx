@@ -25,8 +25,14 @@ import {
   type RoomState,
 } from 'react-gameroom';
 import { database } from '../firebase';
-import { MIN_PLAYERS, MAX_PLAYERS, SEGMENT_NAMES } from '../game/constants';
-import { createShuffledDeck } from '../game/deck';
+import { MIN_PLAYERS, MAX_PLAYERS, SEGMENT_NAMES, EXCLUDE_COLOR_AT_PLAYERS } from '../game/constants';
+import {
+  buildDeck,
+  shuffle,
+  placeExitPoll,
+  pickStartingHands,
+  pickRandomColor,
+} from '../game/deck';
 import {
   buildInitialGameState,
   drawAndPlace as drawAndPlacePure,
@@ -194,8 +200,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (turnOrder.length < MIN_PLAYERS) {
       throw new Error(`Need at least ${MIN_PLAYERS} players to start`);
     }
-    const deck = createShuffledDeck();
-    const newGameState = buildInitialGameState(deck, turnOrder, SEGMENT_NAMES);
+
+    // At EXCLUDE_COLOR_AT_PLAYERS (= 3), drop one random color from the deck entirely.
+    const excludedColor =
+      turnOrder.length === EXCLUDE_COLOR_AT_PLAYERS ? pickRandomColor() : undefined;
+
+    // Build deck (with any excluded color gone), deal one starting bloc to each
+    // player (each a distinct color, not the excluded one), then shuffle and
+    // place the Exit Poll in the remaining deck.
+    const fullDeck = buildDeck(excludedColor);
+    const { deck: afterDealing, hands } = pickStartingHands(fullDeck, turnOrder, excludedColor);
+    const finalDeck = placeExitPoll(shuffle(afterDealing));
+
+    const newGameState = buildInitialGameState(finalDeck, turnOrder, SEGMENT_NAMES, hands);
 
     await set(ref(database, `rooms/${roomId}/room`), started);
     await set(ref(database, `rooms/${roomId}/game`), newGameState);

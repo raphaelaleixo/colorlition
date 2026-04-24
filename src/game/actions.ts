@@ -127,6 +127,7 @@ export function buildInitialGameState(
   deck: Card[],
   turnOrder: string[],
   segmentKeys: ReadonlyArray<{ key: SegmentKey; label: string }>,
+  startingHands: Record<string, Card> = {},
 ): ColorlitionGameState {
   const playerCount = turnOrder.length;
   const segments: Segment[] = segmentKeys.slice(0, playerCount).map((s) => ({
@@ -137,7 +138,8 @@ export function buildInitialGameState(
   }));
   const playerState: ColorlitionGameState['playerState'] = {};
   for (const pid of turnOrder) {
-    playerState[pid] = { base: [], roundStatus: 'active' };
+    const starter = startingHands[pid];
+    playerState[pid] = { base: starter ? [starter] : [], roundStatus: 'active' };
   }
   return {
     phase: 'turn',
