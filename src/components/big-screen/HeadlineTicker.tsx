@@ -56,9 +56,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
       direction="row"
       sx={{
         flex: 'none',
-        borderTop: '1px solid',
-        borderColor: 'rule.strong',
-        bgcolor: 'background.default',
+        bgcolor: 'text.primary',
         alignItems: 'stretch',
         height: 80,
       }}
@@ -69,7 +67,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
           display: 'flex',
           alignItems: 'center',
           borderRight: '1px solid',
-          borderColor: 'rule.hair',
+          borderColor: 'rgba(250, 248, 243, 0.2)',
         }}
       >
         <Typography
@@ -121,7 +119,9 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   fontFamily: isEmpty
                     ? '"Playfair Display", Georgia, serif'
                     : undefined,
-                  color: isEmpty ? 'text.secondary' : 'text.primary',
+                  color: isEmpty
+                    ? 'rgba(250, 248, 243, 0.65)'
+                    : 'background.default',
                   lineHeight: 1,
                 }}
               >
@@ -133,7 +133,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   ml: 5,
                   fontSize: 28,
                   fontWeight: 700,
-                  color: 'error.main',
+                  color: 'background.default',
                   lineHeight: 1,
                 }}
               >

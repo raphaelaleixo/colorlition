@@ -116,7 +116,9 @@ export default function BigScreenPage() {
         />
       )}
 
-      <HeadlineTicker headlines={gameState.headlines} />
+      <Box sx={{ mx: -4, mb: -4 }}>
+        <HeadlineTicker headlines={gameState.headlines} />
+      </Box>
     </Stack>
   );
 }
