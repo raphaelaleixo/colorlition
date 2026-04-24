@@ -32,7 +32,37 @@ import {
   drawAndPlace as drawAndPlacePure,
   claim as claimPure,
 } from '../game/actions';
-import type { ColorlitionGameState, ColorlitionPlayerData, SegmentKey } from '../game/types';
+import type { ColorlitionGameState, ColorlitionPlayerData, SegmentKey, Segment, PerPlayerState } from '../game/types';
+
+// Firebase RTDB drops empty arrays and null values on write, so a freshly-stored
+// game state comes back with missing `cards`, `claimedBy`, `base`, etc. Restore
+// them so downstream code can trust the shape.
+function normalizeGameState(raw: ColorlitionGameState | null | undefined): ColorlitionGameState | null {
+  if (!raw) return null;
+  const segments: Segment[] = (raw.segments ?? []).map((s) => ({
+    key: s.key,
+    label: s.label,
+    cards: s.cards ?? [],
+    claimedBy: s.claimedBy ?? null,
+  }));
+  const playerState: Record<string, PerPlayerState> = {};
+  for (const [pid, ps] of Object.entries(raw.playerState ?? {})) {
+    playerState[pid] = {
+      base: ps?.base ?? [],
+      roundStatus: ps?.roundStatus ?? 'active',
+    };
+  }
+  return {
+    ...raw,
+    deck: raw.deck ?? [],
+    segments,
+    turnOrder: raw.turnOrder ?? [],
+    playerState,
+    exitPollDrawn: raw.exitPollDrawn ?? false,
+    winnerIds: raw.winnerIds ?? null,
+    scoreBreakdown: raw.scoreBreakdown ?? null,
+  };
+}
 
 export interface GameContextValue {
   roomState: RoomState<ColorlitionPlayerData> | null;
@@ -83,7 +113,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             setRoomState(data.room as RoomState<ColorlitionPlayerData>);
           }
         }
-        setGameState((data.game as ColorlitionGameState | null) ?? null);
+        setGameState(normalizeGameState(data.game as ColorlitionGameState | null));
         setLoading(false);
       },
       (err) => {
