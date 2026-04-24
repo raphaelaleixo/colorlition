@@ -97,6 +97,12 @@ export function drawAndPlace(
   }
   seg.cards.push(card);
 
+  // Implicit Exit Poll: if deck is empty after a non-exit-poll draw, mark final round.
+  if (next.deck.length === 0 && !next.exitPollDrawn) {
+    next.exitPollDrawn = true;
+    next.phase = 'finalRound';
+  }
+
   return advanceTurn(next);
 }
 
