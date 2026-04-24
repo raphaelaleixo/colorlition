@@ -36,13 +36,24 @@ export default function PlayerPage() {
   const myBase = gameState.playerState[playerId]?.base ?? [];
   const myRoundStatus = gameState.playerState[playerId]?.roundStatus ?? 'active';
 
+  if (gameState.phase === 'ended') {
+    const didWin = gameState.winnerIds?.includes(playerId) ?? false;
+    return (
+      <Stack spacing={2} sx={{ p: 2 }}>
+        <Typography variant="h5">{myName}</Typography>
+        <Typography variant="h4" color={didWin ? 'success.main' : 'text.primary'}>
+          {didWin ? 'You won!' : 'Game over'}
+        </Typography>
+        <CoalitionBase base={myBase} />
+      </Stack>
+    );
+  }
+
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
       <Typography variant="h5">{myName}</Typography>
       <Typography>
-        {gameState.phase === 'ended'
-          ? 'Game over.'
-          : isMyTurn
+        {isMyTurn
           ? 'Your turn.'
           : myRoundStatus === 'claimed'
           ? 'You claimed this round. Waiting…'
