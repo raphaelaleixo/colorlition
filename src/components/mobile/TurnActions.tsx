@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment, canClaimSegment } from '../../game/actions';
+import { Card } from '../shared/Card';
 import type { ColorlitionGameState, Card as GameCard, SegmentKey } from '../../game/types';
 
 type PendingDraw = { card: GameCard; exitPollTriggered: boolean };
@@ -64,9 +65,10 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
         {pending.exitPollTriggered && (
           <Typography color="warning.main">Exit Poll triggered — FINAL ROUND</Typography>
         )}
-        <Typography>
-          You drew: {pending.card.kind === 'bloc' ? `${pending.card.color} #${pending.card.value}` : pending.card.kind}
-        </Typography>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Typography>You drew:</Typography>
+          <Card card={pending.card} />
+        </Stack>
         <Typography>Place in which segment?</Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
           {gameState.segments.map((s) => (
