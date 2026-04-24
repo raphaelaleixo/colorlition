@@ -36,7 +36,7 @@ export default function JoinPage() {
 
   return (
     <Stack spacing={2} sx={{ p: 4, maxWidth: 480 }}>
-      <Typography variant="h4">Join Game</Typography>
+      <Typography variant="h2">Join Game</Typography>
       {!id && (
         <TextField
           label="Room ID"

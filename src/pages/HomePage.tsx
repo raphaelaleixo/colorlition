@@ -22,10 +22,12 @@ export default function HomePage() {
   }, [createRoom, navigate]);
 
   return (
-    <Stack spacing={2} sx={{ p: 4, alignItems: 'flex-start' }}>
-      <Typography variant="h3">Color-lition</Typography>
-      <Typography>Create a new game. Players join by scanning the QR code on the next screen.</Typography>
-      <Button variant="contained" onClick={handleCreate} disabled={busy}>
+    <Stack spacing={4} sx={{ p: 6, alignItems: 'flex-start', maxWidth: 640 }}>
+      <Typography variant="h1">Color-lition</Typography>
+      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+        Create a new game. Players join by scanning the QR code on the next screen.
+      </Typography>
+      <Button variant="contained" color="primary" onClick={handleCreate} disabled={busy} sx={{ px: 4, py: 1.5 }}>
         {busy ? 'Creating…' : 'Create Game'}
       </Button>
     </Stack>

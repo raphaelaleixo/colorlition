@@ -34,8 +34,31 @@ export default function LobbyPage() {
 
   return (
     <Stack spacing={3} sx={{ p: 4 }}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Room {id}</Typography>
+      <Stack
+        direction="row"
+        spacing={3}
+        sx={{
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          pb: 2,
+          borderBottom: '2px solid',
+          borderColor: 'rule.ink',
+        }}
+      >
+        <Stack direction="row" spacing={4} sx={{ alignItems: 'baseline' }}>
+          <Typography variant="h1">Color-lition</Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+            <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+              Room
+            </Typography>
+            <Typography
+              variant="h2"
+              sx={{ letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1" }}
+            >
+              {id}
+            </Typography>
+          </Stack>
+        </Stack>
         <FullscreenToggle />
       </Stack>
 
