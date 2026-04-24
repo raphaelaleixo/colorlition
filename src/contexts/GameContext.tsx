@@ -67,6 +67,7 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
     exitPollDrawn: raw.exitPollDrawn ?? false,
     winnerIds: raw.winnerIds ?? null,
     scoreBreakdown: raw.scoreBreakdown ?? null,
+    headlines: raw.headlines ?? [],
   };
 }
 

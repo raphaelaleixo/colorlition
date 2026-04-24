@@ -46,6 +46,16 @@ export type ScoreBreakdown = {
   total: number;
 };
 
+export type HeadlineKind = 'rising_demand' | 'tense_alliance' | 'segment_full';
+
+export type Headline = {
+  id: string;
+  kind: HeadlineKind;
+  segmentKey: SegmentKey;
+  roundNumber: number;
+  text: string;
+};
+
 export type ColorlitionGameState = {
   phase: Phase;
   deck: Card[];
@@ -58,6 +68,7 @@ export type ColorlitionGameState = {
   playerState: Record<string, PerPlayerState>;
   winnerIds: string[] | null;
   scoreBreakdown: ScoreBreakdown[] | null;
+  headlines: Headline[];
 };
 
 export type ColorlitionPlayerData = Record<string, never>; // empty in v1

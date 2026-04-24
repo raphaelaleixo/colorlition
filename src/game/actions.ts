@@ -153,5 +153,6 @@ export function buildInitialGameState(
     playerState,
     winnerIds: null,
     scoreBreakdown: null,
+    headlines: [],
   };
 }
