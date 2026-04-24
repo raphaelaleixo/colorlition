@@ -8,6 +8,7 @@ import { VoterSegments } from '../components/big-screen/VoterSegments';
 import { DrawPile } from '../components/big-screen/DrawPile';
 import { PublicCoalitions } from '../components/big-screen/PublicCoalitions';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
+import { WinnerScreen } from '../components/big-screen/WinnerScreen';
 
 export default function BigScreenPage() {
   const { id } = useParams();
@@ -46,6 +47,15 @@ export default function BigScreenPage() {
       <VoterSegments segments={gameState.segments} />
       <PublicCoalitions rows={rows} />
       <Leaderboard rows={rows} />
+      {gameState.phase === 'ended' && gameState.scoreBreakdown && gameState.winnerIds && (
+        <WinnerScreen
+          breakdowns={gameState.scoreBreakdown}
+          winnerIds={gameState.winnerIds}
+          nameFor={(pid) =>
+            roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`
+          }
+        />
+      )}
     </Stack>
   );
 }
