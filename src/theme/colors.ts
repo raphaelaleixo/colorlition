@@ -1,9 +1,10 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 
-// Muted, print-journalism-inspired palette. All hues share a similar
-// saturation range (~35-55%) and lightness (~45-60%) so they sit together
-// without clashing. Pivot is ink-black, Grant is paper-cream, Exit Poll is
-// an urgent crimson — each visually distinct from the seven bloc colors.
+// Saturated journalism palette. Bloc hues sit around S=60-75%, L=45-55% so
+// they read as clearly-distinct colors without feeling neon. Pivot and Grant
+// share a single "neutral" ink swatch — together they're the non-color cards,
+// set visually apart from any of the seven blocs. Exit Poll is a deeper
+// alert-crimson that's distinct from bloc red.
 
 export type ChipKey =
   | 'red'
@@ -19,17 +20,19 @@ export type ChipKey =
 
 type Swatch = { bg: string; fg: string };
 
+const NEUTRAL: Swatch = { bg: '#222222', fg: '#ffffff' };
+
 export const PALETTE: Record<ChipKey, Swatch> = {
-  red:      { bg: '#BF4040', fg: '#ffffff' },
-  purple:   { bg: '#7359A3', fg: '#ffffff' },
-  green:    { bg: '#4A9464', fg: '#ffffff' },
-  blue:     { bg: '#407AA6', fg: '#ffffff' },
-  orange:   { bg: '#D99640', fg: '#1a1a1a' },
-  yellow:   { bg: '#D9B859', fg: '#1a1a1a' },
-  grey:     { bg: '#8C8C8C', fg: '#ffffff' },
-  pivot:    { bg: '#262626', fg: '#ffffff' },
-  grant:    { bg: '#F2EFE6', fg: '#1a1a1a' },
-  exitPoll: { bg: '#B01F1F', fg: '#ffffff' },
+  red:      { bg: '#D12B2B', fg: '#ffffff' },
+  purple:   { bg: '#8A3FC2', fg: '#ffffff' },
+  green:    { bg: '#2E9E56', fg: '#ffffff' },
+  blue:     { bg: '#2970BA', fg: '#ffffff' },
+  orange:   { bg: '#E68433', fg: '#1a1a1a' },
+  yellow:   { bg: '#E6BC33', fg: '#1a1a1a' },
+  grey:     { bg: '#808080', fg: '#ffffff' },
+  pivot:    NEUTRAL,
+  grant:    NEUTRAL,
+  exitPoll: { bg: '#B81818', fg: '#ffffff' },
 };
 
 export function chipSxFor(key: ChipKey): SxProps<Theme> {
@@ -37,7 +40,6 @@ export function chipSxFor(key: ChipKey): SxProps<Theme> {
   return {
     backgroundColor: bg,
     color: fg,
-    border: key === 'grant' ? '1px solid #d9d4c5' : 'none',
     fontWeight: 500,
   };
 }
