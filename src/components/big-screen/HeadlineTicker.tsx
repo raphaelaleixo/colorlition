@@ -119,8 +119,8 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   color: isEmpty
-                    ? 'rgba(139, 26, 26, 0.7)'
-                    : 'error.main',
+                    ? 'rgba(255, 255, 255, 0.6)'
+                    : 'common.white',
                   lineHeight: 1,
                 }}
               >
