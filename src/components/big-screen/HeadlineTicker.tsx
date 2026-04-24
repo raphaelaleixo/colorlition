@@ -5,17 +5,29 @@ import type { Headline } from '../../game/types';
 
 const EMPTY_PLACEHOLDER = 'The wire is quiet. Awaiting the first move…';
 
-// Duration scales with headline count so the crawl speed stays readable at
-// any list size. One headline gets ~8s of screen time on average.
-function tickerDurationSeconds(count: number): number {
-  return Math.max(30, count * 8);
+// Repeat enough that the scrolling track is always wider than the viewport —
+// prevents empty gaps when the headline list is short. Formula: aim for at
+// least ~4 items in the "base set" before doubling for the seamless loop.
+function repeatCountFor(itemCount: number): number {
+  return Math.max(1, Math.ceil(4 / Math.max(1, itemCount)));
+}
+
+// Duration tuned so scroll speed stays around ~100px/s regardless of list size.
+function tickerDurationSeconds(doubledCount: number): number {
+  return Math.max(20, doubledCount * 4);
 }
 
 export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
   const hasContent = headlines.length > 0;
-  // Duplicate the list so translateX(-50%) produces a seamless loop.
-  const doubled = hasContent ? [...headlines, ...headlines] : [];
-  const duration = tickerDurationSeconds(headlines.length);
+  let doubled: Headline[] = [];
+  let duration = 30;
+  if (hasContent) {
+    const repeat = repeatCountFor(headlines.length);
+    const base: Headline[] = [];
+    for (let i = 0; i < repeat; i++) base.push(...headlines);
+    doubled = [...base, ...base];
+    duration = tickerDurationSeconds(doubled.length);
+  }
 
   return (
     <Stack
@@ -26,7 +38,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
         borderColor: 'rule.strong',
         bgcolor: 'background.default',
         alignItems: 'stretch',
-        height: 56,
+        height: 80,
       }}
     >
       <Box
@@ -38,7 +50,15 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
           borderColor: 'rule.hair',
         }}
       >
-        <Typography variant="overline" sx={{ color: 'error.main' }}>
+        <Typography
+          sx={{
+            color: 'error.main',
+            textTransform: 'uppercase',
+            letterSpacing: '0.12em',
+            fontWeight: 700,
+            fontSize: 18,
+          }}
+        >
           Headlines
         </Typography>
       </Box>
@@ -57,6 +77,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
             sx={{
               display: 'inline-flex',
               whiteSpace: 'nowrap',
+              alignItems: 'center',
               animation: `ticker ${duration}s linear infinite`,
               '@keyframes ticker': {
                 '0%': { transform: 'translateX(0)' },
@@ -69,15 +90,23 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
               <Stack
                 key={`${h.id}-${i}`}
                 direction="row"
-                sx={{ alignItems: 'center', mr: 4 }}
+                sx={{ alignItems: 'center', mr: 5 }}
               >
-                <Typography variant="body1" component="span">
+                <Typography
+                  component="span"
+                  sx={{ fontSize: 28, fontWeight: 600, lineHeight: 1 }}
+                >
                   {h.text}
                 </Typography>
                 <Typography
-                  variant="body1"
                   component="span"
-                  sx={{ ml: 4, color: 'text.secondary' }}
+                  sx={{
+                    ml: 5,
+                    fontSize: 28,
+                    fontWeight: 700,
+                    color: 'error.main',
+                    lineHeight: 1,
+                  }}
                 >
                   •
                 </Typography>
@@ -86,12 +115,12 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
           </Box>
         ) : (
           <Typography
-            variant="body1"
             sx={{
               px: 3,
               color: 'text.secondary',
               fontFamily: '"Playfair Display", Georgia, serif',
               fontStyle: 'italic',
+              fontSize: 22,
             }}
           >
             {EMPTY_PLACEHOLDER}
