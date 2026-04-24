@@ -11,6 +11,7 @@ import {
 import {
   ref,
   set,
+  update,
   onValue,
   get,
   type Unsubscribe,
@@ -18,13 +19,20 @@ import {
 import {
   createInitialRoom,
   joinPlayer,
+  startGame as startGameRoom,
   findFirstEmptySlot,
   deserializeRoom,
   type RoomState,
 } from 'react-gameroom';
 import { database } from '../firebase';
-import { MIN_PLAYERS, MAX_PLAYERS } from '../game/constants';
-import type { ColorlitionGameState, ColorlitionPlayerData } from '../game/types';
+import { MIN_PLAYERS, MAX_PLAYERS, SEGMENT_NAMES } from '../game/constants';
+import { createShuffledDeck } from '../game/deck';
+import {
+  buildInitialGameState,
+  drawAndPlace as drawAndPlacePure,
+  claim as claimPure,
+} from '../game/actions';
+import type { ColorlitionGameState, ColorlitionPlayerData, SegmentKey } from '../game/types';
 
 export interface GameContextValue {
   roomState: RoomState<ColorlitionPlayerData> | null;
@@ -33,6 +41,9 @@ export interface GameContextValue {
   createRoom: () => Promise<string>;
   loadRoom: (roomId: string) => void;
   joinRoom: (roomId: string, name: string) => Promise<number>;
+  startTheGame: () => Promise<void>;
+  drawAndPlace: (segmentKey: SegmentKey) => Promise<void>;
+  claim: (segmentKey: SegmentKey) => Promise<void>;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -120,9 +131,49 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return emptySlot.id;
   }, []);
 
+  const startTheGame = useCallback(async () => {
+    if (!roomState) return;
+    const roomId = roomState.roomId;
+    const started = startGameRoom(roomState);
+    const readyPlayers = roomState.players.filter((p) => p.status === 'ready');
+    const turnOrder = readyPlayers.map((p) => String(p.id));
+    if (turnOrder.length < MIN_PLAYERS) {
+      throw new Error(`Need at least ${MIN_PLAYERS} players to start`);
+    }
+    const deck = createShuffledDeck();
+    const newGameState = buildInitialGameState(deck, turnOrder, SEGMENT_NAMES);
+
+    await set(ref(database, `rooms/${roomId}/room`), started);
+    await set(ref(database, `rooms/${roomId}/game`), newGameState);
+  }, [roomState]);
+
+  const drawAndPlace = useCallback(async (segmentKey: SegmentKey) => {
+    if (!roomState || !gameState) return;
+    if (gameState.phase !== 'turn' && gameState.phase !== 'finalRound') return;
+    const nextGame = drawAndPlacePure(gameState, segmentKey);
+    await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
+  }, [roomState, gameState]);
+
+  const claim = useCallback(async (segmentKey: SegmentKey) => {
+    if (!roomState || !gameState) return;
+    if (gameState.phase !== 'turn' && gameState.phase !== 'finalRound') return;
+    const nextGame = claimPure(gameState, segmentKey);
+    await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
+  }, [roomState, gameState]);
+
   return (
     <GameContext.Provider
-      value={{ roomState, gameState, loading, createRoom, loadRoom, joinRoom }}
+      value={{
+        roomState,
+        gameState,
+        loading,
+        createRoom,
+        loadRoom,
+        joinRoom,
+        startTheGame,
+        drawAndPlace,
+        claim,
+      }}
     >
       {children}
     </GameContext.Provider>
