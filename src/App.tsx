@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, type RouteObject } from 'react-router-dom';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme/theme';
 import CssBaseline from '@mui/material/CssBaseline';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -23,7 +24,6 @@ const routes: RouteObject[] = [
 ];
 
 const router = createBrowserRouter(routes);
-const theme = createTheme({});
 
 function RouteFallback() {
   return (
