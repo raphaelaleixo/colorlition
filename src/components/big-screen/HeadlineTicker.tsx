@@ -114,13 +114,13 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                 component="span"
                 sx={{
                   fontSize: 28,
-                  fontWeight: 600,
+                  fontWeight: 800,
                   fontFamily: '"Source Sans 3", system-ui, sans-serif',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
+                  letterSpacing: '0.12em',
                   color: isEmpty
-                    ? 'rgba(250, 248, 243, 0.65)'
-                    : 'background.default',
+                    ? 'rgba(255, 255, 255, 0.6)'
+                    : 'common.white',
                   lineHeight: 1,
                 }}
               >
@@ -131,8 +131,8 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                 sx={{
                   ml: 5,
                   fontSize: 28,
-                  fontWeight: 700,
-                  color: 'background.default',
+                  fontWeight: 800,
+                  color: 'common.white',
                   lineHeight: 1,
                 }}
               >
