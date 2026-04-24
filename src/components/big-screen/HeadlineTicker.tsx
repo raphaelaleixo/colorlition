@@ -41,9 +41,8 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
     : Object.values((headlines ?? {}) as Record<string, Headline>);
 
   // If there are no real headlines, use the placeholder as the single entry
-  // so the ticker still animates.
-  const isEmpty = list.length === 0;
-  const source: Headline[] = isEmpty ? [PLACEHOLDER_ENTRY] : list;
+  // so the ticker still animates — styled identically to real headlines.
+  const source: Headline[] = list.length === 0 ? [PLACEHOLDER_ENTRY] : list;
 
   const repeat = repeatCountFor(source.length);
   const base: Headline[] = [];
@@ -118,9 +117,7 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   fontFamily: '"Source Sans 3", system-ui, sans-serif',
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
-                  color: isEmpty
-                    ? 'rgba(255, 255, 255, 0.6)'
-                    : 'common.white',
+                  color: 'common.white',
                   lineHeight: 1,
                 }}
               >
