@@ -46,7 +46,6 @@ export default function BigScreenPage() {
       </Typography>
       <DrawPile remaining={gameState.deck.length} />
       <VoterSegments segments={gameState.segments} />
-      <HeadlineFeed headlines={gameState.headlines} />
       <PublicCoalitions rows={rows} />
       <Leaderboard rows={rows} />
       {gameState.phase === 'ended' && gameState.scoreBreakdown && gameState.winnerIds && (
@@ -58,6 +57,7 @@ export default function BigScreenPage() {
           }
         />
       )}
+      <HeadlineFeed headlines={gameState.headlines} />
     </Stack>
   );
 }
