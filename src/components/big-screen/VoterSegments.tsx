@@ -6,7 +6,7 @@ export function VoterSegments({ segments }: { segments: Segment[] }) {
   return (
     <Stack spacing={1}>
       {segments.map((s) => (
-        <SegmentRow key={s.key} segment={s} />
+        <SegmentRow key={s.key} segment={s} showDemand />
       ))}
     </Stack>
   );

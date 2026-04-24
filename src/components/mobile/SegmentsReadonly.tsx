@@ -8,7 +8,7 @@ export function SegmentsReadonly({ segments }: { segments: Segment[] }) {
     <Stack spacing={1}>
       <Typography variant="h6">Voter Segments</Typography>
       {segments.map((s) => (
-        <SegmentRow key={s.key} segment={s} />
+        <SegmentRow key={s.key} segment={s} showDemand />
       ))}
     </Stack>
   );
