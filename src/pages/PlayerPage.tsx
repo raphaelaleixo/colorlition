@@ -71,12 +71,31 @@ export default function PlayerPage() {
     );
   }
 
-  const myName = mySlot.name ?? `Player ${playerId}`;
-
   if (!gameState) {
     return (
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography variant="h5">{myName}</Typography>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            pb: 1,
+            borderBottom: '1px solid',
+            borderColor: 'rule.hair',
+          }}
+        >
+          <Typography variant="h5">Color-lition</Typography>
+          <Typography
+            variant="overline"
+            sx={{
+              color: 'text.secondary',
+              fontFeatureSettings: "'tnum' 1",
+            }}
+          >
+            {id} · Seat {playerId}
+          </Typography>
+        </Stack>
         <WaitingView message="Waiting for the host to start the game…" />
       </Stack>
     );
@@ -92,7 +111,28 @@ export default function PlayerPage() {
     const didWin = gameState.winnerIds?.includes(playerId) ?? false;
     return (
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography variant="h5">{myName}</Typography>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            pb: 1,
+            borderBottom: '1px solid',
+            borderColor: 'rule.hair',
+          }}
+        >
+          <Typography variant="h5">Color-lition</Typography>
+          <Typography
+            variant="overline"
+            sx={{
+              color: 'text.secondary',
+              fontFeatureSettings: "'tnum' 1",
+            }}
+          >
+            {id} · Seat {playerId}
+          </Typography>
+        </Stack>
         <Typography variant="h4" color={didWin ? 'success.main' : 'text.primary'}>
           {didWin ? 'You won!' : 'Game over'}
         </Typography>
@@ -102,9 +142,36 @@ export default function PlayerPage() {
   }
 
   return (
-    <Stack spacing={2} sx={{ p: 2 }}>
-      <Typography variant="h5">{myName}</Typography>
-      <Typography>
+    <Stack spacing={2.5} sx={{ p: 2 }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          pb: 1,
+          borderBottom: '1px solid',
+          borderColor: 'rule.hair',
+        }}
+      >
+        <Typography variant="h5">Color-lition</Typography>
+        <Typography
+          variant="overline"
+          sx={{
+            color: 'text.secondary',
+            fontFeatureSettings: "'tnum' 1",
+          }}
+        >
+          {id} · Seat {playerId}
+        </Typography>
+      </Stack>
+      <Typography
+        variant="body1"
+        sx={{
+          fontWeight: isMyTurn ? 700 : 400,
+          color: isMyTurn ? 'text.primary' : 'text.secondary',
+        }}
+      >
         {isMyTurn
           ? 'Your turn.'
           : myRoundStatus === 'claimed'
