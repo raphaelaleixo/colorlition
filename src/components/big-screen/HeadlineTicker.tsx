@@ -118,7 +118,9 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
                   fontStyle: isEmpty ? 'italic' : 'normal',
                   fontFamily: isEmpty
                     ? '"Playfair Display", Georgia, serif'
-                    : undefined,
+                    : '"Source Sans 3", system-ui, sans-serif',
+                  textTransform: isEmpty ? 'none' : 'uppercase',
+                  letterSpacing: isEmpty ? 'normal' : '0.04em',
                   color: isEmpty
                     ? 'rgba(250, 248, 243, 0.65)'
                     : 'background.default',
