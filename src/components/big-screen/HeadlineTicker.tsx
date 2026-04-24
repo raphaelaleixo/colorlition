@@ -81,9 +81,12 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
         {hasContent ? (
           <Box
             sx={{
-              display: 'inline-flex',
-              whiteSpace: 'nowrap',
+              display: 'flex',
               alignItems: 'center',
+              width: 'max-content',
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
+              willChange: 'transform',
               animation: `${tickerKeyframes} ${duration}s linear infinite`,
               '&:hover': { animationPlayState: 'paused' },
             }}
