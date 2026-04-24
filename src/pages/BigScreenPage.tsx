@@ -6,9 +6,7 @@ import Typography from '@mui/material/Typography';
 import { FullscreenToggle } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
-import { DrawPile } from '../components/big-screen/DrawPile';
 import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
-import { PublicCoalitions } from '../components/big-screen/PublicCoalitions';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
 import { WinnerScreen } from '../components/big-screen/WinnerScreen';
 
@@ -107,10 +105,8 @@ export default function BigScreenPage() {
       >
         <Stack spacing={2} sx={{ minHeight: 0, overflow: 'hidden' }}>
           <VoterSegments segments={gameState.segments} />
-          <PublicCoalitions rows={rows} />
         </Stack>
         <Stack spacing={2} sx={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <DrawPile remaining={gameState.deck.length} />
           <Leaderboard rows={rows} />
         </Stack>
       </Box>
