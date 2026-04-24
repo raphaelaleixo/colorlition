@@ -9,17 +9,27 @@ export function SegmentRow({ segment, showDemand = false }: Props) {
   return (
     <Stack
       direction="row"
-      spacing={1}
-      sx={{ p: 1, border: '1px solid #ccc', alignItems: 'flex-start' }}
+      spacing={2}
+      sx={{
+        alignItems: 'flex-start',
+        py: 1.5,
+        borderBottom: '1px solid',
+        borderColor: 'rule.hair',
+        '&:last-of-type': { borderBottom: 'none' },
+      }}
     >
-      <Typography sx={{ minWidth: 200, pt: 0.5 }}>{segment.label}</Typography>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+      <Typography variant="h5" sx={{ minWidth: 200, pt: 0.25 }}>
+        {segment.label}
+      </Typography>
+      <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap', flex: 1 }}>
         {segment.cards.map((c) => (
           <Card key={c.id} card={c} showDemand={showDemand} />
         ))}
       </Stack>
       {segment.claimedBy !== null && (
-        <Typography sx={{ ml: 2, pt: 0.5 }}>— claimed by #{segment.claimedBy}</Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', pt: 0.5 }}>
+          claimed by #{segment.claimedBy}
+        </Typography>
       )}
     </Stack>
   );

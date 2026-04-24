@@ -1,6 +1,7 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { projectedMandate } from '../../game/scoring';
+import { Section } from '../shared/Section';
 import type { Card } from '../../game/types';
 
 export type LeaderRow = {
@@ -14,20 +15,31 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
     .map((r) => ({ ...r, total: projectedMandate(r.base) }))
     .sort((a, b) => b.total - a.total);
   return (
-    <Stack spacing={1}>
-      <Typography variant="h6">Projected Mandate</Typography>
+    <Section heading="Projected Mandate" dense>
       {scored.map((r, idx) => (
         <Stack
           key={r.playerId}
           direction="row"
-          sx={{ p: 1, border: '1px solid #ccc', justifyContent: 'space-between' }}
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            py: 1,
+            borderBottom: '1px solid',
+            borderColor: 'rule.hair',
+            '&:last-of-type': { borderBottom: 'none' },
+          }}
         >
-          <Typography>
+          <Typography variant="body1">
             {idx + 1}. {r.name}
           </Typography>
-          <Typography>{r.total}</Typography>
+          <Typography
+            variant="h4"
+            sx={{ fontFeatureSettings: "'tnum' 1" }}
+          >
+            {r.total}
+          </Typography>
         </Stack>
       ))}
-    </Stack>
+    </Section>
   );
 }

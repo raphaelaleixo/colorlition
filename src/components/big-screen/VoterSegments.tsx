@@ -1,13 +1,13 @@
-import Stack from '@mui/material/Stack';
 import { SegmentRow } from '../shared/SegmentRow';
+import { Section } from '../shared/Section';
 import type { Segment } from '../../game/types';
 
 export function VoterSegments({ segments }: { segments: Segment[] }) {
   return (
-    <Stack spacing={1}>
+    <Section heading="Voter Segments">
       {segments.map((s) => (
         <SegmentRow key={s.key} segment={s} showDemand />
       ))}
-    </Stack>
+    </Section>
   );
 }

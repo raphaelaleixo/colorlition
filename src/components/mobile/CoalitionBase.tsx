@@ -4,14 +4,18 @@ import Chip from '@mui/material/Chip';
 import { summarizeCoalition } from '../../game/summarize';
 import { chipSxFor, type ChipKey } from '../../theme/colors';
 import { labelFor, type LabelKey } from '../../game/data/demands';
+import { Section } from '../shared/Section';
 import type { Card as GameCard } from '../../game/types';
 
 export function CoalitionBase({ base }: { base: GameCard[] }) {
   const rows = summarizeCoalition(base);
   return (
-    <Stack spacing={1}>
-      <Typography variant="h6">Your Coalition</Typography>
-      {rows.length === 0 && <Typography sx={{ color: 'text.secondary' }}>(empty)</Typography>}
+    <Section heading="Your Coalition" dense>
+      {rows.length === 0 && (
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          (empty)
+        </Typography>
+      )}
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         {rows.map((r) => (
           <Chip
@@ -21,6 +25,6 @@ export function CoalitionBase({ base }: { base: GameCard[] }) {
           />
         ))}
       </Stack>
-    </Stack>
+    </Section>
   );
 }
