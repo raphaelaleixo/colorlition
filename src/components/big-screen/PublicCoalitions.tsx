@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { summarizeCoalition } from '../../game/summarize';
+import { chipSxFor, type ChipKey } from '../../theme/colors';
 import type { Card as GameCard } from '../../game/types';
 
 export type CoalitionRow = {
@@ -29,7 +30,11 @@ export function PublicCoalitions({ rows }: { rows: CoalitionRow[] }) {
             )}
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
               {summary.map((s) => (
-                <Chip key={s.label} label={`${s.label} (${s.count})`} />
+                <Chip
+                  key={s.label}
+                  label={`${s.label} (${s.count})`}
+                  sx={chipSxFor(s.label as ChipKey)}
+                />
               ))}
             </Stack>
           </Stack>
