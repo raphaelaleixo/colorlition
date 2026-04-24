@@ -9,17 +9,15 @@ const tickerKeyframes = keyframes`
   to { transform: translateX(-50%); }
 `;
 
-const EMPTY_PLACEHOLDER_TEXT = 'The wire is quiet. Awaiting the first move…';
-
-// Synthesized "headline" used when there are no real ones yet — keeps the
-// ticker animating so the user sees it's a live chyron rather than a panel.
-const PLACEHOLDER_ENTRY: Headline = {
-  id: 'placeholder',
-  kind: 'rising_demand',
-  segmentKey: 'industrial',
-  roundNumber: 0,
-  text: EMPTY_PLACEHOLDER_TEXT,
-};
+function buildPlaceholderEntry(currentPlayerName: string): Headline {
+  return {
+    id: 'placeholder',
+    kind: 'rising_demand',
+    segmentKey: 'industrial',
+    roundNumber: 0,
+    text: `Newsroom is waiting for ${currentPlayerName} to make next move`,
+  };
+}
 
 // Repeat enough that the scrolling track is always wider than the viewport —
 // prevents empty gaps when the headline list is short. Aim for at least ~4
@@ -33,7 +31,12 @@ function tickerDurationSeconds(doubledCount: number): number {
   return Math.max(20, doubledCount * 4);
 }
 
-export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
+type Props = {
+  headlines: Headline[];
+  currentPlayerName: string;
+};
+
+export function HeadlineTicker({ headlines, currentPlayerName }: Props) {
   // Firebase RTDB can return arrays as objects in some edge cases. Coerce
   // so .length / .map never silently yield undefined.
   const list: Headline[] = Array.isArray(headlines)
@@ -42,7 +45,8 @@ export function HeadlineTicker({ headlines }: { headlines: Headline[] }) {
 
   // If there are no real headlines, use the placeholder as the single entry
   // so the ticker still animates — styled identically to real headlines.
-  const source: Headline[] = list.length === 0 ? [PLACEHOLDER_ENTRY] : list;
+  const source: Headline[] =
+    list.length === 0 ? [buildPlaceholderEntry(currentPlayerName)] : list;
 
   const repeat = repeatCountFor(source.length);
   const base: Headline[] = [];
