@@ -1,6 +1,7 @@
 import { CARDS_PER_SEGMENT } from './constants';
 import { computeWinners } from './scoring';
 import type { ColorlitionGameState, SegmentKey, Card, Segment } from './types';
+import { deriveHeadline } from './headlines';
 
 function deepClone<T>(v: T): T {
   return JSON.parse(JSON.stringify(v)) as T;
@@ -95,7 +96,11 @@ export function drawAndPlace(
     // it happens, surface via error rather than silently corrupting state.
     throw new Error(`drawAndPlace: invalid segment target ${segmentKey}`);
   }
+  const segmentBefore = { ...seg, cards: seg.cards.slice(), claimedBy: seg.claimedBy };
   seg.cards.push(card);
+  const seq = next.headlines.length;
+  const headline = deriveHeadline(segmentBefore, seg, card, next.roundNumber, seq);
+  if (headline) next.headlines.push(headline);
 
   // Implicit Exit Poll: if deck is empty after a non-exit-poll draw, mark final round.
   if (next.deck.length === 0 && !next.exitPollDrawn) {
