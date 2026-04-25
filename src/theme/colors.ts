@@ -1,13 +1,13 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 import type { IconType } from 'react-icons';
 import {
-  PiHandFistBold,
-  PiTreeBold,
-  PiUsersFourBold,
-  PiMoneyWavyBold,
-  PiTractorBold,
-  PiShieldCheckeredBold,
-  PiChurchBold,
+  PiHandFist,
+  PiTree,
+  PiUsersFour,
+  PiMoneyWavy,
+  PiTractor,
+  PiShieldCheckered,
+  PiChurch,
 } from 'react-icons/pi';
 import type { Color } from '../game/types';
 
@@ -55,11 +55,11 @@ export function chipSxFor(key: ChipKey): SxProps<Theme> {
 }
 
 export const COLOR_ICONS: Record<Color, IconType> = {
-  red: PiHandFistBold,
-  green: PiTreeBold,
-  purple: PiUsersFourBold,
-  blue: PiMoneyWavyBold,
-  orange: PiTractorBold,
-  yellow: PiShieldCheckeredBold,
-  grey: PiChurchBold,
+  red: PiHandFist,
+  green: PiTree,
+  purple: PiUsersFour,
+  blue: PiMoneyWavy,
+  orange: PiTractor,
+  yellow: PiShieldCheckered,
+  grey: PiChurch,
 };
