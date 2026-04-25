@@ -8,7 +8,7 @@ import type { Card as GameCard } from "../../game/types";
 import type { ChipKey } from "../../theme/colors";
 
 type Size = "small" | "medium";
-type Props = { card: GameCard; showDemand?: boolean; size?: Size };
+type Props = { card: GameCard; showDemand?: boolean; size?: Size; fluid?: boolean };
 
 function keyFor(card: GameCard): ChipKey {
   if (card.kind === "bloc") return card.color;
@@ -17,7 +17,7 @@ function keyFor(card: GameCard): ChipKey {
   return "exitPoll";
 }
 
-export function Card({ card, showDemand = false, size = "small" }: Props) {
+export function Card({ card, showDemand = false, size = "small", fluid = false }: Props) {
   const key = keyFor(card);
   const Icon = card.kind === "bloc" ? COLOR_ICONS[card.color] : undefined;
 
@@ -25,15 +25,15 @@ export function Card({ card, showDemand = false, size = "small" }: Props) {
     return (
       <Box
         sx={{
-          width: 56,
-          height: 80,
+          ...(fluid
+            ? { flex: 1, minWidth: 0, aspectRatio: "7 / 10" }
+            : { width: 56, height: 80, flexShrink: 0 }),
           borderRadius: 1.25,
           backgroundColor: PALETTE[key],
           color: "#ffffff",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          flexShrink: 0,
           boxShadow: "0 1px 2px rgba(0,0,0,0.12)",
         }}
       >
