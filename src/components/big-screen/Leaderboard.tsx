@@ -1,9 +1,10 @@
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { scorePlayer } from '../../game/scoring';
 import { Section } from '../shared/Section';
-import { PALETTE } from '../../theme/colors';
+import { PALETTE, chipSxFor } from '../../theme/colors';
 import type { Card, Color } from '../../game/types';
 
 export type LeaderRow = {
@@ -12,33 +13,43 @@ export type LeaderRow = {
   base: Card[];
 };
 
-function orderWaffle(base: Card[], positive: Color[], negative: Color[]): Card[] {
+function orderBlocs(base: Card[], positive: Color[], negative: Color[]): Card[] {
   const out: Card[] = [];
   for (const color of [...positive, ...negative]) {
     for (const card of base) {
       if (card.kind === 'bloc' && card.color === color) out.push(card);
     }
   }
-  for (const card of base) if (card.kind === 'pivot') out.push(card);
-  for (const card of base) if (card.kind === 'grant') out.push(card);
   return out;
 }
 
-function fillFor(card: Card): string {
-  if (card.kind === 'bloc') return PALETTE[card.color];
-  if (card.kind === 'pivot') return '#1A1613';
-  if (card.kind === 'grant') return '#6B625A';
-  return '#6B625A';
-}
+const WAFFLE_SLOTS = 30;
 
 function Waffle({ cards }: { cards: Card[] }) {
-  if (cards.length === 0) return null;
+  const empty = Math.max(0, WAFFLE_SLOTS - cards.length);
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '2px', pt: 0.75 }}>
-      {cards.map((card, i) => (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(10, 10px)',
+        gridAutoRows: '10px',
+        gap: '2px',
+      }}
+    >
+      {cards.slice(0, WAFFLE_SLOTS).map((card, i) => (
         <Box
           key={`${card.id}-${i}`}
-          sx={{ width: 10, height: 10, backgroundColor: fillFor(card) }}
+          sx={{
+            width: 10,
+            height: 10,
+            backgroundColor: card.kind === 'bloc' ? PALETTE[card.color] : 'rule.hair',
+          }}
+        />
+      ))}
+      {Array.from({ length: empty }).map((_, i) => (
+        <Box
+          key={`empty-${i}`}
+          sx={{ width: 10, height: 10, backgroundColor: 'rule.hair' }}
         />
       ))}
     </Box>
@@ -58,32 +69,43 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
     })
     .sort((a, b) => b.total - a.total);
   return (
-    <Section heading="Projected Mandate" dense>
-      {scored.map((r, idx) => (
-        <Stack
-          key={r.playerId}
-          spacing={0.5}
-          sx={{
-            py: 1,
-            borderBottom: '1px solid',
-            borderColor: 'rule.hair',
-            '&:last-of-type': { borderBottom: 'none' },
-          }}
-        >
+    <Section heading="Current Campaign" dense>
+      {scored.map((r, idx) => {
+        const grants = r.base.filter((c) => c.kind === 'grant').length;
+        const pivots = r.base.filter((c) => c.kind === 'pivot').length;
+        return (
           <Stack
+            key={r.playerId}
             direction="row"
-            sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}
+            spacing={2}
+            sx={{
+              py: 1,
+              alignItems: 'center',
+              borderBottom: '1px solid',
+              borderColor: 'rule.hair',
+              '&:last-of-type': { borderBottom: 'none' },
+            }}
           >
-            <Typography variant="body1">
-              {idx + 1}. {r.name}
-            </Typography>
-            <Typography variant="h4" sx={{ fontFeatureSettings: "'tnum' 1" }}>
-              {r.total}
-            </Typography>
+            <Stack sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="body1" noWrap>
+                {idx + 1}. {r.name}
+              </Typography>
+              <Typography variant="h4" sx={{ fontFeatureSettings: "'tnum' 1" }}>
+                {r.total}
+              </Typography>
+            </Stack>
+            <Waffle cards={orderBlocs(r.base, r.positiveColors, r.negativeColors)} />
+            <Stack spacing={0.5} sx={{ minWidth: 90 }}>
+              {grants > 0 && (
+                <Chip size="small" label={`Grants × ${grants}`} sx={chipSxFor('grant')} />
+              )}
+              {pivots > 0 && (
+                <Chip size="small" label={`Pivots × ${pivots}`} sx={chipSxFor('pivot')} />
+              )}
+            </Stack>
           </Stack>
-          <Waffle cards={orderWaffle(r.base, r.positiveColors, r.negativeColors)} />
-        </Stack>
-      ))}
+        );
+      })}
     </Section>
   );
 }
