@@ -95,7 +95,8 @@ export function HeadlineTicker({
   useEffect(() => {
     const news = buildNews(currentPlayerName, currentPlayerIndex, lastHeadline);
     newsRef.current = news;
-    newsCursorRef.current = 0;
+    // Cursor counts items already emitted; the seed emits news[0], so start at 1.
+    newsCursorRef.current = 1;
     lastNewsKeyRef.current = `${currentPlayerName}:${currentPlayerIndex}|${lastHeadline?.id ?? ''}`;
     if (viewportRef.current) {
       offsetRef.current = viewportRef.current.getBoundingClientRect().width;
@@ -170,7 +171,10 @@ export function HeadlineTicker({
     };
 
     const tick = (now: number) => {
-      const dt = now - prev;
+      // Cap dt: when the tab is backgrounded rAF pauses, and the first frame
+      // back would otherwise jump the track by minutes of scroll in one step,
+      // stranding every sentinel off-screen and draining the pipeline.
+      const dt = Math.min(now - prev, 100);
       prev = now;
       if (!hoverRef.current) {
         offsetRef.current -= (SCROLL_SPEED * dt) / 1000;
