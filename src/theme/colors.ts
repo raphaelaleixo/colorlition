@@ -1,4 +1,15 @@
 import type { SxProps, Theme } from '@mui/material/styles';
+import type { IconType } from 'react-icons';
+import {
+  PiHandFistBold,
+  PiTreeBold,
+  PiUsersFourBold,
+  PiMoneyWavyBold,
+  PiTractorBold,
+  PiShieldCheckeredBold,
+  PiChurchBold,
+} from 'react-icons/pi';
+import type { Color } from '../game/types';
 
 // Saturated journalism palette tuned for WCAG AA with white text (contrast
 // ≥ 4.5:1 against #ffffff). Every bloc hue sits at L≈0.13–0.18 — saturation
@@ -42,3 +53,13 @@ export function chipSxFor(key: ChipKey): SxProps<Theme> {
     fontWeight: 500,
   };
 }
+
+export const COLOR_ICONS: Record<Color, IconType> = {
+  red: PiHandFistBold,
+  green: PiTreeBold,
+  purple: PiUsersFourBold,
+  blue: PiMoneyWavyBold,
+  orange: PiTractorBold,
+  yellow: PiShieldCheckeredBold,
+  grey: PiChurchBold,
+};

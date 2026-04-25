@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment, canClaimSegment } from '../../game/actions';
-import { DEMANDS } from '../../game/data/demands';
 import { Card } from '../shared/Card';
 import { Section } from '../shared/Section';
 import type { ColorlitionGameState, Card as GameCard, SegmentKey } from '../../game/types';
@@ -83,16 +82,8 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
             You drew
           </Typography>
           <Box sx={{ alignSelf: 'flex-start' }}>
-            <Card card={pending.card} />
+            <Card card={pending.card} size="medium" showDemand />
           </Box>
-          {pending.card.kind === 'bloc' && (
-            <Typography
-              variant="body1"
-              sx={{ fontFamily: '"Playfair Display", Georgia, serif', fontStyle: 'italic' }}
-            >
-              We want: "{DEMANDS[pending.card.color]?.[pending.card.value]}"
-            </Typography>
-          )}
           <RuledDivider label="place in" />
           <Stack spacing={1}>
             {gameState.segments.map((s) => (
