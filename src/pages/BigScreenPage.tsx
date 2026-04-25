@@ -65,30 +65,50 @@ export default function BigScreenPage() {
           borderColor: 'rule.ink',
         }}
       >
-        <Stack direction="row" spacing={4} sx={{ alignItems: 'baseline' }}>
-          <Typography variant="h1">Color-lition</Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+        <Typography variant="h1" sx={{ fontStyle: 'italic', fontWeight: 900 }}>colorlition</Typography>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
             <Typography variant="overline" sx={{ color: 'text.secondary' }}>
               Room
             </Typography>
             <Typography
               variant="h2"
-              sx={{ letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1" }}
+              sx={{ fontWeight: 900, letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1, 'lnum' 1" }}
             >
               {id}
             </Typography>
           </Stack>
-        </Stack>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'baseline' }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Round {gameState.roundNumber}
-          </Typography>
-          {gameState.exitPollDrawn && (
-            <Typography variant="body2" sx={{ color: 'error.main', fontWeight: 700 }}>
-              FINAL ROUND
-            </Typography>
-          )}
-          <FullscreenToggle />
+          <Box
+            sx={{
+              '& button': {
+                fontFamily: 'inherit',
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'text.primary',
+                background: 'transparent',
+                border: '1px solid',
+                borderColor: 'rule.strong',
+                borderRadius: 0,
+                px: 1.5,
+                py: 0.75,
+                cursor: 'pointer',
+                transition: 'background-color 120ms ease, color 120ms ease',
+                '&:hover': {
+                  backgroundColor: 'text.primary',
+                  color: 'background.default',
+                },
+                '&:focus-visible': {
+                  outline: '2px solid',
+                  outlineColor: 'text.primary',
+                  outlineOffset: 2,
+                },
+              },
+            }}
+          >
+            <FullscreenToggle />
+          </Box>
         </Stack>
       </Stack>
       <Typography variant="h3">
