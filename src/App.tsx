@@ -20,8 +20,14 @@ const routes: RouteObject[] = [
   { path: '/room/:id', element: <LobbyPage /> },
   { path: '/room/:id/play', element: <BigScreenPage /> },
   { path: '/room/:id/player/:playerId', element: <PlayerPage /> },
-  { path: '*', element: <Navigate to="/" replace /> },
 ];
+
+if (import.meta.env.DEV) {
+  const MockBigScreen = lazy(() => import('./pages/MockBigScreen'));
+  routes.push({ path: '/mock/big-screen/:id', element: <MockBigScreen /> });
+}
+
+routes.push({ path: '*', element: <Navigate to="/" replace /> });
 
 const router = createBrowserRouter(routes);
 

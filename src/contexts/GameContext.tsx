@@ -84,7 +84,7 @@ export interface GameContextValue {
   claim: (segmentKey: SegmentKey) => Promise<void>;
 }
 
-const GameContext = createContext<GameContextValue | null>(null);
+export const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [roomState, setRoomState] = useState<RoomState<ColorlitionPlayerData> | null>(null);
