@@ -22,6 +22,8 @@ export default function BigScreenPage() {
 
   const currentPlayerId = gameState.turnOrder[gameState.currentPlayerIndex];
   const currentPlayer = roomState.players.find((p) => String(p.id) === currentPlayerId);
+  const nameFor = (pid: string) =>
+    roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`;
 
   const rows = gameState.turnOrder.map((pid) => ({
     playerId: pid,
@@ -102,7 +104,7 @@ export default function BigScreenPage() {
         }}
       >
         <Stack spacing={2} sx={{ minHeight: 0, overflow: 'hidden' }}>
-          <VoterSegments segments={gameState.segments} />
+          <VoterSegments segments={gameState.segments} nameFor={nameFor} />
         </Stack>
         <Stack spacing={2} sx={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
           <Leaderboard rows={rows} />
@@ -113,9 +115,7 @@ export default function BigScreenPage() {
         <WinnerScreen
           breakdowns={gameState.scoreBreakdown}
           winnerIds={gameState.winnerIds}
-          nameFor={(pid) =>
-            roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`
-          }
+          nameFor={nameFor}
         />
       )}
       </Stack>
