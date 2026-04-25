@@ -88,9 +88,7 @@ export default function BigScreenPage() {
         </Stack>
       </Stack>
       <Typography variant="h3">
-        {gameState.phase === 'ended'
-          ? 'Game over'
-          : `${currentPlayer?.name ?? currentPlayerId}'s turn`}
+        {gameState.phase === 'ended' ? 'Game over' : 'Voter Segments'}
       </Typography>
 
       <Box

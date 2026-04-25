@@ -1,3 +1,4 @@
+import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -9,15 +10,6 @@ import type { ChipKey } from "../../theme/colors";
 type Size = "small" | "medium";
 type Props = { card: GameCard; showDemand?: boolean; size?: Size };
 
-const sizeSx: Record<Size, Record<string, unknown>> = {
-  small: {},
-  medium: {
-    fontSize: 14,
-    height: 40,
-    "& .MuiChip-label": { px: 2 },
-  },
-};
-
 function keyFor(card: GameCard): ChipKey {
   if (card.kind === "bloc") return card.color;
   if (card.kind === "grant") return "grant";
@@ -27,18 +19,51 @@ function keyFor(card: GameCard): ChipKey {
 
 export function Card({ card, showDemand = false, size = "small" }: Props) {
   const key = keyFor(card);
-  const isMedium = size === "medium";
   const Icon = card.kind === "bloc" ? COLOR_ICONS[card.color] : undefined;
+
+  if (size === "small") {
+    return (
+      <Box
+        sx={{
+          width: 56,
+          height: 80,
+          borderRadius: 1.25,
+          backgroundColor: PALETTE[key],
+          color: "#ffffff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: "0 1px 2px rgba(0,0,0,0.12)",
+        }}
+      >
+        {Icon && <Icon size={32} />}
+        {!Icon && card.kind === "grant" && (
+          <Typography variant="h5" sx={{ color: "inherit", fontWeight: 700 }}>
+            +2
+          </Typography>
+        )}
+        {!Icon && card.kind === "pivot" && (
+          <Typography variant="h5" sx={{ color: "inherit", fontWeight: 700 }}>
+            P
+          </Typography>
+        )}
+      </Box>
+    );
+  }
+
   const chip = (
     <Chip
-      icon={Icon ? <Icon size={isMedium ? 18 : 14} /> : undefined}
+      icon={Icon ? <Icon size={18} /> : undefined}
       label={labelFor(key)}
       sx={{
         backgroundColor: PALETTE[key],
         color: "#ffffff",
         fontWeight: 500,
+        fontSize: 14,
+        height: 40,
+        "& .MuiChip-label": { px: 2 },
         "& .MuiChip-icon": { color: "#ffffff", ml: "8px", mr: "-4px" },
-        ...sizeSx[size],
       }}
     />
   );
@@ -50,19 +75,19 @@ export function Card({ card, showDemand = false, size = "small" }: Props) {
 
   return (
     <Stack
-      spacing={isMedium ? 1 : 0.25}
-      sx={{ maxWidth: isMedium ? 320 : 200, backgroundColor: PALETTE[key] }}
+      spacing={1}
+      sx={{ maxWidth: 320, backgroundColor: PALETTE[key] }}
     >
       {chip}
       <Typography
-        variant={isMedium ? "body1" : "caption"}
+        variant="body1"
         sx={{
           fontStyle: "italic",
           lineHeight: 1.2,
-          ...(isMedium && { fontFamily: '"Playfair Display", Georgia, serif' }),
+          fontFamily: '"Playfair Display", Georgia, serif',
         }}
       >
-        {isMedium ? ` "${demand}"` : `"${demand}"`}
+        {` "${demand}"`}
       </Typography>
     </Stack>
   );
