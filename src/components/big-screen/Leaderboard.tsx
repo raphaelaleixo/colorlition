@@ -3,7 +3,9 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { scorePlayer } from '../../game/scoring';
-import { PALETTE, chipSxFor } from '../../theme/colors';
+import { colorsInPlay } from '../../game/summarize';
+import { useGame } from '../../contexts/GameContext';
+import { PALETTE, chipSxFor, pivotStripes } from '../../theme/colors';
 import type { Card, Color, PlayerRoundStatus } from '../../game/types';
 
 export type LeaderRow = {
@@ -55,6 +57,8 @@ function Waffle({ cards }: { cards: Card[] }) {
 }
 
 export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
+  const { gameState } = useGame();
+  const pivotBg = pivotStripes(colorsInPlay(gameState), 'vertical');
   const scored = rows
     .map((r) => {
       const bd = scorePlayer(r.playerId, r.base);
@@ -165,6 +169,7 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
                   }
                   sx={{
                     ...chipSxFor('pivot'),
+                    background: pivotBg,
                     '& .MuiChip-label': { fontWeight: 700, width: '100%' },
                   }}
                 />

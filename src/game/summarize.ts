@@ -1,5 +1,5 @@
 import { COLORS } from './constants';
-import type { Card, Color } from './types';
+import type { Card, Color, ColorlitionGameState } from './types';
 
 export type CoalitionSummaryRow = { label: string; count: number };
 
@@ -26,4 +26,18 @@ export function summarizeCoalition(base: Card[]): CoalitionSummaryRow[] {
   if (pivots > 0) rows.push({ label: 'pivot', count: pivots });
   if (grants > 0) rows.push({ label: 'grant', count: grants });
   return rows;
+}
+
+// Union of bloc colors anywhere in the game (deck, segments, bases). For a
+// 5-player game this is all 7 COLORS; for a 3-player game one is excluded.
+// Returned in canonical COLORS order so gradient direction is stable.
+export function colorsInPlay(state: ColorlitionGameState): Color[] {
+  const seen = new Set<Color>();
+  const collect = (cards: Card[]) => {
+    for (const c of cards) if (c.kind === 'bloc') seen.add(c.color);
+  };
+  collect(state.deck);
+  for (const seg of state.segments) collect(seg.cards);
+  for (const ps of Object.values(state.playerState)) collect(ps.base);
+  return COLORS.filter((c) => seen.has(c));
 }

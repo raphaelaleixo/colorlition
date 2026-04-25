@@ -56,13 +56,13 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
     {
       key: 'agricultural',
       label: 'Agricultural Frontier',
-      cards: [...blocs('red', [5])],
+      cards: [...blocs('red', [5]), ...grants([5])],
       claimedBy: null,
     },
     {
       key: 'financial',
       label: 'Financial District',
-      cards: [],
+      cards: [...pivots([3])],
       claimedBy: null,
     },
     {

@@ -54,6 +54,23 @@ export function chipSxFor(key: ChipKey): SxProps<Theme> {
   };
 }
 
+// Striped rainbow built from the in-play bloc colors, used as the pivot card
+// / chip background. Hard color stops (no blend). 'horizontal' stripes run
+// across (180deg gradient), 'vertical' stripes run up-down (90deg gradient).
+export function pivotStripes(
+  colors: Color[],
+  orientation: 'horizontal' | 'vertical' = 'horizontal',
+): string {
+  if (colors.length === 0) return PALETTE.pivot;
+  if (colors.length === 1) return PALETTE[colors[0]];
+  const step = 100 / colors.length;
+  const stops = colors
+    .map((c, i) => `${PALETTE[c]} ${i * step}%, ${PALETTE[c]} ${(i + 1) * step}%`)
+    .join(', ');
+  const angle = orientation === 'vertical' ? '90deg' : '180deg';
+  return `linear-gradient(${angle}, ${stops})`;
+}
+
 export const COLOR_ICONS: Record<Color, IconType> = {
   red: PiHandFist,
   green: PiTree,

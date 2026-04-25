@@ -1,9 +1,13 @@
+import { useContext } from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { PALETTE, COLOR_ICONS } from "../../theme/colors";
+import { PiAsterisk, PiNumberCircleTwo } from "react-icons/pi";
+import { PALETTE, COLOR_ICONS, pivotStripes } from "../../theme/colors";
 import { DEMANDS, labelFor } from "../../game/data/demands";
+import { GameContext } from "../../contexts/GameContext";
+import { colorsInPlay } from "../../game/summarize";
 import type { Card as GameCard } from "../../game/types";
 import type { ChipKey } from "../../theme/colors";
 
@@ -19,7 +23,19 @@ function keyFor(card: GameCard): ChipKey {
 
 export function Card({ card, showDemand = false, size = "small", fluid = false }: Props) {
   const key = keyFor(card);
-  const Icon = card.kind === "bloc" ? COLOR_ICONS[card.color] : undefined;
+  const Icon =
+    card.kind === "bloc"
+      ? COLOR_ICONS[card.color]
+      : card.kind === "pivot"
+        ? PiAsterisk
+        : card.kind === "grant"
+          ? PiNumberCircleTwo
+          : undefined;
+  const ctx = useContext(GameContext);
+  const pivotBg =
+    card.kind === "pivot" && ctx?.gameState
+      ? pivotStripes(colorsInPlay(ctx.gameState))
+      : null;
 
   if (size === "small") {
     return (
@@ -29,7 +45,7 @@ export function Card({ card, showDemand = false, size = "small", fluid = false }
             ? { flex: 1, minWidth: 0, aspectRatio: "7 / 10" }
             : { width: 56, height: 80, flexShrink: 0 }),
           borderRadius: 1.25,
-          backgroundColor: PALETTE[key],
+          background: pivotBg ?? PALETTE[key],
           color: "#ffffff",
           display: "flex",
           alignItems: "center",
@@ -38,16 +54,6 @@ export function Card({ card, showDemand = false, size = "small", fluid = false }
         }}
       >
         {Icon && <Icon size={32} />}
-        {!Icon && card.kind === "grant" && (
-          <Typography variant="h5" sx={{ color: "inherit", fontWeight: 700 }}>
-            +2
-          </Typography>
-        )}
-        {!Icon && card.kind === "pivot" && (
-          <Typography variant="h5" sx={{ color: "inherit", fontWeight: 700 }}>
-            P
-          </Typography>
-        )}
       </Box>
     );
   }
@@ -57,7 +63,7 @@ export function Card({ card, showDemand = false, size = "small", fluid = false }
       icon={Icon ? <Icon size={18} /> : undefined}
       label={labelFor(key)}
       sx={{
-        backgroundColor: PALETTE[key],
+        background: pivotBg ?? PALETTE[key],
         color: "#ffffff",
         fontWeight: 500,
         fontSize: 14,
