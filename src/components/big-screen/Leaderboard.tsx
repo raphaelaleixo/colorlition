@@ -3,14 +3,15 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { scorePlayer } from '../../game/scoring';
-import { Section } from '../shared/Section';
 import { PALETTE, chipSxFor } from '../../theme/colors';
-import type { Card, Color } from '../../game/types';
+import type { Card, Color, PlayerRoundStatus } from '../../game/types';
 
 export type LeaderRow = {
   playerId: string;
   name: string;
   base: Card[];
+  roundStatus: PlayerRoundStatus;
+  isCurrent: boolean;
 };
 
 function orderBlocs(base: Card[], positive: Color[], negative: Color[]): Card[] {
@@ -31,26 +32,23 @@ function Waffle({ cards }: { cards: Card[] }) {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(10, 10px)',
-        gridAutoRows: '10px',
+        gridTemplateColumns: 'repeat(10, 1fr)',
+        gridTemplateRows: 'repeat(3, 1fr)',
         gap: '2px',
+        height: '100%',
+        aspectRatio: '10 / 3',
       }}
     >
       {cards.slice(0, WAFFLE_SLOTS).map((card, i) => (
         <Box
           key={`${card.id}-${i}`}
           sx={{
-            width: 10,
-            height: 10,
             backgroundColor: card.kind === 'bloc' ? PALETTE[card.color] : 'rule.hair',
           }}
         />
       ))}
       {Array.from({ length: empty }).map((_, i) => (
-        <Box
-          key={`empty-${i}`}
-          sx={{ width: 10, height: 10, backgroundColor: 'rule.hair' }}
-        />
+        <Box key={`empty-${i}`} sx={{ backgroundColor: 'rule.hair' }} />
       ))}
     </Box>
   );
@@ -69,8 +67,12 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
     })
     .sort((a, b) => b.total - a.total);
   return (
-    <Section heading="Current Campaign" dense>
-      {scored.map((r, idx) => {
+    <Stack spacing={2}>
+      <Stack spacing={1}>
+        <Typography variant="h4">Current Campaign</Typography>
+        <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
+      </Stack>
+      {scored.map((r) => {
         const grants = r.base.filter((c) => c.kind === 'grant').length;
         const pivots = r.base.filter((c) => c.kind === 'pivot').length;
         return (
@@ -80,32 +82,97 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
             spacing={2}
             sx={{
               py: 1,
-              alignItems: 'center',
+              minHeight: 68,
+              alignItems: 'stretch',
               borderBottom: '1px solid',
               borderColor: 'rule.hair',
               '&:last-of-type': { borderBottom: 'none' },
             }}
           >
-            <Stack sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body1" noWrap>
-                {idx + 1}. {r.name}
-              </Typography>
-              <Typography variant="h4" sx={{ fontFeatureSettings: "'tnum' 1" }}>
-                {r.total}
-              </Typography>
-            </Stack>
             <Waffle cards={orderBlocs(r.base, r.positiveColors, r.negativeColors)} />
-            <Stack spacing={0.5} sx={{ minWidth: 90 }}>
+            <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'center' }}>
+              <Typography
+                variant="body1"
+                noWrap
+                sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+              >
+                {r.name}
+              </Typography>
+              {(r.isCurrent || r.roundStatus === 'claimed') && (
+                <Stack
+                  direction="row"
+                  spacing={0.75}
+                  sx={{
+                    alignItems: 'center',
+                    color: r.isCurrent ? '#1F7540' : '#911414',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      backgroundColor: 'currentColor',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{ color: 'inherit', fontWeight: 600 }}
+                  >
+                    {r.isCurrent ? 'Current player' : 'Claimed segments'}
+                  </Typography>
+                </Stack>
+              )}
+            </Stack>
+            <Stack spacing={0.5} sx={{ minWidth: 90, justifyContent: 'center' }}>
               {grants > 0 && (
-                <Chip size="small" label={`Grants × ${grants}`} sx={chipSxFor('grant')} />
+                <Chip
+                  size="small"
+                  label={
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                      }}
+                    >
+                      <span>Grants</span>
+                      <span>× {grants}</span>
+                    </Box>
+                  }
+                  sx={{
+                    ...chipSxFor('grant'),
+                    '& .MuiChip-label': { fontWeight: 700, width: '100%' },
+                  }}
+                />
               )}
               {pivots > 0 && (
-                <Chip size="small" label={`Pivots × ${pivots}`} sx={chipSxFor('pivot')} />
+                <Chip
+                  size="small"
+                  label={
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                      }}
+                    >
+                      <span>Pivots</span>
+                      <span>× {pivots}</span>
+                    </Box>
+                  }
+                  sx={{
+                    ...chipSxFor('pivot'),
+                    '& .MuiChip-label': { fontWeight: 700, width: '100%' },
+                  }}
+                />
               )}
             </Stack>
           </Stack>
         );
       })}
-    </Section>
+    </Stack>
   );
 }

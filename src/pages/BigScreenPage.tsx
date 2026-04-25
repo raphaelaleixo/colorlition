@@ -29,6 +29,8 @@ export default function BigScreenPage() {
     playerId: pid,
     name: roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`,
     base: gameState.playerState[pid]?.base ?? [],
+    roundStatus: gameState.playerState[pid]?.roundStatus ?? 'active',
+    isCurrent: pid === currentPlayerId,
   }));
 
   return (
