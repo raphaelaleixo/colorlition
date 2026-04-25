@@ -58,7 +58,7 @@ function Waffle({ cards }: { cards: Card[] }) {
 
 export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   const { gameState } = useGame();
-  const pivotBg = pivotStripes(colorsInPlay(gameState), 'vertical');
+  const pivotBg = pivotStripes(gameState ? colorsInPlay(gameState) : [], 'vertical');
   const scored = rows
     .map((r) => {
       const bd = scorePlayer(r.playerId, r.base);

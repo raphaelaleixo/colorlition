@@ -56,6 +56,11 @@ export type Headline = {
   text: string;
 };
 
+export type ScoreSnapshot = {
+  roundNumber: number;
+  scores: Record<string, number>;
+};
+
 export type ColorlitionGameState = {
   phase: Phase;
   deck: Card[];
@@ -69,6 +74,7 @@ export type ColorlitionGameState = {
   winnerIds: string[] | null;
   scoreBreakdown: ScoreBreakdown[] | null;
   lastHeadline: Headline | null;
+  scoreHistory: ScoreSnapshot[];
 };
 
 export type ColorlitionPlayerData = Record<string, never>; // empty in v1

@@ -1,7 +1,19 @@
 import { CARDS_PER_SEGMENT } from './constants';
-import { computeWinners } from './scoring';
-import type { ColorlitionGameState, SegmentKey, Card, Segment } from './types';
+import { computeWinners, scorePlayer } from './scoring';
+import type { ColorlitionGameState, SegmentKey, Card, Segment, ScoreSnapshot } from './types';
 import { deriveHeadline } from './headlines';
+
+function snapshotScores(
+  turnOrder: string[],
+  playerState: ColorlitionGameState['playerState'],
+  roundNumber: number,
+): ScoreSnapshot {
+  const scores: Record<string, number> = {};
+  for (const pid of turnOrder) {
+    scores[pid] = scorePlayer(pid, playerState[pid]?.base ?? []).total;
+  }
+  return { roundNumber, scores };
+}
 
 function deepClone<T>(v: T): T {
   return JSON.parse(JSON.stringify(v)) as T;
@@ -49,6 +61,8 @@ export function endRound(state: ColorlitionGameState): ColorlitionGameState {
   for (const pid of next.turnOrder) {
     next.playerState[pid].roundStatus = 'active';
   }
+
+  next.scoreHistory.push(snapshotScores(next.turnOrder, next.playerState, next.roundNumber));
 
   if (next.exitPollDrawn) {
     next.phase = 'scoring';
@@ -158,5 +172,6 @@ export function buildInitialGameState(
     winnerIds: null,
     scoreBreakdown: null,
     lastHeadline: null,
+    scoreHistory: [snapshotScores(turnOrder, playerState, 0)],
   };
 }

@@ -9,6 +9,8 @@ import { VoterSegments } from '../components/big-screen/VoterSegments';
 import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
 import { WinnerScreen } from '../components/big-screen/WinnerScreen';
+import { ScoreChart } from '../components/big-screen/ScoreChart';
+import { PALETTE, PLAYER_LINE_PALETTE } from '../theme/colors';
 
 export default function BigScreenPage() {
   const { id } = useParams();
@@ -24,6 +26,12 @@ export default function BigScreenPage() {
   const currentPlayer = roomState.players.find((p) => String(p.id) === currentPlayerId);
   const nameFor = (pid: string) =>
     roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`;
+
+  const colorFor = (pid: string, idx: number): string => {
+    const starter = gameState.playerState[pid]?.base[0];
+    if (starter && starter.kind === 'bloc') return PALETTE[starter.color];
+    return PLAYER_LINE_PALETTE[idx % PLAYER_LINE_PALETTE.length];
+  };
 
   const rows = gameState.turnOrder.map((pid) => ({
     playerId: pid,
@@ -121,14 +129,49 @@ export default function BigScreenPage() {
           minHeight: 0,
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gap: 3,
+          gridTemplateRows: { xs: 'auto', lg: '1fr 220px' },
+          columnGap: 3,
+          rowGap: 2,
           overflow: 'hidden',
         }}
       >
-        <Stack spacing={2} sx={{ minHeight: 0, overflow: 'hidden' }}>
+        <Stack
+          spacing={2}
+          sx={{
+            minHeight: 0,
+            overflow: 'hidden',
+            gridColumn: { xs: '1', lg: '1' },
+            gridRow: { xs: 'auto', lg: '1' },
+          }}
+        >
           <VoterSegments segments={gameState.segments} nameFor={nameFor} />
         </Stack>
-        <Stack spacing={2} sx={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            display: { xs: 'none', lg: 'flex' },
+            flexDirection: 'column',
+            minHeight: 0,
+            gridColumn: { lg: '1' },
+            gridRow: { lg: '2' },
+          }}
+        >
+          <ScoreChart
+            history={gameState.scoreHistory}
+            playerOrder={gameState.turnOrder}
+            nameFor={nameFor}
+            colorFor={colorFor}
+          />
+        </Box>
+        <Stack
+          spacing={2}
+          sx={{
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gridColumn: { xs: '1', lg: '2' },
+            gridRow: { xs: 'auto', lg: '1 / -1' },
+          }}
+        >
           <Leaderboard rows={rows} />
         </Stack>
       </Box>

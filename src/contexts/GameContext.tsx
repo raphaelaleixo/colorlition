@@ -68,6 +68,10 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
     winnerIds: raw.winnerIds ?? null,
     scoreBreakdown: raw.scoreBreakdown ?? null,
     lastHeadline: raw.lastHeadline ?? null,
+    scoreHistory: (raw.scoreHistory ?? []).map((s) => ({
+      roundNumber: s.roundNumber,
+      scores: s.scores ?? {},
+    })),
   };
 }
 

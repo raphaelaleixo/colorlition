@@ -46,6 +46,17 @@ export const PALETTE: Record<ChipKey, string> = {
   exitPoll: '#911414',
 };
 
+// Distinct accents for player score lines on the big-screen chart. Held
+// separate from the bloc PALETTE so a player's line is never confused with
+// "their color" — players don't own a color in this game.
+export const PLAYER_LINE_PALETTE: readonly string[] = [
+  '#1A1613', // ink
+  '#2E5266', // steel blue
+  '#7A2E3F', // claret
+  '#7A5A2E', // sepia
+  '#3F5C3A', // moss
+];
+
 export function chipSxFor(key: ChipKey): SxProps<Theme> {
   return {
     backgroundColor: PALETTE[key],

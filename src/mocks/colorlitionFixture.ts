@@ -131,6 +131,12 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
     roundNumber: 4,
     text: 'Industrial Belt locks in a fragile three-way coalition.',
   },
+  scoreHistory: [
+    { roundNumber: 0, scores: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 } },
+    { roundNumber: 1, scores: { '1': 3, '2': 6, '3': 1, '4': 2, '5': 0 } },
+    { roundNumber: 2, scores: { '1': 8, '2': 9, '3': 5, '4': 3, '5': 2 } },
+    { roundNumber: 3, scores: { '1': 14, '2': 12, '3': 7, '4': 4, '5': 4 } },
+  ],
 };
 
 export const MOCK_ROOM_STATE: RoomState<ColorlitionPlayerData> = {
