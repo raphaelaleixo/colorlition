@@ -11,8 +11,8 @@ export type ScoreChartProps = {
   colorFor: (pid: string, idx: number) => string;
 };
 
-const PAD = { top: 16, right: 116, bottom: 28, left: 36 };
-const LABEL_LINE_HEIGHT = 14;
+const PAD = { top: 16, right: 200, bottom: 28, left: 36 };
+const LABEL_LINE_HEIGHT = 21;
 const MIN_SHARE_CEILING = 25;
 
 // Voter-share normalization: each player's share is their positive score
@@ -152,14 +152,15 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                 {snap.roundNumber === 0 ? 'Start' : `R${snap.roundNumber}`}
               </text>
             ))}
-            {playerOrder.map((pid, idx) => {
+            {playerOrder.map((pid, idx) => ({ pid, idx })).reverse().map(({ pid, idx }) => {
               const color = colorFor(pid, idx);
               const points = history
                 .map((snap, i) => `${x(i)},${y(shareOf(snap.scores, pid))}`)
                 .join(' ');
+              const startY = y(shareOf(history[0].scores, pid));
               return (
                 <g key={pid}>
-                  {history.length > 1 && (
+                  {history.length > 1 ? (
                     <polyline
                       points={points}
                       fill="none"
@@ -167,6 +168,16 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                    />
+                  ) : (
+                    <line
+                      x1={x(0)}
+                      x2={PAD.left + innerW}
+                      y1={startY}
+                      y2={startY}
+                      stroke={color}
+                      strokeWidth={2}
+                      strokeLinecap="round"
                     />
                   )}
                   {history.map((snap, i) => (
@@ -178,6 +189,9 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                       fill={color}
                     />
                   ))}
+                  {history.length === 1 && (
+                    <circle cx={PAD.left + innerW} cy={startY} r={3} fill={color} />
+                  )}
                 </g>
               );
             })}
@@ -193,8 +207,8 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                 />
                 <text
                   x={PAD.left + innerW + 10}
-                  y={label.y + 4}
-                  fontSize={11}
+                  y={label.y + 6}
+                  fontSize={17}
                   fontFamily='"Source Sans 3", sans-serif'
                   fill={label.color}
                   letterSpacing={1.2}
@@ -207,7 +221,7 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                     {label.score}
                   </tspan>
                   <tspan fontWeight={700} dx={6}>
-                    {label.name}
+                    {label.name.length > 14 ? `${label.name.slice(0, 14)}…` : label.name}
                   </tspan>
                 </text>
               </g>

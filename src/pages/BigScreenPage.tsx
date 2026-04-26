@@ -129,7 +129,7 @@ export default function BigScreenPage() {
           minHeight: 0,
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gridTemplateRows: { xs: 'auto', lg: '1fr 220px' },
+          gridTemplateRows: { xs: 'auto', lg: '1fr 300px' },
           columnGap: 3,
           rowGap: 2,
           overflow: 'hidden',
