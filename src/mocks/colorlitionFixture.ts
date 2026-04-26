@@ -140,10 +140,10 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
   scoreBreakdown: null,
   lastHeadline: {
     id: 'h-mock-industrial-full',
-    kind: 'segment_full',
+    kind: 'friction',
     segmentKey: 'industrial',
     roundNumber: 4,
-    text: 'Industrial Belt locks in a fragile three-way coalition.',
+    text: 'Local workers in Industrial Belt demand a seat at the table.',
   },
   scoreHistory: [
     { roundNumber: 0, scores: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 } },

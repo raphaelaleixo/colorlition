@@ -46,7 +46,7 @@ export type ScoreBreakdown = {
   total: number;
 };
 
-export type HeadlineKind = 'rising_demand' | 'tense_alliance' | 'segment_full';
+export type HeadlineKind = 'spark' | 'movement' | 'friction';
 
 export type Headline = {
   id: string;
