@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -27,9 +28,24 @@ function orderBlocs(base: Card[], positive: Color[], negative: Color[]): Card[] 
 }
 
 const WAFFLE_SLOTS = 30;
+const BUBBLE_BASE_MS = 780;
+const BUBBLE_STAGGER_MS = 90;
 
 function Waffle({ cards }: { cards: Card[] }) {
-  const empty = Math.max(0, WAFFLE_SLOTS - cards.length);
+  const visible = cards.slice(0, WAFFLE_SLOTS);
+  const empty = Math.max(0, WAFFLE_SLOTS - visible.length);
+
+  const seenIds = useRef<Set<string>>(new Set(visible.map((c) => c.id)));
+  const newIds = useMemo(() => {
+    const fresh = new Set<string>();
+    for (const c of visible) if (!seenIds.current.has(c.id)) fresh.add(c.id);
+    return fresh;
+  }, [visible]);
+  useEffect(() => {
+    seenIds.current = new Set(visible.map((c) => c.id));
+  });
+
+  let bubbleIdx = 0;
   return (
     <Box
       sx={{
@@ -39,16 +55,49 @@ function Waffle({ cards }: { cards: Card[] }) {
         gap: '2px',
         height: '100%',
         aspectRatio: '10 / 3',
+        '@keyframes waffleBubbleUp': {
+          '0%': {
+            transform: 'translateY(140%) scale(0) rotate(-12deg)',
+            opacity: 0,
+          },
+          '45%': {
+            transform: 'translateY(-32%) scale(1.4) rotate(6deg)',
+            opacity: 1,
+          },
+          '70%': {
+            transform: 'translateY(12%) scale(0.88) rotate(-3deg)',
+            opacity: 1,
+          },
+          '88%': {
+            transform: 'translateY(-4%) scale(1.05) rotate(1deg)',
+            opacity: 1,
+          },
+          '100%': {
+            transform: 'translateY(0) scale(1) rotate(0)',
+            opacity: 1,
+          },
+        },
       }}
     >
-      {cards.slice(0, WAFFLE_SLOTS).map((card, i) => (
-        <Box
-          key={`${card.id}-${i}`}
-          sx={{
-            backgroundColor: card.kind === 'bloc' ? PALETTE[card.color] : 'rule.hair',
-          }}
-        />
-      ))}
+      {visible.map((card, i) => {
+        const isNew = newIds.has(card.id);
+        const delay = isNew ? bubbleIdx++ * BUBBLE_STAGGER_MS : 0;
+        return (
+          <Box
+            key={`${card.id}-${i}`}
+            sx={{
+              backgroundColor: card.kind === 'bloc' ? PALETTE[card.color] : 'rule.hair',
+              transformOrigin: 'center bottom',
+              animation: isNew
+                ? `waffleBubbleUp ${BUBBLE_BASE_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1) ${delay}ms both`
+                : 'none',
+              '@media (prefers-reduced-motion: reduce)': {
+                animation: 'none',
+              },
+            }}
+          />
+        );
+      })}
       {Array.from({ length: empty }).map((_, i) => (
         <Box key={`empty-${i}`} sx={{ backgroundColor: 'rule.hair' }} />
       ))}
