@@ -73,7 +73,24 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
-        <Typography variant="h4">Current Campaign</Typography>
+        <Stack
+          direction="row"
+          sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
+        >
+          <Typography variant="h4" sx={{ fontWeight: 900 }}>Current Campaign</Typography>
+          <Typography
+            variant="overline"
+            sx={{
+              color: 'text.secondary',
+              letterSpacing: '0.14em',
+              fontSize: 18,
+              fontWeight: 700,
+              lineHeight: 1,
+            }}
+          >
+            Round {gameState?.roundNumber ?? 1}
+          </Typography>
+        </Stack>
         <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
       </Stack>
       {scored.map((r) => {

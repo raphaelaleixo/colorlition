@@ -117,7 +117,7 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
   return (
     <Stack spacing={1} sx={{ height: '100%', minHeight: 0 }}>
       <Stack spacing={1}>
-        <Typography variant="h4">Mandate Trajectory</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 900 }}>Mandate Trajectory</Typography>
         <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
       </Stack>
       <Box ref={containerRef} sx={{ flex: '1 1 auto', minHeight: 0, position: 'relative' }}>

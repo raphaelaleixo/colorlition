@@ -46,18 +46,15 @@ export default function BigScreenPage() {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: { xs: 'auto', lg: '100vh' },
         minHeight: '100vh',
-        overflow: { xs: 'visible', lg: 'hidden' },
+        pb: '80px',
       }}
     >
       <Stack
-        spacing={2}
+        spacing={5}
         sx={{
           p: 4,
-          flex: { xs: 'none', lg: '1 1 auto' },
-          minHeight: 0,
-          overflow: { xs: 'visible', lg: 'hidden' },
+          flex: 'none',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -119,38 +116,35 @@ export default function BigScreenPage() {
           </Box>
         </Stack>
       </Stack>
-      <Typography variant="h3">
-        {gameState.phase === 'ended' ? 'Game over' : 'Voter Segments'}
-      </Typography>
-
       <Box
         sx={{
-          flex: '1 1 auto',
-          minHeight: 0,
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gridTemplateRows: { xs: 'auto', lg: '1fr 300px' },
+          gridTemplateRows: { xs: 'auto', lg: 'auto auto' },
           columnGap: 3,
-          rowGap: 2,
-          overflow: 'hidden',
+          rowGap: 5,
         }}
       >
         <Stack
           spacing={2}
           sx={{
-            minHeight: 0,
-            overflow: 'hidden',
             gridColumn: { xs: '1', lg: '1' },
-            gridRow: { xs: 'auto', lg: '1' },
+            gridRow: { lg: '1' },
           }}
         >
+          <Stack spacing={1}>
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>
+              {gameState.phase === 'ended' ? 'Game over' : 'Voter Segments'}
+            </Typography>
+            <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
+          </Stack>
           <VoterSegments segments={gameState.segments} nameFor={nameFor} />
         </Stack>
         <Box
           sx={{
             display: { xs: 'none', lg: 'flex' },
             flexDirection: 'column',
-            minHeight: 0,
+            height: 360,
             gridColumn: { lg: '1' },
             gridRow: { lg: '2' },
           }}
@@ -165,11 +159,10 @@ export default function BigScreenPage() {
         <Stack
           spacing={2}
           sx={{
-            minHeight: 0,
             display: 'flex',
             flexDirection: 'column',
             gridColumn: { xs: '1', lg: '2' },
-            gridRow: { xs: 'auto', lg: '1 / -1' },
+            gridRow: { lg: '1 / -1' },
           }}
         >
           <Leaderboard rows={rows} />
@@ -185,11 +178,21 @@ export default function BigScreenPage() {
       )}
       </Stack>
 
-      <HeadlineTicker
-        lastHeadline={gameState.lastHeadline}
-        currentPlayerName={currentPlayer?.name ?? currentPlayerId}
-        currentPlayerIndex={gameState.currentPlayerIndex}
-      />
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: (t) => t.zIndex.appBar,
+        }}
+      >
+        <HeadlineTicker
+          lastHeadline={gameState.lastHeadline}
+          currentPlayerName={currentPlayer?.name ?? currentPlayerId}
+          currentPlayerIndex={gameState.currentPlayerIndex}
+        />
+      </Box>
     </Stack>
   );
 }

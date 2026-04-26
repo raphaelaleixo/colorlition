@@ -16,6 +16,7 @@ function CardSlot() {
         borderRadius: 1.25,
         border: '1px dashed',
         borderColor: 'rule.strong',
+        backgroundColor: 'background.default',
       }}
     />
   );
@@ -41,15 +42,18 @@ export function VoterSegments({
         const claimed = s.claimedBy !== null;
         const emptySlots = Math.max(0, CARDS_PER_SEGMENT - s.cards.length);
         return (
-          <Section key={s.key} dense>
+          <Section key={s.key} dense sx={{ borderColor: 'rule.strong' }}>
             <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
               <Typography
-                variant="h3"
                 sx={{
+                  fontFamily: '"Source Sans 3", system-ui, sans-serif',
+                  fontSize: 23,
+                  fontWeight: 700,
                   color: 'text.secondary',
-                  minWidth: 28,
+                  minWidth: 26,
                   textAlign: 'center',
                   flexShrink: 0,
+                  lineHeight: 1,
                 }}
               >
                 {idx + 1}

@@ -50,6 +50,8 @@ function pickOpeningHeadline(name: string): string {
   return OPENING_HEADLINES[hash % OPENING_HEADLINES.length];
 }
 
+const REPEATS_PER_CYCLE = 3;
+
 function buildNewsText(
   name: string,
   turnIndex: number,
@@ -57,7 +59,7 @@ function buildNewsText(
 ): string {
   const phrase = pickNextPhrase(name, turnIndex);
   const second = headline ? headline.text : pickOpeningHeadline(name);
-  return `${phrase}${SEP}${second}${SEP}`;
+  return `${phrase}${SEP}${second}${SEP}`.repeat(REPEATS_PER_CYCLE);
 }
 
 const FADE_MS = 300;
@@ -160,11 +162,11 @@ export function HeadlineTicker({
               aria-hidden={copy === 1}
               sx={{
                 flexShrink: 0,
-                fontSize: 28,
-                fontWeight: 800,
+                fontSize: 18,
+                fontWeight: 700,
                 fontFamily: '"Source Sans 3", system-ui, sans-serif',
                 textTransform: 'uppercase',
-                letterSpacing: '0.12em',
+                letterSpacing: '0.22em',
                 color: 'common.white',
                 lineHeight: 1,
                 whiteSpace: 'nowrap',
