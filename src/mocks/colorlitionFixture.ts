@@ -32,9 +32,23 @@ const PLAYERS = [
   { id: 5, name: 'Linda Hall' },
 ] as const;
 
+// A small but varied deck so the demo's "Place card" button has things to draw.
+// IDs use indices outside the ranges already used in segments/bases above.
+const MOCK_DECK: Card[] = [
+  ...blocs('red', [6, 7, 8]),
+  ...blocs('purple', [5, 6, 7]),
+  ...blocs('green', [7, 8]),
+  ...blocs('blue', [6, 7, 8]),
+  ...blocs('orange', [5, 6, 7]),
+  ...blocs('yellow', [4, 5, 6]),
+  ...blocs('grey', [3, 4, 5]),
+  ...grants([6, 7, 8]),
+  ...pivots([4, 5]),
+];
+
 export const MOCK_GAME_STATE: ColorlitionGameState = {
   phase: 'turn',
-  deck: [],
+  deck: MOCK_DECK,
   exitPollDrawn: false,
   segments: [
     {
