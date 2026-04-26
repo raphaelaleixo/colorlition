@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { keyframes } from '@emotion/react';
 import type { Headline } from '../../game/types';
 
 const NEXT_VARIATIONS: Array<(name: string) => string> = [
@@ -33,16 +34,40 @@ function pickNextPhrase(name: string, turnIndex: number): string {
   return fn(name);
 }
 
-const SCROLL_SPEED = 100;
-// Belt-and-suspenders cap — pair-based append/delete should self-balance, but
-// if anything ever runs away we force-trim the front pair past this count.
-const MAX_CHILDREN = 100;
+const SEP = '  •  ';
 
-type TickerItem =
-  | { id: number; kind: 'entry'; text: string }
-  | { id: number; kind: 'sentinel' };
+const OPENING_HEADLINES = [
+  'Polls open — coalition season begins',
+  'The seven blocs assemble as the chase for a mandate gets underway',
+  'Newsroom on watch as candidates take the floor',
+  'First gavel falls — opening bell rings on the coalition race',
+  'Capital stirs as the campaign trail opens',
+];
 
-type SentinelState = 'none' | 'entered' | 'exited';
+function pickOpeningHeadline(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 997;
+  return OPENING_HEADLINES[hash % OPENING_HEADLINES.length];
+}
+
+function buildNewsText(
+  name: string,
+  turnIndex: number,
+  headline: Headline | null,
+): string {
+  const phrase = pickNextPhrase(name, turnIndex);
+  const second = headline ? headline.text : pickOpeningHeadline(name);
+  return `${phrase}${SEP}${second}${SEP}`;
+}
+
+const FADE_MS = 300;
+const SECONDS_PER_CHAR = 0.18;
+const MIN_DURATION_S = 15;
+
+const scroll = keyframes`
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+`;
 
 type Props = {
   lastHeadline: Headline | null;
@@ -55,186 +80,28 @@ export function HeadlineTicker({
   currentPlayerName,
   currentPlayerIndex,
 }: Props) {
-  const [items, setItems] = useState<TickerItem[]>([]);
-  const seqRef = useRef(0);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
-  const hoverRef = useRef(false);
-
-  const mutationPendingRef = useRef(false);
-  const pendingOffsetShiftRef = useRef(0);
-
-  // The current news — slot 0 is the active player's phrase, slot 1 (if any)
-  // is the latest headline. Each sentinel-entry beat picks news[cursor % len]
-  // and appends it. Replaced (not grown) when props change.
-  const newsRef = useRef<string[]>([]);
-  const newsCursorRef = useRef(0);
-  const lastNewsKeyRef = useRef<string>('');
-
-  // Lifecycle state per sentinel id.
-  const sentinelStateRef = useRef<Map<number, SentinelState>>(new Map());
-  const itemsRef = useRef<TickerItem[]>([]);
-
-  const makePair = (text: string): TickerItem[] => [
-    { id: seqRef.current++, kind: 'entry', text },
-    { id: seqRef.current++, kind: 'sentinel' },
-  ];
-
-  const buildNews = (
-    name: string,
-    turnIndex: number,
-    headline: Headline | null,
-  ): string[] => {
-    const phrase = pickNextPhrase(name, turnIndex);
-    return headline ? [phrase, headline.text] : [phrase];
-  };
-
-  // Seed with one pair using news[0]. Start the pair off-screen right so it
-  // scrolls in from the right edge — subsequent sentinel beats append more.
-  useEffect(() => {
-    const news = buildNews(currentPlayerName, currentPlayerIndex, lastHeadline);
-    newsRef.current = news;
-    // Cursor counts items already emitted; the seed emits news[0], so start at 1.
-    newsCursorRef.current = 1;
-    lastNewsKeyRef.current = `${currentPlayerName}:${currentPlayerIndex}|${lastHeadline?.id ?? ''}`;
-    if (viewportRef.current) {
-      offsetRef.current = viewportRef.current.getBoundingClientRect().width;
-    }
-    setItems(makePair(news[0]));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Rebuild the news array when props change. Cursor resets to 0 so the next
-  // sentinel beat shows news[0] (the new player's phrase) first.
-  useEffect(() => {
-    const key = `${currentPlayerName}:${currentPlayerIndex}|${lastHeadline?.id ?? ''}`;
-    if (key === lastNewsKeyRef.current) return;
-    lastNewsKeyRef.current = key;
-    newsRef.current = buildNews(currentPlayerName, currentPlayerIndex, lastHeadline);
-    newsCursorRef.current = 0;
-  }, [lastHeadline, currentPlayerName, currentPlayerIndex]);
-
-  // After each commit: sync itemsRef, evict sentinel state for removed ids,
-  // apply the pending offset shift, release the mutation lock.
-  useLayoutEffect(() => {
-    itemsRef.current = items;
-    const live = new Set(
-      items.filter((i) => i.kind === 'sentinel').map((i) => i.id),
-    );
-    for (const id of Array.from(sentinelStateRef.current.keys())) {
-      if (!live.has(id)) sentinelStateRef.current.delete(id);
-    }
-    if (pendingOffsetShiftRef.current !== 0) {
-      offsetRef.current += pendingOffsetShiftRef.current;
-      pendingOffsetShiftRef.current = 0;
-      if (trackRef.current) {
-        trackRef.current.style.transform = `translateX(${offsetRef.current}px)`;
-      }
-    }
-    mutationPendingRef.current = false;
-  }, [items]);
+  const desired = buildNewsText(currentPlayerName, currentPlayerIndex, lastHeadline);
+  const [displayed, setDisplayed] = useState(desired);
+  const [opacity, setOpacity] = useState(1);
+  const swapTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let raf = 0;
-    let prev = performance.now();
-
-    const deletePairAt = (sentinelIdx: number): boolean => {
-      const track = trackRef.current;
-      if (!track) return false;
-      if (sentinelIdx < 1) return false;
-      const entryEl = track.children[sentinelIdx - 1] as HTMLElement | undefined;
-      const sentinelEl = track.children[sentinelIdx] as HTMLElement | undefined;
-      const afterEl = track.children[sentinelIdx + 1] as HTMLElement | undefined;
-      if (!entryEl || !sentinelEl) return false;
-      const entryLeft = entryEl.getBoundingClientRect().left;
-      // Pair advance = distance from entry's left to the element after the
-      // sentinel (or sentinel's right if nothing follows).
-      let pairAdvance: number;
-      if (afterEl) {
-        pairAdvance = afterEl.getBoundingClientRect().left - entryLeft;
-      } else {
-        pairAdvance = sentinelEl.getBoundingClientRect().right - entryLeft;
+    if (desired === displayed) return;
+    setOpacity(0);
+    swapTimerRef.current = window.setTimeout(() => {
+      setDisplayed(desired);
+      setOpacity(1);
+      swapTimerRef.current = null;
+    }, FADE_MS);
+    return () => {
+      if (swapTimerRef.current !== null) {
+        window.clearTimeout(swapTimerRef.current);
+        swapTimerRef.current = null;
       }
-      pendingOffsetShiftRef.current += pairAdvance;
-      mutationPendingRef.current = true;
-      setItems((prevItems) => [
-        ...prevItems.slice(0, sentinelIdx - 1),
-        ...prevItems.slice(sentinelIdx + 1),
-      ]);
-      return true;
     };
+  }, [desired, displayed]);
 
-    const appendPair = (text: string) => {
-      mutationPendingRef.current = true;
-      setItems((prevItems) => [...prevItems, ...makePair(text)]);
-    };
-
-    const tick = (now: number) => {
-      // Cap dt: when the tab is backgrounded rAF pauses, and the first frame
-      // back would otherwise jump the track by minutes of scroll in one step,
-      // stranding every sentinel off-screen and draining the pipeline.
-      const dt = Math.min(now - prev, 100);
-      prev = now;
-      if (!hoverRef.current) {
-        offsetRef.current -= (SCROLL_SPEED * dt) / 1000;
-      }
-      if (trackRef.current) {
-        trackRef.current.style.transform = `translateX(${offsetRef.current}px)`;
-      }
-
-      const track = trackRef.current;
-      const viewport = viewportRef.current;
-      if (!mutationPendingRef.current && track && viewport) {
-        const viewportRect = viewport.getBoundingClientRect();
-        const currentItems = itemsRef.current;
-        const children = track.children;
-        let mutated = false;
-
-        for (let i = 0; i < currentItems.length && i < children.length; i++) {
-          const item = currentItems[i];
-          if (item.kind !== 'sentinel') continue;
-          const el = children[i] as HTMLElement;
-          const rect = el.getBoundingClientRect();
-          const state: SentinelState =
-            sentinelStateRef.current.get(item.id) ?? 'none';
-
-          if (state === 'none') {
-            if (rect.left < viewportRect.right) {
-              sentinelStateRef.current.set(item.id, 'entered');
-              if (!mutated) {
-                const news = newsRef.current;
-                if (news.length > 0) {
-                  const text = news[newsCursorRef.current % news.length];
-                  newsCursorRef.current++;
-                  appendPair(text);
-                  mutated = true;
-                }
-              }
-            }
-          } else if (state === 'entered') {
-            if (rect.right < viewportRect.left) {
-              sentinelStateRef.current.set(item.id, 'exited');
-              if (!mutated) {
-                if (deletePairAt(i)) {
-                  mutated = true;
-                }
-              }
-            }
-          }
-        }
-
-        if (!mutated && track.childElementCount > MAX_CHILDREN) {
-          // Front pair is guaranteed [entry, sentinel]; delete at index 1.
-          if (deletePairAt(1)) mutated = true;
-        }
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  const duration = Math.max(MIN_DURATION_S, displayed.length * SECONDS_PER_CHAR);
 
   return (
     <Stack
@@ -268,7 +135,6 @@ export function HeadlineTicker({
       </Box>
 
       <Box
-        ref={viewportRef}
         sx={{
           flex: 1,
           minWidth: 0,
@@ -276,73 +142,37 @@ export function HeadlineTicker({
           display: 'flex',
           alignItems: 'center',
         }}
-        onMouseEnter={() => {
-          hoverRef.current = true;
-        }}
-        onMouseLeave={() => {
-          hoverRef.current = false;
-        }}
       >
         <Box
-          ref={trackRef}
           sx={{
             display: 'flex',
-            alignItems: 'center',
             width: 'max-content',
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-            position: 'relative',
+            opacity,
+            transition: `opacity ${FADE_MS}ms ease`,
+            animation: `${scroll} ${duration}s linear infinite`,
             willChange: 'transform',
           }}
         >
-          {items.map((item) =>
-            item.kind === 'entry' ? (
-              <Box
-                key={item.id}
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  px: 2.5,
-                }}
-              >
-                <Typography
-                  component="span"
-                  sx={{
-                    fontSize: 28,
-                    fontWeight: 800,
-                    fontFamily: '"Source Sans 3", system-ui, sans-serif',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.12em',
-                    color: 'common.white',
-                    lineHeight: 1,
-                  }}
-                >
-                  {item.text}
-                </Typography>
-              </Box>
-            ) : (
-              <Box
-                key={item.id}
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  px: 2.5,
-                }}
-              >
-                <Typography
-                  component="span"
-                  sx={{
-                    fontSize: 28,
-                    fontWeight: 800,
-                    color: 'error.main',
-                    lineHeight: 1,
-                  }}
-                >
-                  •
-                </Typography>
-              </Box>
-            ),
-          )}
+          {[0, 1].map((copy) => (
+            <Typography
+              key={copy}
+              component="span"
+              aria-hidden={copy === 1}
+              sx={{
+                flexShrink: 0,
+                fontSize: 28,
+                fontWeight: 800,
+                fontFamily: '"Source Sans 3", system-ui, sans-serif',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                color: 'common.white',
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {displayed}
+            </Typography>
+          ))}
         </Box>
       </Box>
     </Stack>
