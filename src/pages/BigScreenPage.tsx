@@ -70,7 +70,44 @@ export default function BigScreenPage() {
           borderColor: 'rule.ink',
         }}
       >
-        <Typography variant="h1" sx={{ fontStyle: 'italic', fontWeight: 900 }}>colorlition</Typography>
+        <Typography
+          variant="h1"
+          sx={{
+            fontStyle: 'italic',
+            fontWeight: 900,
+            '@keyframes colorlitionHue': {
+              '0%':     { color: PALETTE.red },
+              '14.28%': { color: PALETTE.purple },
+              '28.57%': { color: PALETTE.green },
+              '42.85%': { color: PALETTE.blue },
+              '57.14%': { color: PALETTE.orange },
+              '71.42%': { color: PALETTE.yellow },
+              '85.71%': { color: PALETTE.grey },
+              '100%':   { color: PALETTE.red },
+            },
+          }}
+        >
+          {'color'.split('').map((ch, i) => (
+            <Box
+              key={i}
+              component="span"
+              sx={{
+                animationName: 'colorlitionHue',
+                animationDuration: '14s',
+                animationTimingFunction: 'steps(1, end)',
+                animationIterationCount: 'infinite',
+                animationDelay: `${-2 * i}s`,
+                '@media (prefers-reduced-motion: reduce)': {
+                  animation: 'none',
+                  color: PALETTE.red,
+                },
+              }}
+            >
+              {ch}
+            </Box>
+          ))}
+          lition
+        </Typography>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
             <Typography variant="overline" sx={{ color: 'text.secondary' }}>
