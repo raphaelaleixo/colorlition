@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import BigScreenPage from './BigScreenPage';
 import { GameContext, type GameContextValue } from '../contexts/GameContext';
+import { RevealControlContext } from '../components/big-screen/VoterSegments';
 import { buildMockGameContextValue, MOCK_GAME_STATE } from '../mocks/colorlitionFixture';
 import {
   drawAndPlace as drawAndPlacePure,
@@ -17,6 +18,11 @@ import type { ColorlitionGameState } from '../game/types';
 
 export default function MockBigScreen() {
   const [gameState, setGameState] = useState<ColorlitionGameState>(MOCK_GAME_STATE);
+  const [revealAdvanceTick, setRevealAdvanceTick] = useState(0);
+  const revealControl = useMemo(
+    () => ({ advanceTick: revealAdvanceTick }),
+    [revealAdvanceTick],
+  );
 
   const ctxValue = useMemo<GameContextValue>(() => {
     const base = buildMockGameContextValue(gameState);
@@ -40,6 +46,28 @@ export default function MockBigScreen() {
     if (!placeable || deckEmpty) return;
     setGameState((prev) => drawAndPlacePure(prev, placeable.key));
   }
+
+  // Draw a specific card kind by hoisting it to the front of the deck so the
+  // pure drawAndPlace logic picks it up next.
+  function handleDrawSpecific(kind: 'pivot' | 'grant') {
+    setGameState((prev) => {
+      const idx = prev.deck.findIndex((c) => c.kind === kind);
+      if (idx === -1) return prev;
+      const target = prev.segments.find(canPlaceInSegment);
+      if (!target) return prev;
+      const reordered: ColorlitionGameState = {
+        ...prev,
+        deck: [
+          prev.deck[idx],
+          ...prev.deck.slice(0, idx),
+          ...prev.deck.slice(idx + 1),
+        ],
+      };
+      return drawAndPlacePure(reordered, target.key);
+    });
+  }
+  const hasPivotInDeck = gameState.deck.some((c) => c.kind === 'pivot');
+  const hasGrantInDeck = gameState.deck.some((c) => c.kind === 'grant');
 
   function handleClaim() {
     if (!claimable) return;
@@ -80,7 +108,8 @@ export default function MockBigScreen() {
 
   return (
     <GameContext.Provider value={ctxValue}>
-      <BigScreenPage />
+      <RevealControlContext.Provider value={revealControl}>
+        <BigScreenPage />
       <Box
         sx={{
           position: 'fixed',
@@ -117,6 +146,22 @@ export default function MockBigScreen() {
           <Button
             variant="outlined"
             size="small"
+            onClick={() => handleDrawSpecific('pivot')}
+            disabled={isEnded || !placeable || !hasPivotInDeck}
+          >
+            Draw pivot
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => handleDrawSpecific('grant')}
+            disabled={isEnded || !placeable || !hasGrantInDeck}
+          >
+            Draw grant
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
             onClick={handleClaim}
             disabled={isEnded || !claimable}
           >
@@ -130,11 +175,20 @@ export default function MockBigScreen() {
           >
             Claim last → end round
           </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            color="secondary"
+            onClick={() => setRevealAdvanceTick((n) => n + 1)}
+          >
+            Advance reveal
+          </Button>
           <Button variant="text" size="small" onClick={handleReset}>
             Reset
           </Button>
         </Stack>
       </Box>
+      </RevealControlContext.Provider>
     </GameContext.Provider>
   );
 }

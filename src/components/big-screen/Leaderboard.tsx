@@ -208,7 +208,7 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
                         width: '100%',
                       }}
                     >
-                      <span>Grants</span>
+                      <span>Allies</span>
                       <span>× {grants}</span>
                     </Box>
                   }
@@ -229,7 +229,7 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
                         width: '100%',
                       }}
                     >
-                      <span>Pivots</span>
+                      <span>Undecided</span>
                       <span>× {pivots}</span>
                     </Box>
                   }

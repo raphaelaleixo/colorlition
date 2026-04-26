@@ -1,18 +1,28 @@
 import { useContext } from "react";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import type { SxProps, Theme } from "@mui/material/styles";
 import { PiAsterisk, PiNumberCircleTwo } from "react-icons/pi";
 import { PALETTE, COLOR_ICONS, pivotStripes } from "../../theme/colors";
-import { DEMANDS, labelFor } from "../../game/data/demands";
+import {
+  DEMANDS,
+  GRANT_DEMANDS,
+  PIVOT_DEMANDS,
+  labelFor,
+} from "../../game/data/demands";
 import { GameContext } from "../../contexts/GameContext";
 import { colorsInPlay } from "../../game/summarize";
 import type { Card as GameCard } from "../../game/types";
 import type { ChipKey } from "../../theme/colors";
 
 type Size = "small" | "medium";
-type Props = { card: GameCard; showDemand?: boolean; size?: Size; fluid?: boolean };
+type Props = {
+  card: GameCard;
+  showDemand?: boolean;
+  size?: Size;
+  fluid?: boolean;
+  sx?: SxProps<Theme>;
+};
 
 function keyFor(card: GameCard): ChipKey {
   if (card.kind === "bloc") return card.color;
@@ -21,7 +31,13 @@ function keyFor(card: GameCard): ChipKey {
   return "exitPoll";
 }
 
-export function Card({ card, showDemand = false, size = "small", fluid = false }: Props) {
+export function Card({
+  card,
+  showDemand = false,
+  size = "small",
+  fluid = false,
+  sx,
+}: Props) {
   const key = keyFor(card);
   const Icon =
     card.kind === "bloc"
@@ -40,61 +56,107 @@ export function Card({ card, showDemand = false, size = "small", fluid = false }
   if (size === "small") {
     return (
       <Box
-        sx={{
-          ...(fluid
-            ? { flex: 1, minWidth: 0, aspectRatio: "7 / 10" }
-            : { width: 56, height: 80, flexShrink: 0 }),
-          borderRadius: 1.25,
-          background: pivotBg ?? PALETTE[key],
-          color: "#ffffff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.12)",
-        }}
+        sx={[
+          {
+            ...(fluid
+              ? { flex: 1, minWidth: 0, aspectRatio: "7 / 10" }
+              : { width: 56, height: 80, flexShrink: 0 }),
+            borderRadius: 1.25,
+            background: pivotBg ?? PALETTE[key],
+            color: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.12)",
+          },
+          ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+        ]}
       >
         {Icon && <Icon size={32} />}
       </Box>
     );
   }
 
-  const chip = (
-    <Chip
-      icon={Icon ? <Icon size={18} /> : undefined}
-      label={labelFor(key)}
-      sx={{
-        background: pivotBg ?? PALETTE[key],
-        color: "#ffffff",
-        fontWeight: 500,
-        fontSize: 14,
-        height: 40,
-        "& .MuiChip-label": { px: 2 },
-        "& .MuiChip-icon": { color: "#ffffff", ml: "8px", mr: "-4px" },
-      }}
-    />
-  );
-
-  if (!showDemand || card.kind !== "bloc") return <>{chip}</>;
-
-  const demand = DEMANDS[card.color]?.[card.value];
-  if (!demand) return <>{chip}</>;
+  const demand = (() => {
+    if (!showDemand) return null;
+    if (card.kind === "bloc") {
+      return DEMANDS[card.color]?.[card.value] ?? null;
+    }
+    if (card.kind === "pivot") {
+      const i = parseInt(card.id.replace(/^pivot-/, ""), 10) || 0;
+      return PIVOT_DEMANDS[i % PIVOT_DEMANDS.length];
+    }
+    if (card.kind === "grant") {
+      const i = parseInt(card.id.replace(/^grant-/, ""), 10) || 0;
+      return GRANT_DEMANDS[i % GRANT_DEMANDS.length];
+    }
+    return null;
+  })();
 
   return (
-    <Stack
-      spacing={1}
-      sx={{ maxWidth: 320, backgroundColor: PALETTE[key] }}
+    <Box
+      sx={{
+        width: 320,
+        // Mirror the small card's 7:10, but laid out horizontally.
+        // overflow: hidden so long demand text can't push the box past the
+        // ratio (aspect-ratio is preferred, not enforced, against content).
+        aspectRatio: "10 / 7",
+        overflow: "hidden",
+        background: pivotBg ?? PALETTE[key],
+        borderRadius: 3,
+        boxShadow:
+          "0 16px 40px rgba(26, 22, 19, 0.14), inset 0 0 0 4px #ffffff",
+        p: 2,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 2,
+      }}
     >
-      {chip}
-      <Typography
-        variant="body1"
+      <Box
         sx={{
-          fontStyle: "italic",
-          lineHeight: 1.2,
-          fontFamily: '"Playfair Display", Georgia, serif',
+          flexShrink: 0,
+          color: "#ffffff",
+          display: "inline-flex",
         }}
       >
-        {` "${demand}"`}
-      </Typography>
-    </Stack>
+        {Icon && <Icon size={32} />}
+      </Box>
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 0.75,
+          color: "#ffffff",
+        }}
+      >
+        <Typography
+          sx={{
+            fontFamily: '"Source Sans 3", system-ui, sans-serif',
+            fontWeight: 700,
+            fontSize: 16,
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            lineHeight: 1.1,
+          }}
+        >
+          {labelFor(key)}
+        </Typography>
+        {demand && (
+          <Typography
+            sx={{
+              fontWeight: 700,
+              lineHeight: 1.2,
+              fontFamily: '"Playfair Display", Georgia, serif',
+              fontSize: 20,
+            }}
+          >
+            {`"${demand}"`}
+          </Typography>
+        )}
+      </Box>
+    </Box>
   );
 }

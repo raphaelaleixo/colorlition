@@ -92,13 +92,36 @@ export const BLOC_NAMES: Record<Color, string> = {
   grey: 'Traditionalists',
 };
 
+// Pivots are wilds — no faction, just disengaged voters. Mapped onto the
+// pivot's id index (pivot-0, pivot-1, …) modulo the list length.
+export const PIVOT_DEMANDS: string[] = [
+  'I’m just tired of politics.',
+  'They’re all the same anyway.',
+  'I’ll decide on the morning of.',
+];
+
+// Grants are "Allies" — power-brokers backing a candidate. Mapped onto the
+// grant's id index (grant-0, grant-1, …) modulo the list length.
+export const GRANT_DEMANDS: string[] = [
+  'I speak for the ten thousand on the factory floor.',
+  'My firm moves the markets you only read about.',
+  'My blessing carries more weight than your laws.',
+  'Order is not a suggestion; it is my mandate.',
+  'The land was here before you; I am its voice.',
+  'History will judge you by how you treat my people.',
+  'The cameras follow me, not your speeches.',
+  'I own the data; I already know how they will vote.',
+  'My family name is written on every building in this city.',
+  'I don’t choose sides; I choose winners.',
+];
+
 // User-facing label for any chip key — bloc colors resolve to their faction name,
 // non-blocs keep their descriptive label.
 export type LabelKey = Color | 'pivot' | 'grant' | 'exitPoll';
 
 export function labelFor(key: LabelKey): string {
-  if (key === 'pivot') return 'Pivot';
-  if (key === 'grant') return 'Public Grant';
+  if (key === 'pivot') return 'Undecided';
+  if (key === 'grant') return 'Ally';
   if (key === 'exitPoll') return 'Exit Poll';
   return BLOC_NAMES[key];
 }
