@@ -14,17 +14,24 @@ export type ScoreChartProps = {
 const PAD = { top: 16, right: 200, bottom: 28, left: 36 };
 const LABEL_LINE_HEIGHT = 21;
 const MIN_SHARE_CEILING = 25;
+const TRANSITION_MS = 700;
 
-// Voter-share normalization: each player's share is their positive score
-// divided by the sum of all positive scores in that round, expressed as %.
-// Negative-scoring players (Policy Contradictions outweighing positives) get
-// 0% — they have no "voter intention" to plot. Falls back to 0% across the
-// board if no one has any positive points yet.
 function shareOf(scores: Record<string, number>, pid: string): number {
   let sum = 0;
   for (const v of Object.values(scores)) sum += Math.max(0, v);
   if (sum === 0) return 0;
   return (Math.max(0, scores[pid] ?? 0) / sum) * 100;
+}
+
+function computeYMax(history: ScoreSnapshot[], playerOrder: string[]): number {
+  let max = MIN_SHARE_CEILING;
+  for (const snap of history) {
+    for (const pid of playerOrder) {
+      const s = shareOf(snap.scores, pid);
+      if (s > max) max = s;
+    }
+  }
+  return Math.min(100, max * 1.1);
 }
 
 type LabelPosition = { pid: string; y: number; color: string; name: string; score: number };
@@ -53,9 +60,61 @@ function dodgeLabels(
   return sorted;
 }
 
+type AnimState = {
+  from: ScoreSnapshot[];
+  to: ScoreSnapshot[];
+  fromYMax: number;
+  toYMax: number;
+  t: number; // eased 0..1
+};
+
 export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+
+  const prevHistoryRef = useRef(history);
+  const rafRef = useRef<number | null>(null);
+  const [animState, setAnimState] = useState<AnimState | null>(null);
+
+  useEffect(() => {
+    const prev = prevHistoryRef.current;
+    if (prev === history) return;
+
+    // Only animate when a snapshot is actually appended. Skip first non-empty
+    // load (prev.length === 0), resets (shrinks), and same-length re-renders
+    // (e.g. Firebase rebuilds the array on every card placement).
+    if (prev.length === 0 || history.length <= prev.length) {
+      prevHistoryRef.current = history;
+      if (history.length < prev.length) setAnimState(null);
+      return;
+    }
+
+    const from = prev;
+    prevHistoryRef.current = history;
+
+    const fromYMax = computeYMax(from, playerOrder);
+    const toYMax = computeYMax(history, playerOrder);
+    const start = performance.now();
+
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      const p = Math.min(1, elapsed / TRANSITION_MS);
+      const eased = 1 - Math.pow(1 - p, 3);
+      if (p < 1) {
+        setAnimState({ from, to: history, fromYMax, toYMax, t: eased });
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        setAnimState(null);
+      }
+    };
+
+    setAnimState({ from, to: history, fromYMax, toYMax, t: 0 });
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [history, playerOrder]);
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -80,32 +139,58 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
   const innerW = Math.max(0, width - PAD.left - PAD.right);
   const innerH = Math.max(0, height - PAD.top - PAD.bottom);
 
-  let maxShare = MIN_SHARE_CEILING;
-  for (const snap of history) {
-    for (const pid of playerOrder) {
-      const s = shareOf(snap.scores, pid);
-      if (s > maxShare) maxShare = s;
-    }
-  }
-  const yMin = 0;
-  const yMax = Math.min(100, maxShare * 1.1);
+  const toYMax = animState ? animState.toYMax : computeYMax(history, playerOrder);
 
-  const x = (i: number) =>
-    history.length <= 1
-      ? PAD.left
-      : PAD.left + (i / (history.length - 1)) * innerW;
-  const y = (share: number) =>
-    PAD.top + (1 - (share - yMin) / (yMax - yMin)) * innerH;
+  // Coordinate helpers — `xAt` maps an index to its x given a particular
+  // history length; `yAt` maps a share to its y given a particular yMax.
+  const xAt = (i: number, len: number): number =>
+    len <= 1 ? PAD.left : PAD.left + (i / (len - 1)) * innerW;
+  const yAt = (share: number, yMax: number): number =>
+    PAD.top + (1 - share / yMax) * innerH;
+
+  // For an index in the rendered (target) history, return the on-screen point
+  // for `pid` at the current animation frame. Indices that didn't exist in
+  // `from` start at the position of from's last point (they slide out from
+  // there) and lerp toward their final coords.
+  function pointAt(pid: string, i: number): { x: number; y: number } {
+    if (!animState) {
+      return {
+        x: xAt(i, history.length),
+        y: yAt(shareOf(history[i].scores, pid), toYMax),
+      };
+    }
+    const { from, to, fromYMax, t } = animState;
+    const toX = xAt(i, to.length);
+    const toY = yAt(shareOf(to[i].scores, pid), toYMax);
+    const fromIdx = i < from.length ? i : from.length - 1;
+    const fromX = xAt(fromIdx, from.length);
+    const fromY = yAt(shareOf(from[fromIdx].scores, pid), fromYMax);
+    return {
+      x: fromX + (toX - fromX) * t,
+      y: fromY + (toY - fromY) * t,
+    };
+  }
+
+  // Tick x positions interpolate the same way (carrying old ticks toward
+  // their compressed slots; new ticks emerge from the previous last-x).
+  function tickXAt(i: number): number {
+    if (!animState) return xAt(i, history.length);
+    const { from, to, t } = animState;
+    const toX = xAt(i, to.length);
+    const fromIdx = i < from.length ? i : from.length - 1;
+    const fromX = xAt(fromIdx, from.length);
+    return fromX + (toX - fromX) * t;
+  }
 
   const lastIdx = history.length - 1;
   const labelInputs: LabelPosition[] =
     history.length > 0
       ? playerOrder.map((pid, idx) => {
           const score = history[lastIdx].scores[pid] ?? 0;
-          const share = shareOf(history[lastIdx].scores, pid);
+          const { y } = pointAt(pid, lastIdx);
           return {
             pid,
-            y: y(share),
+            y,
             color: colorFor(pid, idx),
             name: nameFor(pid),
             score,
@@ -138,8 +223,8 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
             />
             {history.map((snap, i) => (
               <text
-                key={`tick-${i}`}
-                x={x(i)}
+                key={`tick-${snap.roundNumber}`}
+                x={tickXAt(i)}
                 y={PAD.top + innerH + 18}
                 textAnchor="middle"
                 fontSize={11}
@@ -154,15 +239,13 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
             ))}
             {playerOrder.map((pid, idx) => ({ pid, idx })).reverse().map(({ pid, idx }) => {
               const color = colorFor(pid, idx);
-              const points = history
-                .map((snap, i) => `${x(i)},${y(shareOf(snap.scores, pid))}`)
-                .join(' ');
-              const startY = y(shareOf(history[0].scores, pid));
+              const points = history.map((_, i) => pointAt(pid, i));
+              const startY = points[0]?.y ?? 0;
               return (
                 <g key={pid}>
                   {history.length > 1 ? (
                     <polyline
-                      points={points}
+                      points={points.map((p) => `${p.x},${p.y}`).join(' ')}
                       fill="none"
                       stroke={color}
                       strokeWidth={2}
@@ -171,7 +254,7 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                     />
                   ) : (
                     <line
-                      x1={x(0)}
+                      x1={xAt(0, 1)}
                       x2={PAD.left + innerW}
                       y1={startY}
                       y2={startY}
@@ -180,11 +263,11 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                       strokeLinecap="round"
                     />
                   )}
-                  {history.map((snap, i) => (
+                  {points.map((p, i) => (
                     <circle
-                      key={`${pid}-${i}`}
-                      cx={x(i)}
-                      cy={y(shareOf(snap.scores, pid))}
+                      key={`${pid}-${history[i].roundNumber}`}
+                      cx={p.x}
+                      cy={p.y}
                       r={3}
                       fill={color}
                     />
