@@ -36,8 +36,14 @@ function Waffle({ cards }: { cards: Card[] }) {
   const empty = Math.max(0, WAFFLE_SLOTS - visible.length);
 
   const seenIds = useRef<Set<string>>(new Set(visible.map((c) => c.id)));
+  // Track which card ids are new since the previous render to drive the
+  // highlight animation. Reading the ref in useMemo is render-phase, but the
+  // alternative (storing in state) would cause an extra re-render every time
+  // `visible` changes, which is exactly what this ref pattern was chosen to
+  // avoid.
   const newIds = useMemo(() => {
     const fresh = new Set<string>();
+    // eslint-disable-next-line react-hooks/refs
     for (const c of visible) if (!seenIds.current.has(c.id)) fresh.add(c.id);
     return fresh;
   }, [visible]);
