@@ -1,15 +1,13 @@
 import { useCallback, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-import Divider from '@mui/material/Divider';
 import { HostDeviceWarningModal, isLikelyMobileHost } from 'react-gameroom';
-import { Spectrum } from '../components/shared/Spectrum';
+import { RoomHeader } from '../components/shared/RoomHeader';
 import { getRoomStatus } from '../utils/roomStatus';
 
 type SubmittingRole = 'host' | 'player' | null;
@@ -63,28 +61,21 @@ export default function JoinPage() {
 
   return (
     <Box sx={{ p: { xs: 3, sm: 6 }, maxWidth: 560, mx: 'auto', minHeight: '100dvh' }}>
-      <Spectrum sx={{ mx: { xs: -3, sm: -6 } }} />
+      <RoomHeader
+        slot={
+          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+            The Newsdesk
+          </Typography>
+        }
+      />
       <Stack
         component="form"
         spacing={4}
         onSubmit={handleResumeAsHost}
-        sx={{ pt: { xs: 4, sm: 6 } }}
+        sx={{ pt: 4 }}
       >
         <Stack spacing={1.5}>
-          <Link
-            component={RouterLink}
-            to="/"
-            underline="hover"
-            variant="overline"
-            sx={{ color: 'text.secondary' }}
-          >
-            ← Back
-          </Link>
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-            The Newsdesk
-          </Typography>
           <Typography variant="h1">Resume</Typography>
-          <Divider sx={{ borderColor: 'rule.hair' }} />
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
             Enter the room code your friends shared to jump back in.
           </Typography>
