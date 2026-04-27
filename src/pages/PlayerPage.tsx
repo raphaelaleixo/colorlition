@@ -18,7 +18,7 @@ import { CoalitionBreakdown } from '../components/mobile/CoalitionBreakdown';
 import { CampaignRow } from '../components/big-screen/Leaderboard';
 import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
-import { Logo } from '../components/shared/Logo';
+import { RoomHeader } from '../components/shared/RoomHeader';
 import type { Segment } from '../game/types';
 
 export default function PlayerPage() {
@@ -73,33 +73,24 @@ export default function PlayerPage() {
   if (mySlot.status === 'empty') {
     return (
       <Stack spacing={2} sx={{ p: 2, maxWidth: 480 }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            pb: 1,
-            borderBottom: '1px solid',
-            borderColor: 'rule.hair',
-          }}
-        >
-          <Logo variant="h3" />
-          <Typography
-            variant="overline"
-            sx={{
-              color: 'text.secondary',
-              fontFeatureSettings: "'tnum' 1",
-              '&.MuiTypography-overline': {
-                fontSize: 14,
-                letterSpacing: '0.12em',
-                lineHeight: 1.1,
-              },
-            }}
-          >
-            {id} · Seat {playerId}
-          </Typography>
-        </Stack>
+        <RoomHeader
+          slot={
+            <Typography
+              variant="overline"
+              sx={{
+                color: 'text.secondary',
+                fontFeatureSettings: "'tnum' 1",
+                '&.MuiTypography-overline': {
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  lineHeight: 1.1,
+                },
+              }}
+            >
+              {id} · Seat {playerId}
+            </Typography>
+          }
+        />
         <Typography>You're claiming Slot {playerId}. Enter your name:</Typography>
         <TextField
           label="Your Name"
@@ -119,33 +110,24 @@ export default function PlayerPage() {
   if (!gameState) {
     return (
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            pb: 1,
-            borderBottom: '1px solid',
-            borderColor: 'rule.hair',
-          }}
-        >
-          <Logo variant="h3" />
-          <Typography
-            variant="overline"
-            sx={{
-              color: 'text.secondary',
-              fontFeatureSettings: "'tnum' 1",
-              '&.MuiTypography-overline': {
-                fontSize: 14,
-                letterSpacing: '0.12em',
-                lineHeight: 1.1,
-              },
-            }}
-          >
-            {id} · Seat {playerId}
-          </Typography>
-        </Stack>
+        <RoomHeader
+          slot={
+            <Typography
+              variant="overline"
+              sx={{
+                color: 'text.secondary',
+                fontFeatureSettings: "'tnum' 1",
+                '&.MuiTypography-overline': {
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  lineHeight: 1.1,
+                },
+              }}
+            >
+              {id} · Seat {playerId}
+            </Typography>
+          }
+        />
         <WaitingView message="Waiting for the host to start the game…" />
       </Stack>
     );
@@ -161,33 +143,24 @@ export default function PlayerPage() {
     const didWin = gameState.winnerIds?.includes(playerId) ?? false;
     return (
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            pb: 1,
-            borderBottom: '1px solid',
-            borderColor: 'rule.hair',
-          }}
-        >
-          <Logo variant="h3" />
-          <Typography
-            variant="overline"
-            sx={{
-              color: 'text.secondary',
-              fontFeatureSettings: "'tnum' 1",
-              '&.MuiTypography-overline': {
-                fontSize: 14,
-                letterSpacing: '0.12em',
-                lineHeight: 1.1,
-              },
-            }}
-          >
-            {id} · Seat {playerId}
-          </Typography>
-        </Stack>
+        <RoomHeader
+          slot={
+            <Typography
+              variant="overline"
+              sx={{
+                color: 'text.secondary',
+                fontFeatureSettings: "'tnum' 1",
+                '&.MuiTypography-overline': {
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  lineHeight: 1.1,
+                },
+              }}
+            >
+              {id} · Seat {playerId}
+            </Typography>
+          }
+        />
         <Typography variant="h4" color={didWin ? 'success.main' : 'text.primary'}>
           {didWin ? 'You won!' : 'Game over'}
         </Typography>
@@ -267,33 +240,24 @@ export default function PlayerPage() {
   return (
     <>
       <Stack spacing={2.5} sx={{ p: 2, pb: '96px', maxWidth: 400, mx: 'auto' }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            pb: 1,
-            borderBottom: '1px solid',
-            borderColor: 'rule.hair',
-          }}
-        >
-          <Logo variant="h3" />
-          <Typography
-            variant="overline"
-            sx={{
-              color: 'text.secondary',
-              fontFeatureSettings: "'tnum' 1",
-              '&.MuiTypography-overline': {
-                fontSize: 14,
-                letterSpacing: '0.12em',
-                lineHeight: 1.1,
-              },
-            }}
-          >
-            {id} · Seat {playerId}
-          </Typography>
-        </Stack>
+        <RoomHeader
+          slot={
+            <Typography
+              variant="overline"
+              sx={{
+                color: 'text.secondary',
+                fontFeatureSettings: "'tnum' 1",
+                '&.MuiTypography-overline': {
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  lineHeight: 1.1,
+                },
+              }}
+            >
+              {id} · Seat {playerId}
+            </Typography>
+          }
+        />
         <DrawZone
           gameState={gameState}
           isMyTurn={isMyTurn}
