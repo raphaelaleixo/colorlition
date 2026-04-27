@@ -108,7 +108,9 @@ export function Card({
   return (
     <Box
       sx={{
-        width: 320,
+        ...(fluid
+          ? { width: "100%", maxWidth: "100%" }
+          : { width: 320 }),
         // Mirror the small card's 7:10, but laid out horizontally.
         // overflow: hidden so long demand text can't push the box past the
         // ratio (aspect-ratio is preferred, not enforced, against content).

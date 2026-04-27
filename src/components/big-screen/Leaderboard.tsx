@@ -53,7 +53,8 @@ function Waffle({ cards }: { cards: Card[] }) {
         gridTemplateColumns: 'repeat(10, 1fr)',
         gridTemplateRows: 'repeat(3, 1fr)',
         gap: '2px',
-        height: '100%',
+        flexShrink: 0,
+        height: 60,
         aspectRatio: '10 / 3',
         '@keyframes waffleBubbleUp': {
           '0%': {
@@ -105,18 +106,143 @@ function Waffle({ cards }: { cards: Card[] }) {
   );
 }
 
+// One row of the campaign leaderboard: waffle + name/status + Allies/Undecided
+// chips. Exported so the player's mobile view can render the same shape for
+// their own coalition (with `showName={false}`).
+export function CampaignRow({
+  row,
+  showName = true,
+}: {
+  row: LeaderRow;
+  showName?: boolean;
+}) {
+  const { gameState } = useGame();
+  const pivotBg = pivotStripes(
+    gameState ? colorsInPlay(gameState) : [],
+    'vertical',
+  );
+  const bd = scorePlayer(row.playerId, row.base);
+  const grants = row.base.filter((c) => c.kind === 'grant').length;
+  const pivots = row.base.filter((c) => c.kind === 'pivot').length;
+
+  return (
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{
+        py: 1,
+        minHeight: 68,
+        alignItems: 'stretch',
+        borderBottom: '1px solid',
+        borderColor: 'rule.hair',
+        '&:last-of-type': { borderBottom: 'none' },
+      }}
+    >
+      <Waffle cards={orderBlocs(row.base, bd.positiveColors, bd.negativeColors)} />
+      <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'center' }}>
+        {showName && (
+          <Typography
+            variant="body1"
+            noWrap
+            sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+          >
+            {row.name}
+          </Typography>
+        )}
+        <Stack
+          direction="row"
+          spacing={0.75}
+          aria-hidden={!(row.isCurrent || row.roundStatus === 'claimed')}
+          sx={{
+            alignItems: 'center',
+            color: row.isCurrent ? '#1F7540' : '#911414',
+            visibility:
+              row.isCurrent || row.roundStatus === 'claimed' ? 'visible' : 'hidden',
+            ...(row.isCurrent && {
+              '@keyframes currentPlayerPulse': {
+                '0%, 100%': { opacity: 0.55 },
+                '50%': { opacity: 1 },
+              },
+              animation: 'currentPlayerPulse 1.4s ease-in-out infinite',
+              '@media (prefers-reduced-motion: reduce)': {
+                animation: 'none',
+              },
+            }),
+          }}
+        >
+          <Box
+            sx={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: 'currentColor',
+              flexShrink: 0,
+            }}
+          />
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{ color: 'inherit', fontWeight: 600 }}
+          >
+            {row.isCurrent
+              ? 'Current player'
+              : row.roundStatus === 'claimed'
+                ? 'Claimed segments'
+                : 'Current player'}
+          </Typography>
+        </Stack>
+      </Stack>
+      <Stack spacing={0.5} sx={{ minWidth: 90, justifyContent: 'center' }}>
+        {grants > 0 && (
+          <Chip
+            size="small"
+            label={
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}
+              >
+                <span>Allies</span>
+                <span>× {grants}</span>
+              </Box>
+            }
+            sx={{
+              ...chipSxFor('grant'),
+              '& .MuiChip-label': { fontWeight: 700, width: '100%' },
+            }}
+          />
+        )}
+        {pivots > 0 && (
+          <Chip
+            size="small"
+            label={
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}
+              >
+                <span>Undecided</span>
+                <span>× {pivots}</span>
+              </Box>
+            }
+            sx={{
+              ...chipSxFor('pivot'),
+              background: pivotBg,
+              '& .MuiChip-label': { fontWeight: 700, width: '100%' },
+            }}
+          />
+        )}
+      </Stack>
+    </Stack>
+  );
+}
+
 export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   const { gameState } = useGame();
-  const pivotBg = pivotStripes(gameState ? colorsInPlay(gameState) : [], 'vertical');
-  const scored = rows.map((r) => {
-    const bd = scorePlayer(r.playerId, r.base);
-    return {
-      ...r,
-      total: bd.total,
-      positiveColors: bd.positiveColors,
-      negativeColors: bd.negativeColors,
-    };
-  });
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
@@ -140,123 +266,9 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
         </Stack>
         <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
       </Stack>
-      {scored.map((r) => {
-        const grants = r.base.filter((c) => c.kind === 'grant').length;
-        const pivots = r.base.filter((c) => c.kind === 'pivot').length;
-        return (
-          <Stack
-            key={r.playerId}
-            direction="row"
-            spacing={2}
-            sx={{
-              py: 1,
-              minHeight: 68,
-              alignItems: 'stretch',
-              borderBottom: '1px solid',
-              borderColor: 'rule.hair',
-              '&:last-of-type': { borderBottom: 'none' },
-            }}
-          >
-            <Waffle cards={orderBlocs(r.base, r.positiveColors, r.negativeColors)} />
-            <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'center' }}>
-              <Typography
-                variant="body1"
-                noWrap
-                sx={{ fontWeight: 700, textTransform: 'uppercase' }}
-              >
-                {r.name}
-              </Typography>
-              <Stack
-                direction="row"
-                spacing={0.75}
-                aria-hidden={!(r.isCurrent || r.roundStatus === 'claimed')}
-                sx={{
-                  alignItems: 'center',
-                  color: r.isCurrent ? '#1F7540' : '#911414',
-                  visibility:
-                    r.isCurrent || r.roundStatus === 'claimed' ? 'visible' : 'hidden',
-                  ...(r.isCurrent && {
-                    '@keyframes currentPlayerPulse': {
-                      '0%, 100%': { opacity: 0.55 },
-                      '50%': { opacity: 1 },
-                    },
-                    animation: 'currentPlayerPulse 1.4s ease-in-out infinite',
-                    '@media (prefers-reduced-motion: reduce)': {
-                      animation: 'none',
-                    },
-                  }),
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    backgroundColor: 'currentColor',
-                    flexShrink: 0,
-                  }}
-                />
-                <Typography
-                  variant="caption"
-                  noWrap
-                  sx={{ color: 'inherit', fontWeight: 600 }}
-                >
-                  {r.isCurrent
-                    ? 'Current player'
-                    : r.roundStatus === 'claimed'
-                      ? 'Claimed segments'
-                      : 'Current player'}
-                </Typography>
-              </Stack>
-            </Stack>
-            <Stack spacing={0.5} sx={{ minWidth: 90, justifyContent: 'center' }}>
-              {grants > 0 && (
-                <Chip
-                  size="small"
-                  label={
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        width: '100%',
-                      }}
-                    >
-                      <span>Allies</span>
-                      <span>× {grants}</span>
-                    </Box>
-                  }
-                  sx={{
-                    ...chipSxFor('grant'),
-                    '& .MuiChip-label': { fontWeight: 700, width: '100%' },
-                  }}
-                />
-              )}
-              {pivots > 0 && (
-                <Chip
-                  size="small"
-                  label={
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        width: '100%',
-                      }}
-                    >
-                      <span>Undecided</span>
-                      <span>× {pivots}</span>
-                    </Box>
-                  }
-                  sx={{
-                    ...chipSxFor('pivot'),
-                    background: pivotBg,
-                    '& .MuiChip-label': { fontWeight: 700, width: '100%' },
-                  }}
-                />
-              )}
-            </Stack>
-          </Stack>
-        );
-      })}
+      {rows.map((r) => (
+        <CampaignRow key={r.playerId} row={r} />
+      ))}
     </Stack>
   );
 }

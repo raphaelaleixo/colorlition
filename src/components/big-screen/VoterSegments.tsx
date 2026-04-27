@@ -1,4 +1,10 @@
-import { createContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -114,6 +120,8 @@ function SegmentRow({
   idx,
   nameFor,
   isPageRevealing,
+  renderAction,
+  bare = false,
 }: {
   segment: Segment;
   idx: number;
@@ -122,6 +130,12 @@ function SegmentRow({
   // screen. While true, a freshly-arrived card in this segment is held back
   // as an empty slot; it scales in only after the reveal exits.
   isPageRevealing: boolean;
+  // Optional trailing slot rendered after the card row — used by the player
+  // view to surface a per-segment Claim/Add-here button.
+  renderAction?: (segment: Segment) => ReactNode;
+  // When true, skip the per-row Section wrapper. Used by VoterSegments'
+  // singleColumn mode so segments share one outer box with hair dividers.
+  bare?: boolean;
 }) {
   const claimed = segment.claimedBy !== null;
   const prevClaimedByRef = useRef(segment.claimedBy);
@@ -217,98 +231,116 @@ function SegmentRow({
     ? segment.cards.slice(0, -1)
     : segment.cards;
 
-  return (
-    <Section dense sx={{ borderColor: 'rule.strong' }}>
-      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-        <Typography
-          sx={{
-            fontFamily: '"Source Sans 3", system-ui, sans-serif',
-            fontSize: 23,
-            fontWeight: 700,
-            color: 'text.secondary',
-            minWidth: 26,
-            textAlign: 'center',
-            flexShrink: 0,
-            lineHeight: 1,
-          }}
-        >
-          {idx + 1}
-        </Typography>
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            position: 'relative',
-            containerType: 'inline-size',
-          }}
-        >
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-            {showZoom ? (
-              <>
-                {snapshotRef.current.map((c) => (
-                  <Card key={c.id} card={c} fluid />
-                ))}
-                {Array.from({ length: snapshotPad }).map((_, i) => (
-                  <CardSlot key={`pad-${i}`} />
-                ))}
-              </>
-            ) : claimed ? (
-              <ClaimedOverlay
-                name={nameFor(segment.claimedBy!)}
-                variant="static"
-              />
-            ) : (
-              <>
-                {cardsToShow.map((c) => (
-                  <Card
-                    key={c.id}
-                    card={c}
-                    fluid
-                    sx={
-                      c.id === scaleInId
-                        ? {
-                            transformOrigin: 'center center',
-                            '@keyframes slotScaleIn': {
-                              '0%': { opacity: 0, transform: 'scale(0)' },
-                              '60%': {
-                                opacity: 1,
-                                transform: 'scale(1.12)',
-                              },
-                              '100%': {
-                                opacity: 1,
-                                transform: 'scale(1)',
-                              },
-                            },
-                            animation: `slotScaleIn ${SLOT_IN_MS}ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
-                            '@media (prefers-reduced-motion: reduce)': {
-                              animation: 'none',
-                            },
-                          }
-                        : undefined
-                    }
-                  />
-                ))}
-                {hideLastCard && <CardSlot key="reveal-placeholder" />}
-                {Array.from({ length: emptySlots }).map((_, i) => (
-                  <CardSlot key={`empty-${i}`} />
-                ))}
-              </>
-            )}
-          </Stack>
-          {showZoom && (
+  const inner = (
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+      <Typography
+        sx={{
+          fontFamily: '"Source Sans 3", system-ui, sans-serif',
+          fontSize: 23,
+          fontWeight: 700,
+          color: 'text.secondary',
+          minWidth: 26,
+          textAlign: 'center',
+          flexShrink: 0,
+          lineHeight: 1,
+        }}
+      >
+        {idx + 1}
+      </Typography>
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          position: 'relative',
+          containerType: 'inline-size',
+        }}
+      >
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+          {showZoom ? (
+            <>
+              {snapshotRef.current.map((c) => (
+                <Card key={c.id} card={c} fluid />
+              ))}
+              {Array.from({ length: snapshotPad }).map((_, i) => (
+                <CardSlot key={`pad-${i}`} />
+              ))}
+            </>
+          ) : claimed ? (
             <ClaimedOverlay
               name={nameFor(segment.claimedBy!)}
-              variant="animated"
+              variant="static"
             />
+          ) : (
+            <>
+              {cardsToShow.map((c) => (
+                <Card
+                  key={c.id}
+                  card={c}
+                  fluid
+                  sx={
+                    c.id === scaleInId
+                      ? {
+                          transformOrigin: 'center center',
+                          '@keyframes slotScaleIn': {
+                            '0%': { opacity: 0, transform: 'scale(0)' },
+                            '60%': {
+                              opacity: 1,
+                              transform: 'scale(1.12)',
+                            },
+                            '100%': {
+                              opacity: 1,
+                              transform: 'scale(1)',
+                            },
+                          },
+                          animation: `slotScaleIn ${SLOT_IN_MS}ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
+                          '@media (prefers-reduced-motion: reduce)': {
+                            animation: 'none',
+                          },
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+              {hideLastCard && <CardSlot key="reveal-placeholder" />}
+              {Array.from({ length: emptySlots }).map((_, i) => (
+                <CardSlot key={`empty-${i}`} />
+              ))}
+            </>
           )}
-          {exitingClaimedBy !== null && !claimed && (
-            <ClaimedOverlay
-              name={nameFor(exitingClaimedBy)}
-              variant="exiting"
-            />
-          )}
+        </Stack>
+        {showZoom && (
+          <ClaimedOverlay
+            name={nameFor(segment.claimedBy!)}
+            variant="animated"
+          />
+        )}
+        {exitingClaimedBy !== null && !claimed && (
+          <ClaimedOverlay
+            name={nameFor(exitingClaimedBy)}
+            variant="exiting"
+          />
+        )}
+      </Box>
+      {renderAction && (
+        <Box
+          sx={{
+            flexShrink: 0,
+            alignSelf: 'center',
+            width: 84,
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
+          {renderAction(segment)}
         </Box>
-      </Stack>
+      )}
+    </Stack>
+  );
+
+  if (bare) return inner;
+  return (
+    <Section dense sx={{ borderColor: 'rule.strong' }}>
+      {inner}
     </Section>
   );
 }
@@ -317,11 +349,49 @@ export function VoterSegments({
   segments,
   nameFor,
   isPageRevealing = false,
+  singleColumn = false,
+  renderAction,
 }: {
   segments: Segment[];
   nameFor: (playerId: string) => string;
   isPageRevealing?: boolean;
+  // Player view stacks segments vertically; big screen uses 3 columns.
+  singleColumn?: boolean;
+  renderAction?: (segment: Segment) => ReactNode;
 }) {
+  if (singleColumn) {
+    return (
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'rule.strong',
+        }}
+      >
+        {segments.map((s, idx) => (
+          <Box
+            key={s.key}
+            sx={{
+              px: 2,
+              py: 1.5,
+              borderBottom: '1px solid',
+              borderColor: 'rule.hair',
+              '&:last-of-type': { borderBottom: 'none' },
+            }}
+          >
+            <SegmentRow
+              segment={s}
+              idx={idx}
+              nameFor={nameFor}
+              isPageRevealing={isPageRevealing}
+              renderAction={renderAction}
+              bare
+            />
+          </Box>
+        ))}
+      </Box>
+    );
+  }
   return (
     <Box
       sx={{
@@ -338,6 +408,7 @@ export function VoterSegments({
           idx={idx}
           nameFor={nameFor}
           isPageRevealing={isPageRevealing}
+          renderAction={renderAction}
         />
       ))}
     </Box>

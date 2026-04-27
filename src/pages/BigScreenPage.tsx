@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -12,17 +12,12 @@ import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
 import { WinnerScreen } from '../components/big-screen/WinnerScreen';
 import { ScoreChart } from '../components/big-screen/ScoreChart';
+import { Logo } from '../components/shared/Logo';
 import { PALETTE, PLAYER_LINE_PALETTE } from '../theme/colors';
-
-const LOGO_COLOR_KEYS = ['red', 'purple', 'green', 'blue', 'orange', 'yellow', 'grey'] as const;
 
 export default function BigScreenPage() {
   const { id } = useParams();
   const { gameState, loadRoom, roomState } = useGame();
-  const logoColor = useMemo(
-    () => PALETTE[LOGO_COLOR_KEYS[Math.floor(Math.random() * LOGO_COLOR_KEYS.length)]],
-    [],
-  );
   const [exitPollRevealing, setExitPollRevealing] = useState(false);
   const [drawRevealing, setDrawRevealing] = useState(false);
   const handleExitPollRevealingChange = useCallback(
@@ -88,18 +83,7 @@ export default function BigScreenPage() {
           borderColor: 'rule.ink',
         }}
       >
-        <Typography
-          variant="h1"
-          sx={{
-            fontStyle: 'italic',
-            fontWeight: 900,
-          }}
-        >
-          <Box component="span" sx={{ color: logoColor }}>
-            color
-          </Box>
-          lition
-        </Typography>
+        <Logo variant="h1" />
         <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
             <Typography variant="overline" sx={{ color: 'text.secondary' }}>

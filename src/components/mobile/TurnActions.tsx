@@ -22,23 +22,10 @@ function RuledDivider({ label }: { label: string }) {
 }
 
 export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) {
-  const { drawCard, placePendingDraw, claim } = useGame();
+  const { placePendingDraw, claim } = useGame();
   const [busy, setBusy] = useState(false);
 
   const pending = gameState.pendingDraw;
-  const canDraw =
-    !pending &&
-    gameState.deck.length > 0 &&
-    gameState.segments.some(canPlaceInSegment);
-
-  const handleDraw = async () => {
-    setBusy(true);
-    try {
-      await drawCard();
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const handlePlace = async (segmentKey: SegmentKey) => {
     setBusy(true);
@@ -96,15 +83,6 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
   return (
     <Section dense>
       <Stack spacing={2}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleDraw}
-          disabled={busy || !canDraw}
-          sx={{ py: 1.75 }}
-        >
-          Draw
-        </Button>
         <RuledDivider label="or claim" />
         <Stack spacing={1}>
           {gameState.segments.map((s) => (
