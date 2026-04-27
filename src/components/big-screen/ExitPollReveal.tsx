@@ -30,10 +30,14 @@ export function ExitPollReveal({
   }, [phase, onRevealingChange]);
 
   // Detect false→true transition during render so the overlay paints on the
-  // very next commit.
+  // very next commit. Render-phase ref read/write is intentional — using
+  // useEffect would cause a one-frame static flash before the centered
+  // animation kicks in.
+  // eslint-disable-next-line react-hooks/refs
   if (!prevDrawnRef.current && exitPollDrawn && phase === null) {
     setPhase('centered');
   }
+  // eslint-disable-next-line react-hooks/refs
   prevDrawnRef.current = exitPollDrawn;
 
   useEffect(() => {
@@ -48,11 +52,13 @@ export function ExitPollReveal({
     }
   }, [phase, isManualReveal]);
 
-  // Manual-advance hook: when advanceTick changes during the centered phase,
-  // kick the flow into departing.
+  // Manual-advance hook (mock dev panel only): when advanceTick changes during
+  // the centered phase, kick the flow into departing. The setState here IS the
+  // effect's purpose.
   const advanceTick = revealControl?.advanceTick;
   useEffect(() => {
     if (advanceTick === undefined) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (phase === 'centered') setPhase('departing');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [advanceTick]);
