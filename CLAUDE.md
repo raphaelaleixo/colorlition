@@ -8,7 +8,7 @@ Pre-implementation. The repo currently contains only design specs in `projectInf
 
 ## What Color-lition Is
 
-A real-time, multi-device (BYOD) web-based political strategy game. Mechanics are adapted from Coloretto; the theme is 2026-era coalition politics. Players are candidates drafting cards into voter segments, competing to build a 3-color governing coalition while avoiding "policy contradictions" that subtract points.
+A real-time, multi-device (BYOD) web-based card-drafting game dressed up as 2026 coalition politics. Mechanics are adapted from Coloretto. Players are candidates drafting cards into voter segments, competing to build a governing coalition of at most 3 colors while avoiding "policy contradictions" that subtract points.
 
 ## Intended Architecture (from `projectInfo/colorlition_master_game_bible.md`)
 
@@ -53,10 +53,12 @@ This project **must** be built on top of `react-gameroom` (the user's own librar
 
 When implementing these systems, treat the markdown files as the source data — parse or port them into structured data (JSON/TS), don't retype the content inline.
 
-## Naming Conventions (from specs — preserve in UI copy)
+## Naming Conventions (preserve in UI copy)
 
 The game uses deliberate political/journalistic vocabulary. Don't rename these in UI strings:
-- "Interest Bloc" (not "card"), "Voter Segment" (not "row"), "Base" / "Coalition" (not "hand"), "Claim a Constituency" (not "take row"), "Policy Contradictions" / "Flip-Flops" (for negative-scoring colors), "Projected Mandate" (the leaderboard), "The Pivot" (wilds), "Public Grant" (+2 cards), "The Exit Poll" (final-round trigger).
+- "Interest Bloc" (not "card"), "Voter Segment" (not "row"), "Base" / "Coalition" (not "hand"), "Add Representation" (drawing/placing a card), "Claim Demands" (not "take row"), "Policy Contradictions" / "Flip-Flops" (for negative-scoring colors), "Poll Results" (the live leaderboard), "Undecided" (wilds), "Ally" (+2 cards), "Exit Poll" (final-round trigger).
+
+The original spec uses "Projected Mandate" / "The Pivot" / "Public Grant" — the implementation has since renamed these for player-facing copy. Internal `kind` strings (`'pivot'`, `'grant'`) are unchanged; only the displayed labels (via `labelFor()` in `src/game/data/demands.ts`) and headings have moved. Use the new names in any new UI; treat the spec's older terms as historical.
 
 ## Open Decisions (not yet in specs)
 

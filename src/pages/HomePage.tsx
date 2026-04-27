@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import { useGame } from '../contexts/GameContext';
 
@@ -30,6 +31,14 @@ export default function HomePage() {
       <Button variant="contained" color="primary" onClick={handleCreate} disabled={busy} sx={{ px: 4, py: 1.5 }}>
         {busy ? 'Creating…' : 'Create Game'}
       </Button>
+      <Link
+        component={RouterLink}
+        to="/how-to-play"
+        underline="hover"
+        sx={{ color: 'text.secondary' }}
+      >
+        How to play →
+      </Link>
     </Stack>
   );
 }

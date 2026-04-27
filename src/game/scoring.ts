@@ -3,6 +3,9 @@ import type { Card, Color, ScoreBreakdown } from './types';
 
 export function triangular(n: number): number {
   if (n <= 0) return 0;
+  // Cap at 6 — the 7th+ card of one color adds nothing. Drives the pivot
+  // optimizer to divert wilds away from already-saturated colors.
+  if (n >= 6) return 21;
   return (n * (n + 1)) / 2;
 }
 
