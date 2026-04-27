@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -12,9 +12,15 @@ import { WinnerScreen } from '../components/big-screen/WinnerScreen';
 import { ScoreChart } from '../components/big-screen/ScoreChart';
 import { PALETTE, PLAYER_LINE_PALETTE } from '../theme/colors';
 
+const LOGO_COLOR_KEYS = ['red', 'purple', 'green', 'blue', 'orange', 'yellow', 'grey'] as const;
+
 export default function BigScreenPage() {
   const { id } = useParams();
   const { gameState, loadRoom, roomState } = useGame();
+  const logoColor = useMemo(
+    () => PALETTE[LOGO_COLOR_KEYS[Math.floor(Math.random() * LOGO_COLOR_KEYS.length)]],
+    [],
+  );
 
   useEffect(() => {
     if (id) loadRoom(id);
@@ -75,37 +81,11 @@ export default function BigScreenPage() {
           sx={{
             fontStyle: 'italic',
             fontWeight: 900,
-            '@keyframes colorlitionHue': {
-              '0%':     { color: PALETTE.red },
-              '14.28%': { color: PALETTE.purple },
-              '28.57%': { color: PALETTE.green },
-              '42.85%': { color: PALETTE.blue },
-              '57.14%': { color: PALETTE.orange },
-              '71.42%': { color: PALETTE.yellow },
-              '85.71%': { color: PALETTE.grey },
-              '100%':   { color: PALETTE.red },
-            },
           }}
         >
-          {'color'.split('').map((ch, i) => (
-            <Box
-              key={i}
-              component="span"
-              sx={{
-                animationName: 'colorlitionHue',
-                animationDuration: '14s',
-                animationTimingFunction: 'steps(1, end)',
-                animationIterationCount: 'infinite',
-                animationDelay: `${-2 * i}s`,
-                '@media (prefers-reduced-motion: reduce)': {
-                  animation: 'none',
-                  color: PALETTE.red,
-                },
-              }}
-            >
-              {ch}
-            </Box>
-          ))}
+          <Box component="span" sx={{ color: logoColor }}>
+            color
+          </Box>
           lition
         </Typography>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
