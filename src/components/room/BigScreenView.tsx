@@ -75,7 +75,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
       <Stack
         direction="row"
         sx={{
-          alignItems: 'baseline',
+          alignItems: 'flex-end',
           justifyContent: 'space-between',
           gap: 3,
           pb: 2,
@@ -83,7 +83,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
           borderColor: 'rule.ink',
         }}
       >
-        <Logo layout="stacked" sx={{ fontSize: { xs: 36, sm: 48 } }} />
+        <Logo layout="stacked" sx={{ fontSize: { xs: 28, sm: 36 } }} />
         <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
             <Typography variant="overline" sx={{ color: 'text.secondary' }}>
