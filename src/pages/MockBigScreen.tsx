@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { BigScreenView } from '../components/room/BigScreenView';
 import { GameContext, type GameContextValue } from '../contexts/GameContext';
-import { RevealControlContext } from '../components/big-screen/VoterSegments';
+import { RevealControlContext } from '../components/big-screen/revealControl';
 import {
   buildMockGameContextValue,
   MOCK_GAME_STATE,

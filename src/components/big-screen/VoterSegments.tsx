@@ -1,5 +1,4 @@
 import {
-  createContext,
   useEffect,
   useRef,
   useState,
@@ -12,12 +11,6 @@ import { Card } from '../shared/Card';
 import { Section } from '../shared/Section';
 import { CARDS_PER_SEGMENT } from '../../game/constants';
 import type { Segment, Card as GameCard } from '../../game/types';
-
-// Dev/mock helper retained for ExitPollReveal manual advance. The page-level
-// medium-card reveal in BigScreenPage now handles the regular draw flow, so
-// `advanceTick` only nudges the exit poll overlay through its centered phase.
-export type RevealControl = { advanceTick: number };
-export const RevealControlContext = createContext<RevealControl | null>(null);
 
 const CLAIM_ZOOM_MS = 600;
 const CLAIM_EXIT_MS = 420;

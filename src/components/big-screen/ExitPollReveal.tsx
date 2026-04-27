@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import { Card } from '../shared/Card';
-import { RevealControlContext } from './VoterSegments';
+import { RevealControlContext } from './revealControl';
 import type { ExitPollCard } from '../../game/types';
 
 const REVEAL_HOLD_MS = 1200;
