@@ -40,7 +40,7 @@ export const typography: TypographyVariantsOptions = {
   },
   button: {
     fontFamily: SANS,
-    fontWeight: 600,
+    fontWeight: 700,
     textTransform: 'none',
     letterSpacing: '0.02em',
   },

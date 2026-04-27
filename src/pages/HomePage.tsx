@@ -72,7 +72,7 @@ export default function HomePage() {
             </Box>{' '}
             A real-time card draft for 3 to 5 players, dressed up as 2026 politics.
           </Typography>
-          <Box sx={{ pt: 1 }}>
+          <Stack direction="row" spacing={3} sx={{ alignItems: 'center', flexWrap: 'wrap', pt: 1 }}>
             <Button
               variant="contained"
               color="primary"
@@ -82,8 +82,6 @@ export default function HomePage() {
             >
               {busy ? 'Creating…' : 'Create Game'}
             </Button>
-          </Box>
-          <Stack direction="row" spacing={3} sx={{ alignItems: 'baseline', flexWrap: 'wrap' }}>
             <Link
               component={RouterLink}
               to="/join"
