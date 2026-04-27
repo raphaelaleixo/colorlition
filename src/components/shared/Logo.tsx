@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
+import { FONT_SERIF } from '../../theme/typography';
 import { PALETTE } from '../../theme/colors';
 
 const LOGO_COLOR_KEYS = [
@@ -13,23 +14,69 @@ const LOGO_COLOR_KEYS = [
   'grey',
 ] as const;
 
-// Italic "color"-tinted logotype shared by the big screen and the player
-// view. The "color" span hue is picked once per mount from the bloc palette
-// so each device gets its own accent on load.
-export function Logo({ variant = 'h1', sx }: { variant?: TypographyProps['variant']; sx?: TypographyProps['sx'] }) {
+interface LogoProps {
+  // Drives the wordmark size in inline layout (uses MUI Typography variants).
+  variant?: TypographyProps['variant'];
+  // 'inline' = "The Colorlition" on one line (headers).
+  // 'stacked' = Guardian-style "The" above "Colorlition" (home hero).
+  layout?: 'inline' | 'stacked';
+  sx?: TypographyProps['sx'];
+}
+
+// Italic "Color"-tinted logotype shared by the big screen, player view, and
+// home page. The "Color" span hue is picked once per mount from the bloc
+// palette so each device gets its own accent on load. Stacked layout uses em
+// units so a single fontSize override on the parent scales both lines.
+export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
   const [logoColor] = useState(
     () =>
       PALETTE[
         LOGO_COLOR_KEYS[Math.floor(Math.random() * LOGO_COLOR_KEYS.length)]
       ],
   );
+
+  if (layout === 'stacked') {
+    return (
+      <Box sx={{ display: 'inline-block', fontFamily: FONT_SERIF, ...sx }}>
+        <Box
+          component="span"
+          sx={{
+            display: 'block',
+            fontStyle: 'italic',
+            fontWeight: 700,
+            fontSize: '0.32em',
+            letterSpacing: '0.04em',
+            lineHeight: 1,
+          }}
+        >
+          The
+        </Box>
+        <Box
+          component="span"
+          sx={{
+            display: 'block',
+            fontStyle: 'italic',
+            fontWeight: 900,
+            lineHeight: 0.95,
+          }}
+        >
+          <Box component="span" sx={{ color: logoColor }}>
+            Color
+          </Box>
+          lition
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Typography
       variant={variant}
       sx={{ fontStyle: 'italic', fontWeight: 900, ...sx }}
     >
+      The{' '}
       <Box component="span" sx={{ color: logoColor }}>
-        color
+        Color
       </Box>
       lition
     </Typography>
