@@ -1,40 +1,14 @@
-import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 import { FONT_SERIF } from '../../theme/typography';
-import { PALETTE } from '../../theme/colors';
-
-const LOGO_COLOR_KEYS = [
-  'red',
-  'purple',
-  'green',
-  'blue',
-  'orange',
-  'yellow',
-  'grey',
-] as const;
 
 interface LogoProps {
-  // Drives the wordmark size in inline layout (uses MUI Typography variants).
   variant?: TypographyProps['variant'];
-  // 'inline' = "The Colorlition" on one line (headers).
-  // 'stacked' = Guardian-style "The" above "Colorlition" (home hero).
   layout?: 'inline' | 'stacked';
   sx?: TypographyProps['sx'];
 }
 
-// Italic "Color"-tinted logotype shared by the big screen, player view, and
-// home page. The "Color" span hue is picked once per mount from the bloc
-// palette so each device gets its own accent on load. Stacked layout uses em
-// units so a single fontSize override on the parent scales both lines.
 export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
-  const [logoColor] = useState(
-    () =>
-      PALETTE[
-        LOGO_COLOR_KEYS[Math.floor(Math.random() * LOGO_COLOR_KEYS.length)]
-      ],
-  );
-
   if (layout === 'stacked') {
     return (
       <Box sx={{ display: 'inline-block', fontFamily: FONT_SERIF, ...sx }}>
@@ -42,16 +16,11 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
           component="span"
           sx={{
             display: 'block',
-            fontStyle: 'italic',
-            fontWeight: 700,
-            fontSize: '0.6em',
-            letterSpacing: '0.02em',
-            lineHeight: 1,
-            // Indent so "The" sits above the "or" between the two l's of
-            // Colorlition. Visually tuned for italic Playfair 900.
-            pl: '2.75em',
-            // Pull the wordmark up so "The" tucks into its top edge.
-            mb: '-0.5em',
+            fontWeight: '900',
+            fontSize: '0.95em',
+            lineHeight: '1',
+            paddingLeft: '1.55em',
+            marginBottom: '-0.35em',
           }}
         >
           The
@@ -60,30 +29,19 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
           component="span"
           sx={{
             display: 'block',
-            fontStyle: 'italic',
             fontWeight: 900,
             lineHeight: 0.95,
           }}
         >
-          <Box component="span" sx={{ color: logoColor }}>
-            Color
-          </Box>
-          lition
+          Color·Lition
         </Box>
       </Box>
     );
   }
 
   return (
-    <Typography
-      variant={variant}
-      sx={{ fontStyle: 'italic', fontWeight: 900, ...sx }}
-    >
-      The{' '}
-      <Box component="span" sx={{ color: logoColor }}>
-        Color
-      </Box>
-      lition
+    <Typography variant={variant} sx={{ fontWeight: 900, ...sx }}>
+      The Color·Lition
     </Typography>
   );
 }
