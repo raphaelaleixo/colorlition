@@ -9,18 +9,15 @@ import { GameProvider } from './contexts/GameContext';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const HowToPlayPage = lazy(() => import('./pages/HowToPlayPage'));
-const LobbyPage = lazy(() => import('./pages/LobbyPage'));
-const BigScreenPage = lazy(() => import('./pages/BigScreenPage'));
-const JoinPage = lazy(() => import('./pages/JoinPage'));
+const RoomPage = lazy(() => import('./pages/RoomPage'));
+const PlayerJoinPage = lazy(() => import('./pages/PlayerJoinPage'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
 
 const routes: RouteObject[] = [
   { path: '/', element: <HomePage /> },
   { path: '/how-to-play', element: <HowToPlayPage /> },
-  { path: '/join', element: <JoinPage /> },
-  { path: '/join/:id', element: <JoinPage /> },
-  { path: '/room/:id', element: <LobbyPage /> },
-  { path: '/room/:id/play', element: <BigScreenPage /> },
+  { path: '/room/:id', element: <RoomPage /> },
+  { path: '/room/:id/player', element: <PlayerJoinPage /> },
   { path: '/room/:id/player/:playerId', element: <PlayerPage /> },
 ];
 
