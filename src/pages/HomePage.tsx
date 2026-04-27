@@ -8,6 +8,7 @@ import Link from '@mui/material/Link';
 import Divider from '@mui/material/Divider';
 import { HostDeviceWarningModal, isLikelyMobileHost } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
+import { FONT_SANS } from '../theme/typography';
 import { Logo } from '../components/shared/Logo';
 import { Spectrum } from '../components/shared/Spectrum';
 import { StakesGrid } from '../components/shared/StakesGrid';
@@ -60,6 +61,7 @@ export default function HomePage() {
           <Typography
             variant="h5"
             sx={{
+              fontFamily: FONT_SANS,
               fontStyle: 'italic',
               fontWeight: 400,
               maxWidth: 520,
