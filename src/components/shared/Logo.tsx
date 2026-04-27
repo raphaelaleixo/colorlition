@@ -33,7 +33,7 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
             lineHeight: 0.95,
           }}
         >
-          Color•Lition
+          Color•lition
         </Box>
       </Box>
     );
@@ -41,7 +41,7 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
 
   return (
     <Typography variant={variant} sx={{ fontWeight: 900, ...sx }}>
-      The Color•Lition
+      The Color•lition
     </Typography>
   );
 }
