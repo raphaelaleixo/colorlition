@@ -9,9 +9,21 @@ import Divider from '@mui/material/Divider';
 import { HostDeviceWarningModal, isLikelyMobileHost } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { FONT_SANS } from '../theme/typography';
+import { COLOR_ICONS, PALETTE } from '../theme/colors';
+import type { Color } from '../game/types';
 import { Logo } from '../components/shared/Logo';
 import { Spectrum } from '../components/shared/Spectrum';
 import { PageFooter } from '../components/shared/PageFooter';
+
+const BLOC_KEYS: readonly Color[] = [
+  'red',
+  'purple',
+  'green',
+  'blue',
+  'orange',
+  'yellow',
+  'grey',
+];
 
 export default function HomePage() {
   const { createRoom } = useGame();
@@ -72,6 +84,19 @@ export default function HomePage() {
             </Box>{' '}
             A real-time card draft for 3 to 5 players, dressed up as 2026 politics.
           </Typography>
+          <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: 'center', flexWrap: 'wrap', pt: 1 }}>
+            {BLOC_KEYS.map((key) => {
+              const Icon = COLOR_ICONS[key];
+              return (
+                <Box
+                  key={key}
+                  sx={{ color: PALETTE[key], fontSize: { xs: 26, sm: 32 }, display: 'flex' }}
+                >
+                  <Icon />
+                </Box>
+              );
+            })}
+          </Stack>
           <Stack direction="row" spacing={3} sx={{ alignItems: 'center', flexWrap: 'wrap', pt: 1 }}>
             <Button
               variant="contained"
