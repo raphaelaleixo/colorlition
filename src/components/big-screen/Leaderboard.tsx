@@ -168,33 +168,48 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
               >
                 {r.name}
               </Typography>
-              {(r.isCurrent || r.roundStatus === 'claimed') && (
-                <Stack
-                  direction="row"
-                  spacing={0.75}
+              <Stack
+                direction="row"
+                spacing={0.75}
+                aria-hidden={!(r.isCurrent || r.roundStatus === 'claimed')}
+                sx={{
+                  alignItems: 'center',
+                  color: r.isCurrent ? '#1F7540' : '#911414',
+                  visibility:
+                    r.isCurrent || r.roundStatus === 'claimed' ? 'visible' : 'hidden',
+                  ...(r.isCurrent && {
+                    '@keyframes currentPlayerPulse': {
+                      '0%, 100%': { opacity: 0.55 },
+                      '50%': { opacity: 1 },
+                    },
+                    animation: 'currentPlayerPulse 1.4s ease-in-out infinite',
+                    '@media (prefers-reduced-motion: reduce)': {
+                      animation: 'none',
+                    },
+                  }),
+                }}
+              >
+                <Box
                   sx={{
-                    alignItems: 'center',
-                    color: r.isCurrent ? '#1F7540' : '#911414',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: 'currentColor',
+                    flexShrink: 0,
                   }}
+                />
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: 'inherit', fontWeight: 600 }}
                 >
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      backgroundColor: 'currentColor',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Typography
-                    variant="caption"
-                    noWrap
-                    sx={{ color: 'inherit', fontWeight: 600 }}
-                  >
-                    {r.isCurrent ? 'Current player' : 'Claimed segments'}
-                  </Typography>
-                </Stack>
-              )}
+                  {r.isCurrent
+                    ? 'Current player'
+                    : r.roundStatus === 'claimed'
+                      ? 'Claimed segments'
+                      : 'Current player'}
+                </Typography>
+              </Stack>
             </Stack>
             <Stack spacing={0.5} sx={{ minWidth: 90, justifyContent: 'center' }}>
               {grants > 0 && (

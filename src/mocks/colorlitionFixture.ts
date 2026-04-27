@@ -44,6 +44,7 @@ const MOCK_DECK: Card[] = [
   ...blocs('grey', [3, 4, 5]),
   ...grants([6, 7, 8]),
   ...pivots([4, 5]),
+  { id: 'exit-poll-mock', kind: 'exitPoll' },
 ];
 
 export const MOCK_GAME_STATE: ColorlitionGameState = {

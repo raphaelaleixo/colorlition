@@ -146,11 +146,24 @@ function SegmentRow({
   segment,
   idx,
   nameFor,
+  exitPollDrawn,
+  isExitPollRevealing,
 }: {
   segment: Segment;
   idx: number;
   nameFor: (playerId: string) => string;
+  exitPollDrawn: boolean;
+  isExitPollRevealing: boolean;
 }) {
+  // The exit poll fires in the same atomic state update as the next card
+  // being drawn and placed. We don't want both overlays at viewport center
+  // simultaneously — instead, hold the segment's medium-card reveal as
+  // "pending" until the ExitPollReveal finishes, then run it.
+  const prevExitPollRef = useRef(exitPollDrawn);
+  const exitPollJustFired = !prevExitPollRef.current && exitPollDrawn;
+  prevExitPollRef.current = exitPollDrawn;
+  const [pendingReveal, setPendingReveal] = useState<GameCard | null>(null);
+  const wasExitPollRevealingRef = useRef(isExitPollRevealing);
   const claimed = segment.claimedBy !== null;
   const prevClaimedByRef = useRef(segment.claimedBy);
   const prevCardsRef = useRef<GameCard[]>(segment.cards);
@@ -187,10 +200,31 @@ function SegmentRow({
   const prevSeenLen = lastSeenLenRef.current;
   const currentLen = segment.cards.length;
   if (currentLen > prevSeenLen && !claimed) {
-    setRevealCard(segment.cards[currentLen - 1]);
-    setRevealPhase('centered');
+    if (exitPollJustFired || isExitPollRevealing) {
+      setPendingReveal(segment.cards[currentLen - 1]);
+    } else {
+      setRevealCard(segment.cards[currentLen - 1]);
+      setRevealPhase('centered');
+    }
   }
   lastSeenLenRef.current = currentLen;
+
+  // Once the exit poll reveal completes (revealing transitions true→false),
+  // promote any pending reveal into an active one.
+  useEffect(() => {
+    const wasRevealing = wasExitPollRevealingRef.current;
+    wasExitPollRevealingRef.current = isExitPollRevealing;
+    if (
+      wasRevealing &&
+      !isExitPollRevealing &&
+      pendingReveal !== null &&
+      revealCard === null
+    ) {
+      setRevealCard(pendingReveal);
+      setRevealPhase('centered');
+      setPendingReveal(null);
+    }
+  }, [isExitPollRevealing, pendingReveal, revealCard]);
 
   useEffect(() => {
     if (!animating) return;
@@ -236,12 +270,14 @@ function SegmentRow({
     CARDS_PER_SEGMENT - snapshotRef.current.length,
   );
 
-  // While the reveal is centered or departing, the new card hasn't "arrived"
-  // in the slot yet — show an empty slot in its place. The slot card mounts
-  // (and scales in) only on phase 'arriving', after the overlay has exited.
+  // While the reveal is pending (waiting on exit poll), centered, or
+  // departing, the new card hasn't "arrived" in the slot yet — show an empty
+  // slot in its place. The slot card mounts (and scales in) only on phase
+  // 'arriving', after the overlay has exited.
   const hideLastCard =
-    revealCard !== null &&
-    (revealPhase === 'centered' || revealPhase === 'departing');
+    pendingReveal !== null ||
+    (revealCard !== null &&
+      (revealPhase === 'centered' || revealPhase === 'departing'));
   const cardsToShow = hideLastCard
     ? segment.cards.slice(0, -1)
     : segment.cards;
@@ -347,9 +383,13 @@ function SegmentRow({
 export function VoterSegments({
   segments,
   nameFor,
+  exitPollDrawn = false,
+  isExitPollRevealing = false,
 }: {
   segments: Segment[];
   nameFor: (playerId: string) => string;
+  exitPollDrawn?: boolean;
+  isExitPollRevealing?: boolean;
 }) {
   return (
     <Box
@@ -361,7 +401,14 @@ export function VoterSegments({
       }}
     >
       {segments.map((s, idx) => (
-        <SegmentRow key={s.key} segment={s} idx={idx} nameFor={nameFor} />
+        <SegmentRow
+          key={s.key}
+          segment={s}
+          idx={idx}
+          nameFor={nameFor}
+          exitPollDrawn={exitPollDrawn}
+          isExitPollRevealing={isExitPollRevealing}
+        />
       ))}
     </Box>
   );

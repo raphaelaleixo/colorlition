@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { FullscreenToggle } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
+import { ExitPollReveal } from '../components/big-screen/ExitPollReveal';
 import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
 import { WinnerScreen } from '../components/big-screen/WinnerScreen';
@@ -19,6 +20,11 @@ export default function BigScreenPage() {
   const { gameState, loadRoom, roomState } = useGame();
   const logoColor = useMemo(
     () => PALETTE[LOGO_COLOR_KEYS[Math.floor(Math.random() * LOGO_COLOR_KEYS.length)]],
+    [],
+  );
+  const [exitPollRevealing, setExitPollRevealing] = useState(false);
+  const handleExitPollRevealingChange = useCallback(
+    (v: boolean) => setExitPollRevealing(v),
     [],
   );
 
@@ -175,7 +181,12 @@ export default function BigScreenPage() {
                   </Typography>
                   <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
                 </Stack>
-                <VoterSegments segments={gameState.segments} nameFor={nameFor} />
+                <VoterSegments
+                segments={gameState.segments}
+                nameFor={nameFor}
+                exitPollDrawn={gameState.exitPollDrawn}
+                isExitPollRevealing={exitPollRevealing}
+              />
               </Stack>
               <Box
                 sx={{
@@ -250,8 +261,14 @@ export default function BigScreenPage() {
           lastHeadline={gameState.lastHeadline}
           currentPlayerName={currentPlayer?.name ?? currentPlayerId}
           currentPlayerIndex={gameState.currentPlayerIndex}
+          isFinalRound={gameState.phase === 'finalRound'}
         />
       </Box>
+
+      <ExitPollReveal
+        exitPollDrawn={gameState.exitPollDrawn}
+        onRevealingChange={handleExitPollRevealingChange}
+      />
     </Stack>
   );
 }

@@ -2,10 +2,11 @@ import { useContext } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { PiAsterisk, PiNumberCircleTwo } from "react-icons/pi";
+import { PiAsterisk, PiChartBar, PiNumberCircleTwo } from "react-icons/pi";
 import { PALETTE, COLOR_ICONS, pivotStripes } from "../../theme/colors";
 import {
   DEMANDS,
+  EXIT_POLL_DEMAND,
   GRANT_DEMANDS,
   PIVOT_DEMANDS,
   labelFor,
@@ -46,12 +47,18 @@ export function Card({
         ? PiAsterisk
         : card.kind === "grant"
           ? PiNumberCircleTwo
-          : undefined;
+          : card.kind === "exitPoll"
+            ? PiChartBar
+            : undefined;
   const ctx = useContext(GameContext);
   const pivotBg =
     card.kind === "pivot" && ctx?.gameState
       ? pivotStripes(colorsInPlay(ctx.gameState))
       : null;
+  // Exit Poll inverts the colored-card scheme: white card, ink text/icons.
+  const isExitPoll = card.kind === "exitPoll";
+  const cardBg = isExitPoll ? "#ffffff" : (pivotBg ?? PALETTE[key]);
+  const cardFg = isExitPoll ? "#1A1613" : "#ffffff";
 
   if (size === "small") {
     return (
@@ -62,12 +69,14 @@ export function Card({
               ? { flex: 1, minWidth: 0, aspectRatio: "7 / 10" }
               : { width: 56, height: 80, flexShrink: 0 }),
             borderRadius: 1.25,
-            background: pivotBg ?? PALETTE[key],
-            color: "#ffffff",
+            background: cardBg,
+            color: cardFg,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 1px 2px rgba(0,0,0,0.12)",
+            boxShadow: isExitPoll
+              ? "0 1px 2px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(26, 22, 19, 0.18)"
+              : "0 1px 2px rgba(0,0,0,0.12)",
           },
           ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
         ]}
@@ -90,6 +99,9 @@ export function Card({
       const i = parseInt(card.id.replace(/^grant-/, ""), 10) || 0;
       return GRANT_DEMANDS[i % GRANT_DEMANDS.length];
     }
+    if (card.kind === "exitPoll") {
+      return EXIT_POLL_DEMAND;
+    }
     return null;
   })();
 
@@ -102,10 +114,11 @@ export function Card({
         // ratio (aspect-ratio is preferred, not enforced, against content).
         aspectRatio: "10 / 7",
         overflow: "hidden",
-        background: pivotBg ?? PALETTE[key],
+        background: cardBg,
         borderRadius: 3,
-        boxShadow:
-          "0 16px 40px rgba(26, 22, 19, 0.14), inset 0 0 0 4px #ffffff",
+        boxShadow: isExitPoll
+          ? "0 16px 40px rgba(26, 22, 19, 0.14), inset 0 0 0 1px rgba(26, 22, 19, 0.22)"
+          : "0 16px 40px rgba(26, 22, 19, 0.14), inset 0 0 0 4px #ffffff",
         p: 2,
         display: "flex",
         flexDirection: "row",
@@ -116,7 +129,7 @@ export function Card({
       <Box
         sx={{
           flexShrink: 0,
-          color: "#ffffff",
+          color: cardFg,
           display: "inline-flex",
         }}
       >
@@ -129,7 +142,7 @@ export function Card({
           display: "flex",
           flexDirection: "column",
           gap: 0.75,
-          color: "#ffffff",
+          color: cardFg,
         }}
       >
         <Typography

@@ -52,14 +52,20 @@ function pickOpeningHeadline(name: string): string {
 
 const REPEATS_PER_CYCLE = 3;
 
+const FINAL_ROUND_MESSAGE = 'This is the final round';
+
 function buildNewsText(
   name: string,
   turnIndex: number,
   headline: Headline | null,
+  isFinalRound: boolean,
 ): string {
   const phrase = pickNextPhrase(name, turnIndex);
   const second = headline ? headline.text : pickOpeningHeadline(name);
-  return `${phrase}${SEP}${second}${SEP}`.repeat(REPEATS_PER_CYCLE);
+  const segments = isFinalRound
+    ? `${phrase}${SEP}${second}${SEP}${FINAL_ROUND_MESSAGE}${SEP}`
+    : `${phrase}${SEP}${second}${SEP}`;
+  return segments.repeat(REPEATS_PER_CYCLE);
 }
 
 const FADE_MS = 300;
@@ -75,14 +81,21 @@ type Props = {
   lastHeadline: Headline | null;
   currentPlayerName: string;
   currentPlayerIndex: number;
+  isFinalRound?: boolean;
 };
 
 export function HeadlineTicker({
   lastHeadline,
   currentPlayerName,
   currentPlayerIndex,
+  isFinalRound = false,
 }: Props) {
-  const desired = buildNewsText(currentPlayerName, currentPlayerIndex, lastHeadline);
+  const desired = buildNewsText(
+    currentPlayerName,
+    currentPlayerIndex,
+    lastHeadline,
+    isFinalRound,
+  );
   const [displayed, setDisplayed] = useState(desired);
   const [opacity, setOpacity] = useState(1);
   const swapTimerRef = useRef<number | null>(null);

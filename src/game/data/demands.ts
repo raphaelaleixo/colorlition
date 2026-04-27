@@ -100,6 +100,11 @@ export const PIVOT_DEMANDS: string[] = [
   'I’ll decide on the morning of.',
 ];
 
+// Exit Poll has no faction or character — it's the news event itself
+// announcing the campaign's last round. Single string, rendered in quotes.
+export const EXIT_POLL_DEMAND =
+  'The polls have closed — one last round before the count.';
+
 // Grants are "Allies" — power-brokers backing a candidate. Mapped onto the
 // grant's id index (grant-0, grant-1, …) modulo the list length.
 export const GRANT_DEMANDS: string[] = [

@@ -92,7 +92,8 @@ export function drawAndPlace(
   // Pop first card.
   let card = next.deck.shift() as Card;
 
-  // Exit Poll: trigger final round, re-draw.
+  // Exit Poll: trigger final round, then re-draw to actually place a card
+  // for the player's turn. The reveal UI sequences the two animations.
   if (card.kind === 'exitPoll') {
     next.exitPollDrawn = true;
     next.phase = 'finalRound';
