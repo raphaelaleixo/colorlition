@@ -120,6 +120,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       (snapshot) => {
         const data = snapshot.val();
         if (!data) {
+          setRoomState(null);
+          setGameState(null);
           setLoading(false);
           return;
         }
