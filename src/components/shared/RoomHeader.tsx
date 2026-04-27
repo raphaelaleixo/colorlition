@@ -20,10 +20,14 @@ export function RoomHeader({ slot }: RoomHeaderProps) {
     <Stack
       direction="row"
       sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: (theme) => theme.zIndex.appBar,
+        backgroundColor: 'background.default',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
         gap: 2,
-        pb: 1.5,
+        py: 1.5,
         borderBottom: '1px solid',
         borderColor: 'rule.ink',
       }}
