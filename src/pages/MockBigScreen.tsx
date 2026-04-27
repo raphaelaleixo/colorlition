@@ -1,11 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import BigScreenPage from './BigScreenPage';
 import { GameContext, type GameContextValue } from '../contexts/GameContext';
+import { VoterSegments } from '../components/big-screen/VoterSegments';
+import { ExitPollReveal } from '../components/big-screen/ExitPollReveal';
+import { DrawCardReveal } from '../components/big-screen/DrawCardReveal';
+import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
+import { Leaderboard } from '../components/big-screen/Leaderboard';
+import { WinnerScreen } from '../components/big-screen/WinnerScreen';
+import { Logo } from '../components/shared/Logo';
 import { RevealControlContext } from '../components/big-screen/VoterSegments';
 import { buildMockGameContextValue, MOCK_GAME_STATE } from '../mocks/colorlitionFixture';
 import {
@@ -35,9 +41,21 @@ export default function MockBigScreen() {
   const [gameState, setGameState] = useState<ColorlitionGameState>(MOCK_GAME_STATE);
   const [revealAdvanceTick, setRevealAdvanceTick] = useState(0);
   const [minimized, setMinimized] = useState(false);
+  const [exitPollRevealing, setExitPollRevealing] = useState(false);
+  const [drawRevealing, setDrawRevealing] = useState(false);
+
   const revealControl = useMemo(
     () => ({ advanceTick: revealAdvanceTick }),
     [revealAdvanceTick],
+  );
+
+  const handleExitPollRevealingChange = useCallback(
+    (v: boolean) => setExitPollRevealing(v),
+    [],
+  );
+  const handleDrawRevealingChange = useCallback(
+    (v: boolean) => setDrawRevealing(v),
+    [],
   );
 
   const ctxValue = useMemo<GameContextValue>(() => {
@@ -145,10 +163,106 @@ export default function MockBigScreen() {
     setGameState(MOCK_GAME_STATE);
   }
 
+  const curPlayerId = gameState.turnOrder[gameState.currentPlayerIndex];
+  const mockRoomState = buildMockGameContextValue(gameState).roomState;
+
+  const nameFor = (pid: string) =>
+    mockRoomState?.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`;
+
   return (
     <GameContext.Provider value={ctxValue}>
       <RevealControlContext.Provider value={revealControl}>
-        <BigScreenPage />
+        <Stack
+          sx={{
+            display: 'flex',
+            height: '100vh',
+            width: '100vw',
+            overflow: 'hidden',
+            backgroundColor: 'background.default',
+            position: 'relative',
+          }}
+        >
+          <Stack
+            spacing={2}
+            sx={{
+              p: 3,
+              flex: 1,
+              overflow: 'auto',
+            }}
+          >
+            <Logo />
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>
+              Voter Segments
+            </Typography>
+            <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
+            <VoterSegments
+              segments={gameState.segments}
+              nameFor={nameFor}
+              isPageRevealing={drawRevealing || exitPollRevealing}
+            />
+          </Stack>
+
+          <Stack
+            spacing={2}
+            sx={{
+              display: { xs: 'none', lg: 'flex' },
+              p: 3,
+              width: 360,
+              borderLeft: '1px solid',
+              borderColor: 'rule.hair',
+              overflow: 'auto',
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: 900 }}>
+              Leaderboard
+            </Typography>
+            <Leaderboard rows={gameState.turnOrder.map((pid) => ({
+              playerId: pid,
+              name: nameFor(pid),
+              base: gameState.playerState[pid]?.base ?? [],
+              roundStatus: gameState.playerState[pid]?.roundStatus ?? 'active',
+              isCurrent: pid === curPlayerId,
+            }))} />
+          </Stack>
+
+          {gameState.phase === 'ended' && (
+            <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+              <WinnerScreen
+                breakdowns={gameState.scoreBreakdown!}
+                winnerIds={gameState.winnerIds!}
+                nameFor={nameFor}
+              />
+            </Box>
+          )}
+
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: (t) => t.zIndex.appBar,
+            }}
+          >
+            <HeadlineTicker
+              lastHeadline={gameState.lastHeadline}
+              currentPlayerName={nameFor(curPlayerId)}
+              currentPlayerIndex={gameState.currentPlayerIndex}
+              isFinalRound={gameState.phase === 'finalRound'}
+            />
+          </Box>
+
+          <ExitPollReveal
+            exitPollDrawn={gameState.exitPollDrawn}
+            onRevealingChange={handleExitPollRevealingChange}
+          />
+
+          <DrawCardReveal
+            pendingDraw={gameState.pendingDraw}
+            exitPollRevealing={exitPollRevealing}
+            onRevealingChange={handleDrawRevealingChange}
+          />
+        </Stack>
       <Box
         sx={{
           position: 'fixed',
