@@ -61,6 +61,15 @@ export type ScoreSnapshot = {
   scores: Record<string, number>;
 };
 
+// A card the active player drew but hasn't placed yet. Lives on shared state
+// (not local mobile state) so the big screen can render the medium-card
+// reveal during the gap between draw and placement.
+export type PendingDraw = {
+  playerId: string;
+  card: Card;
+  exitPollTriggered: boolean;
+};
+
 export type ColorlitionGameState = {
   phase: Phase;
   deck: Card[];
@@ -75,6 +84,7 @@ export type ColorlitionGameState = {
   scoreBreakdown: ScoreBreakdown[] | null;
   lastHeadline: Headline | null;
   scoreHistory: ScoreSnapshot[];
+  pendingDraw: PendingDraw | null;
 };
 
 export type ColorlitionPlayerData = Record<string, never>; // empty in v1

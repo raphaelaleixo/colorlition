@@ -35,9 +35,13 @@ import {
 } from '../game/deck';
 import {
   buildInitialGameState,
-  drawAndPlace as drawAndPlacePure,
+  drawCard as drawCardPure,
+  placePendingDraw as placePendingDrawPure,
   claim as claimPure,
+  commitRoundEnd as commitRoundEndPure,
 } from '../game/actions';
+
+const ROUND_END_HOLD_MS = 2400;
 import type { ColorlitionGameState, ColorlitionPlayerData, SegmentKey, Segment, PerPlayerState } from '../game/types';
 
 // Firebase RTDB drops empty arrays and null values on write, so a freshly-stored
@@ -72,6 +76,7 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
       roundNumber: s.roundNumber,
       scores: s.scores ?? {},
     })),
+    pendingDraw: raw.pendingDraw ?? null,
   };
 }
 
@@ -84,7 +89,8 @@ export interface GameContextValue {
   joinRoom: (roomId: string, name: string) => Promise<number>;
   claimSlot: (roomId: string, slotId: number, name: string) => Promise<void>;
   startTheGame: () => Promise<void>;
-  drawAndPlace: (segmentKey: SegmentKey) => Promise<void>;
+  drawCard: () => Promise<void>;
+  placePendingDraw: (segmentKey: SegmentKey) => Promise<void>;
   claim: (segmentKey: SegmentKey) => Promise<void>;
 }
 
@@ -223,10 +229,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
     await set(ref(database, `rooms/${roomId}/game`), newGameState);
   }, [roomState]);
 
-  const drawAndPlace = useCallback(async (segmentKey: SegmentKey) => {
+  const drawCard = useCallback(async () => {
     if (!roomState || !gameState) return;
     if (gameState.phase !== 'turn' && gameState.phase !== 'finalRound') return;
-    const nextGame = drawAndPlacePure(gameState, segmentKey);
+    if (gameState.pendingDraw) return;
+    const nextGame = drawCardPure(gameState);
+    await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
+  }, [roomState, gameState]);
+
+  const placePendingDraw = useCallback(async (segmentKey: SegmentKey) => {
+    if (!roomState || !gameState) return;
+    if (gameState.phase !== 'turn' && gameState.phase !== 'finalRound') return;
+    if (!gameState.pendingDraw) return;
+    const nextGame = placePendingDrawPure(gameState, segmentKey);
     await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
   }, [roomState, gameState]);
 
@@ -235,6 +250,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (gameState.phase !== 'turn' && gameState.phase !== 'finalRound') return;
     const nextGame = claimPure(gameState, segmentKey);
     await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
+  }, [roomState, gameState]);
+
+  // Hold the all-segments-claimed tableau briefly, then commit the reset.
+  // Every connected client schedules the same write — Firebase resolves with
+  // last-write-wins on identical content, so duplicate fires are harmless.
+  useEffect(() => {
+    if (!roomState || !gameState) return;
+    if (gameState.phase !== 'roundEnd') return;
+    const roomId = roomState.roomId;
+    const t = setTimeout(() => {
+      const next = commitRoundEndPure(gameState);
+      void update(ref(database, `rooms/${roomId}/game`), next);
+    }, ROUND_END_HOLD_MS);
+    return () => clearTimeout(t);
   }, [roomState, gameState]);
 
   return (
@@ -248,7 +277,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         joinRoom,
         claimSlot,
         startTheGame,
-        drawAndPlace,
+        drawCard,
+        placePendingDraw,
         claim,
       }}
     >

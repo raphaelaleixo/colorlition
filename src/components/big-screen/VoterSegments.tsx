@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -7,15 +7,14 @@ import { Section } from '../shared/Section';
 import { CARDS_PER_SEGMENT } from '../../game/constants';
 import type { Segment, Card as GameCard } from '../../game/types';
 
-// Dev/mock helper. When provided, the reveal pauses in the `centered` phase
-// indefinitely and only advances when `advanceTick` changes (e.g. a button
-// click). Production callers leave this null and the timer-based flow runs.
+// Dev/mock helper retained for ExitPollReveal manual advance. The page-level
+// medium-card reveal in BigScreenPage now handles the regular draw flow, so
+// `advanceTick` only nudges the exit poll overlay through its centered phase.
 export type RevealControl = { advanceTick: number };
 export const RevealControlContext = createContext<RevealControl | null>(null);
 
 const CLAIM_ZOOM_MS = 600;
-const REVEAL_HOLD_MS = 1200;
-const REVEAL_OUT_MS = 380;
+const CLAIM_EXIT_MS = 420;
 const SLOT_IN_MS = 380;
 
 function CardSlot() {
@@ -41,17 +40,17 @@ function ClaimedOverlay({
   variant,
 }: {
   name: string;
-  variant: 'static' | 'animated';
+  variant: 'static' | 'animated' | 'exiting';
 }) {
-  const animated = variant === 'animated';
+  const positioned = variant === 'animated' || variant === 'exiting';
   return (
     <Box
       sx={{
-        position: animated ? 'absolute' : 'relative',
-        inset: animated ? 0 : undefined,
-        flex: animated ? undefined : 1,
+        position: positioned ? 'absolute' : 'relative',
+        inset: positioned ? 0 : undefined,
+        flex: positioned ? undefined : 1,
         minWidth: 0,
-        height: animated ? undefined : 'calc((100cqw - 24px) * 10 / 21)',
+        height: positioned ? undefined : 'calc((100cqw - 24px) * 10 / 21)',
         borderRadius: 1.25,
         border: '1px dashed',
         borderColor: 'rule.strong',
@@ -65,11 +64,20 @@ function ClaimedOverlay({
           '60%': { transform: 'scale(1.04)', opacity: 1 },
           '100%': { transform: 'scale(1)', opacity: 1 },
         },
-        animation: animated
-          ? `claimZoomIn ${CLAIM_ZOOM_MS}ms cubic-bezier(0.34, 1.56, 0.64, 1) both`
-          : 'none',
+        '@keyframes claimZoomOut': {
+          '0%': { transform: 'scale(1)', opacity: 1 },
+          '40%': { transform: 'scale(1.06)', opacity: 1 },
+          '100%': { transform: 'scale(0.6)', opacity: 0 },
+        },
+        animation:
+          variant === 'animated'
+            ? `claimZoomIn ${CLAIM_ZOOM_MS}ms cubic-bezier(0.34, 1.56, 0.64, 1) both`
+            : variant === 'exiting'
+              ? `claimZoomOut ${CLAIM_EXIT_MS}ms cubic-bezier(0.55, 0, 0.55, 0.2) both`
+              : 'none',
         '@media (prefers-reduced-motion: reduce)': {
           animation: 'none',
+          ...(variant === 'exiting' ? { opacity: 0 } : null),
         },
       }}
     >
@@ -101,86 +109,37 @@ function ClaimedOverlay({
   );
 }
 
-function CardRevealOverlay({
-  card,
-  phase,
-}: {
-  card: GameCard;
-  phase: 'centered' | 'departing';
-}) {
-  return (
-    <Box
-      sx={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        zIndex: (t) => t.zIndex.modal,
-        pointerEvents: 'none',
-        transformOrigin: 'center center',
-        '@keyframes cardRevealEnter': {
-          '0%': { opacity: 0, transform: 'translate(-50%, -50%) scale(0.5)' },
-          '70%': { opacity: 1, transform: 'translate(-50%, -50%) scale(1.06)' },
-          '100%': { opacity: 1, transform: 'translate(-50%, -50%) scale(1)' },
-        },
-        '@keyframes cardRevealExit': {
-          '0%': { opacity: 1, transform: 'translate(-50%, -50%) scale(1)' },
-          '100%': { opacity: 0, transform: 'translate(-50%, -50%) scale(0.4)' },
-        },
-        animation:
-          phase === 'centered'
-            ? 'cardRevealEnter 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both'
-            : `cardRevealExit ${REVEAL_OUT_MS}ms cubic-bezier(0.55, 0, 0.55, 0.2) both`,
-        '@media (prefers-reduced-motion: reduce)': {
-          animation: 'none',
-          transform: 'translate(-50%, -50%)',
-          opacity: phase === 'centered' ? 1 : 0,
-        },
-      }}
-    >
-      <Card card={card} size="medium" showDemand />
-    </Box>
-  );
-}
-
 function SegmentRow({
   segment,
   idx,
   nameFor,
-  exitPollDrawn,
-  isExitPollRevealing,
+  isPageRevealing,
 }: {
   segment: Segment;
   idx: number;
   nameFor: (playerId: string) => string;
-  exitPollDrawn: boolean;
-  isExitPollRevealing: boolean;
+  // True while the page-level draw reveal (centered or departing) is on
+  // screen. While true, a freshly-arrived card in this segment is held back
+  // as an empty slot; it scales in only after the reveal exits.
+  isPageRevealing: boolean;
 }) {
-  // The exit poll fires in the same atomic state update as the next card
-  // being drawn and placed. We don't want both overlays at viewport center
-  // simultaneously — instead, hold the segment's medium-card reveal as
-  // "pending" until the ExitPollReveal finishes, then run it.
-  const prevExitPollRef = useRef(exitPollDrawn);
-  const exitPollJustFired = !prevExitPollRef.current && exitPollDrawn;
-  prevExitPollRef.current = exitPollDrawn;
-  const [pendingReveal, setPendingReveal] = useState<GameCard | null>(null);
-  const wasExitPollRevealingRef = useRef(isExitPollRevealing);
   const claimed = segment.claimedBy !== null;
   const prevClaimedByRef = useRef(segment.claimedBy);
   const prevCardsRef = useRef<GameCard[]>(segment.cards);
   const snapshotRef = useRef<GameCard[]>([]);
   const [animating, setAnimating] = useState(false);
+  // When the round commits and segments reset, animate the just-vacated
+  // "Claimed by …" overlay out instead of letting it pop. Holds the
+  // departing player's name for the duration of the exit animation.
+  const [exitingClaimedBy, setExitingClaimedBy] = useState<string | null>(null);
 
-  // Reveal flow: when a new card lands in this segment, hold it at the
-  // viewport center in medium variant (`centered`), then scale it out
-  // (`departing`); only after it's off screen does the slot's small card
-  // scale in (`arriving`).
   const lastSeenLenRef = useRef(segment.cards.length);
-  const [revealCard, setRevealCard] = useState<GameCard | null>(null);
-  const [revealPhase, setRevealPhase] = useState<
-    'centered' | 'departing' | 'arriving' | null
-  >(null);
-  const revealControl = useContext(RevealControlContext);
-  const isManualReveal = revealControl !== null;
+  // Card waiting to be promoted into a scale-in animation. Either populated
+  // immediately on arrival (no page reveal active) or queued until the page
+  // reveal finishes.
+  const [scaleInId, setScaleInId] = useState<string | null>(null);
+  const [pendingArrivalId, setPendingArrivalId] = useState<string | null>(null);
+  const wasRevealingRef = useRef(isPageRevealing);
 
   // Keep latest pre-claim cards available for the snapshot.
   if (!claimed) prevCardsRef.current = segment.cards;
@@ -193,38 +152,44 @@ function SegmentRow({
     snapshotRef.current = prevCardsRef.current;
     setAnimating(true);
   }
+  // Detect the claimed→unclaimed transition (round reset) and capture the
+  // outgoing player so the overlay can animate out before disappearing.
+  const justUnclaimed =
+    prevClaimedByRef.current !== null &&
+    segment.claimedBy === null &&
+    exitingClaimedBy === null;
+  if (justUnclaimed) {
+    setExitingClaimedBy(prevClaimedByRef.current);
+  }
   prevClaimedByRef.current = segment.claimedBy;
 
-  // Detect a card being added during render so the new card is hidden from
-  // the slot on the very first commit (no flash before the reveal kicks in).
-  const prevSeenLen = lastSeenLenRef.current;
+  // Arrival detection: a new card landed in this segment.
+  const prevLen = lastSeenLenRef.current;
   const currentLen = segment.cards.length;
-  if (currentLen > prevSeenLen && !claimed) {
-    if (exitPollJustFired || isExitPollRevealing) {
-      setPendingReveal(segment.cards[currentLen - 1]);
+  if (currentLen > prevLen && !claimed) {
+    const newCard = segment.cards[currentLen - 1];
+    if (isPageRevealing) {
+      setPendingArrivalId(newCard.id);
     } else {
-      setRevealCard(segment.cards[currentLen - 1]);
-      setRevealPhase('centered');
+      setScaleInId(newCard.id);
     }
   }
   lastSeenLenRef.current = currentLen;
 
-  // Once the exit poll reveal completes (revealing transitions true→false),
-  // promote any pending reveal into an active one.
+  // Page reveal just finished — promote any queued arrival.
   useEffect(() => {
-    const wasRevealing = wasExitPollRevealingRef.current;
-    wasExitPollRevealingRef.current = isExitPollRevealing;
-    if (
-      wasRevealing &&
-      !isExitPollRevealing &&
-      pendingReveal !== null &&
-      revealCard === null
-    ) {
-      setRevealCard(pendingReveal);
-      setRevealPhase('centered');
-      setPendingReveal(null);
+    if (wasRevealingRef.current && !isPageRevealing && pendingArrivalId) {
+      setScaleInId(pendingArrivalId);
+      setPendingArrivalId(null);
     }
-  }, [isExitPollRevealing, pendingReveal, revealCard]);
+    wasRevealingRef.current = isPageRevealing;
+  }, [isPageRevealing, pendingArrivalId]);
+
+  useEffect(() => {
+    if (!scaleInId) return;
+    const t = setTimeout(() => setScaleInId(null), SLOT_IN_MS);
+    return () => clearTimeout(t);
+  }, [scaleInId]);
 
   useEffect(() => {
     if (!animating) return;
@@ -233,35 +198,10 @@ function SegmentRow({
   }, [animating]);
 
   useEffect(() => {
-    if (revealCard === null) return;
-    if (revealPhase === 'centered') {
-      if (isManualReveal) return; // wait for an external advance trigger
-      const t = setTimeout(() => setRevealPhase('departing'), REVEAL_HOLD_MS);
-      return () => clearTimeout(t);
-    }
-    if (revealPhase === 'departing') {
-      const t = setTimeout(() => setRevealPhase('arriving'), REVEAL_OUT_MS);
-      return () => clearTimeout(t);
-    }
-    if (revealPhase === 'arriving') {
-      const t = setTimeout(() => {
-        setRevealCard(null);
-        setRevealPhase(null);
-      }, SLOT_IN_MS);
-      return () => clearTimeout(t);
-    }
-  }, [revealCard, revealPhase, isManualReveal]);
-
-  // Manual-advance hook: when the external advanceTick changes during the
-  // `centered` phase, kick the flow into `departing`.
-  const advanceTick = revealControl?.advanceTick;
-  useEffect(() => {
-    if (advanceTick === undefined) return;
-    if (revealPhase === 'centered') setRevealPhase('departing');
-    // intentionally ignore revealPhase in deps so this fires only on tick
-    // changes, not on every phase change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [advanceTick]);
+    if (exitingClaimedBy === null) return;
+    const t = setTimeout(() => setExitingClaimedBy(null), CLAIM_EXIT_MS);
+    return () => clearTimeout(t);
+  }, [exitingClaimedBy]);
 
   const showZoom = claimed && animating;
   const emptySlots = Math.max(0, CARDS_PER_SEGMENT - segment.cards.length);
@@ -270,21 +210,12 @@ function SegmentRow({
     CARDS_PER_SEGMENT - snapshotRef.current.length,
   );
 
-  // While the reveal is pending (waiting on exit poll), centered, or
-  // departing, the new card hasn't "arrived" in the slot yet — show an empty
-  // slot in its place. The slot card mounts (and scales in) only on phase
-  // 'arriving', after the overlay has exited.
-  const hideLastCard =
-    pendingReveal !== null ||
-    (revealCard !== null &&
-      (revealPhase === 'centered' || revealPhase === 'departing'));
+  // While an arrival is queued behind the page reveal, render the new card's
+  // slot as empty so the small card doesn't pop in before the reveal exits.
+  const hideLastCard = pendingArrivalId !== null;
   const cardsToShow = hideLastCard
     ? segment.cards.slice(0, -1)
     : segment.cards;
-  const slotInIdx =
-    revealCard !== null && revealPhase === 'arriving'
-      ? segment.cards.length - 1
-      : -1;
 
   return (
     <Section dense sx={{ borderColor: 'rule.strong' }}>
@@ -328,13 +259,13 @@ function SegmentRow({
               />
             ) : (
               <>
-                {cardsToShow.map((c, i) => (
+                {cardsToShow.map((c) => (
                   <Card
                     key={c.id}
                     card={c}
                     fluid
                     sx={
-                      i === slotInIdx
+                      c.id === scaleInId
                         ? {
                             transformOrigin: 'center center',
                             '@keyframes slotScaleIn': {
@@ -370,12 +301,14 @@ function SegmentRow({
               variant="animated"
             />
           )}
+          {exitingClaimedBy !== null && !claimed && (
+            <ClaimedOverlay
+              name={nameFor(exitingClaimedBy)}
+              variant="exiting"
+            />
+          )}
         </Box>
       </Stack>
-      {revealCard !== null &&
-        (revealPhase === 'centered' || revealPhase === 'departing') && (
-          <CardRevealOverlay card={revealCard} phase={revealPhase} />
-        )}
     </Section>
   );
 }
@@ -383,13 +316,11 @@ function SegmentRow({
 export function VoterSegments({
   segments,
   nameFor,
-  exitPollDrawn = false,
-  isExitPollRevealing = false,
+  isPageRevealing = false,
 }: {
   segments: Segment[];
   nameFor: (playerId: string) => string;
-  exitPollDrawn?: boolean;
-  isExitPollRevealing?: boolean;
+  isPageRevealing?: boolean;
 }) {
   return (
     <Box
@@ -406,8 +337,7 @@ export function VoterSegments({
           segment={s}
           idx={idx}
           nameFor={nameFor}
-          exitPollDrawn={exitPollDrawn}
-          isExitPollRevealing={isExitPollRevealing}
+          isPageRevealing={isPageRevealing}
         />
       ))}
     </Box>

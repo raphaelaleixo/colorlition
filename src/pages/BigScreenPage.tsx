@@ -7,6 +7,7 @@ import { FullscreenToggle } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
 import { ExitPollReveal } from '../components/big-screen/ExitPollReveal';
+import { DrawCardReveal } from '../components/big-screen/DrawCardReveal';
 import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { Leaderboard } from '../components/big-screen/Leaderboard';
 import { WinnerScreen } from '../components/big-screen/WinnerScreen';
@@ -23,8 +24,13 @@ export default function BigScreenPage() {
     [],
   );
   const [exitPollRevealing, setExitPollRevealing] = useState(false);
+  const [drawRevealing, setDrawRevealing] = useState(false);
   const handleExitPollRevealingChange = useCallback(
     (v: boolean) => setExitPollRevealing(v),
+    [],
+  );
+  const handleDrawRevealingChange = useCallback(
+    (v: boolean) => setDrawRevealing(v),
     [],
   );
 
@@ -184,8 +190,7 @@ export default function BigScreenPage() {
                 <VoterSegments
                 segments={gameState.segments}
                 nameFor={nameFor}
-                exitPollDrawn={gameState.exitPollDrawn}
-                isExitPollRevealing={exitPollRevealing}
+                isPageRevealing={drawRevealing || exitPollRevealing}
               />
               </Stack>
               <Box
@@ -268,6 +273,12 @@ export default function BigScreenPage() {
       <ExitPollReveal
         exitPollDrawn={gameState.exitPollDrawn}
         onRevealingChange={handleExitPollRevealingChange}
+      />
+
+      <DrawCardReveal
+        pendingDraw={gameState.pendingDraw}
+        exitPollRevealing={exitPollRevealing}
+        onRevealingChange={handleDrawRevealingChange}
       />
     </Stack>
   );

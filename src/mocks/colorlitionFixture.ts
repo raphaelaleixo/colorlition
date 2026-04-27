@@ -152,6 +152,7 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
     { roundNumber: 2, scores: { '1': 8, '2': 9, '3': 5, '4': 3, '5': 2 } },
     { roundNumber: 3, scores: { '1': 14, '2': 12, '3': 7, '4': 4, '5': 4 } },
   ],
+  pendingDraw: null,
 };
 
 export const MOCK_ROOM_STATE: RoomState<ColorlitionPlayerData> = {
@@ -182,7 +183,8 @@ export function buildMockGameContextValue(
     joinRoom: NOOP_ASYNC_NUM,
     claimSlot: NOOP_ASYNC,
     startTheGame: NOOP_ASYNC,
-    drawAndPlace: NOOP_ASYNC,
+    drawCard: NOOP_ASYNC,
+    placePendingDraw: NOOP_ASYNC,
     claim: NOOP_ASYNC,
   };
 }

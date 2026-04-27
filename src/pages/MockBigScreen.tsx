@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -9,13 +9,26 @@ import { GameContext, type GameContextValue } from '../contexts/GameContext';
 import { RevealControlContext } from '../components/big-screen/VoterSegments';
 import { buildMockGameContextValue, MOCK_GAME_STATE } from '../mocks/colorlitionFixture';
 import {
-  drawAndPlace as drawAndPlacePure,
+  drawCard as drawCardPure,
+  placePendingDraw as placePendingDrawPure,
   claim as claimPure,
-  endRound as endRoundPure,
+  enterRoundEnd as enterRoundEndPure,
+  commitRoundEnd as commitRoundEndPure,
   canPlaceInSegment,
   canClaimSegment,
   currentPlayerId,
 } from '../game/actions';
+
+// Convenience for the dev panel: combine draw + place atomically so a single
+// click still produces a complete turn (mirrors the old drawAndPlace).
+function drawAndPlaceCombined(
+  state: ColorlitionGameState,
+  segmentKey: ColorlitionGameState['segments'][number]['key'],
+): ColorlitionGameState {
+  const drawn = drawCardPure(state);
+  if (!drawn.pendingDraw) return drawn; // exit poll consumed last card
+  return placePendingDrawPure(drawn, segmentKey);
+}
 import type { ColorlitionGameState } from '../game/types';
 
 export default function MockBigScreen() {
@@ -31,8 +44,11 @@ export default function MockBigScreen() {
     const base = buildMockGameContextValue(gameState);
     return {
       ...base,
-      drawAndPlace: async (segmentKey) => {
-        setGameState((prev) => drawAndPlacePure(prev, segmentKey));
+      drawCard: async () => {
+        setGameState((prev) => drawCardPure(prev));
+      },
+      placePendingDraw: async (segmentKey) => {
+        setGameState((prev) => placePendingDrawPure(prev, segmentKey));
       },
       claim: async (segmentKey) => {
         setGameState((prev) => claimPure(prev, segmentKey));
@@ -47,7 +63,7 @@ export default function MockBigScreen() {
 
   function handlePlace() {
     if (!placeable || deckEmpty) return;
-    setGameState((prev) => drawAndPlacePure(prev, placeable.key));
+    setGameState((prev) => drawAndPlaceCombined(prev, placeable.key));
   }
 
   // Draw a specific card kind by hoisting it to the front of the deck so the
@@ -66,7 +82,7 @@ export default function MockBigScreen() {
           ...prev.deck.slice(idx + 1),
         ],
       };
-      return drawAndPlacePure(reordered, target.key);
+      return drawAndPlaceCombined(reordered, target.key);
     });
   }
   const hasPivotInDeck = gameState.deck.some((c) => c.kind === 'pivot');
@@ -80,7 +96,8 @@ export default function MockBigScreen() {
 
   // Demonstrates the "last claim ends the round" path: mark every other player
   // as already claimed so the current player's claim drains the round, which
-  // triggers endRound() inside claim() → advanceTurn() → endRound().
+  // triggers enterRoundEnd() inside claim() → advanceTurn() → enterRoundEnd();
+  // the effect below then commits the reset after the hold.
   function handleEndRound() {
     setGameState((prev) => {
       let next = prev;
@@ -88,7 +105,7 @@ export default function MockBigScreen() {
       if (!next.segments.some(canClaimSegment)) {
         const target = next.segments.find(canPlaceInSegment);
         if (!target || next.deck.length === 0) return prev;
-        next = drawAndPlacePure(next, target.key);
+        next = drawAndPlaceCombined(next, target.key);
       }
       const cur = currentPlayerId(next);
       const forced: ColorlitionGameState = {
@@ -106,12 +123,23 @@ export default function MockBigScreen() {
     });
   }
 
-  // Short-circuits to the ended phase: flip exitPollDrawn so endRound branches
-  // into scoring, then call endRound directly. Any in-progress segments are
-  // discarded (endRound resets them); existing bases drive the final score.
+  // Short-circuits to the ended phase: flip exitPollDrawn and enter the
+  // round-end pause so the segment animation plays once before scoring.
   function handleEndGame() {
-    setGameState((prev) => endRoundPure({ ...prev, exitPollDrawn: true }));
+    setGameState((prev) => enterRoundEndPure({ ...prev, exitPollDrawn: true }));
   }
+
+  // Mirror GameContext: while phase is 'roundEnd', hold the claimed tableau
+  // briefly then commit the reset. Local state, no Firebase round-trip.
+  useEffect(() => {
+    if (gameState.phase !== 'roundEnd') return;
+    const t = setTimeout(() => {
+      setGameState((prev) =>
+        prev.phase === 'roundEnd' ? commitRoundEndPure(prev) : prev,
+      );
+    }, 2400);
+    return () => clearTimeout(t);
+  }, [gameState.phase]);
 
   function handleReset() {
     setGameState(MOCK_GAME_STATE);

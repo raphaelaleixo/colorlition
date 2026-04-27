@@ -7,9 +7,7 @@ import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment, canClaimSegment } from '../../game/actions';
 import { Card } from '../shared/Card';
 import { Section } from '../shared/Section';
-import type { ColorlitionGameState, Card as GameCard, SegmentKey } from '../../game/types';
-
-type PendingDraw = { card: GameCard; exitPollTriggered: boolean };
+import type { ColorlitionGameState, SegmentKey } from '../../game/types';
 
 function RuledDivider({ label }: { label: string }) {
   return (
@@ -24,37 +22,28 @@ function RuledDivider({ label }: { label: string }) {
 }
 
 export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) {
-  const { drawAndPlace, claim } = useGame();
-  const [pending, setPending] = useState<PendingDraw | null>(null);
+  const { drawCard, placePendingDraw, claim } = useGame();
   const [busy, setBusy] = useState(false);
 
-  const canDraw = gameState.deck.length > 0 && gameState.segments.some(canPlaceInSegment);
+  const pending = gameState.pendingDraw;
+  const canDraw =
+    !pending &&
+    gameState.deck.length > 0 &&
+    gameState.segments.some(canPlaceInSegment);
 
   const handleDraw = async () => {
-    const first = gameState.deck[0];
-    if (!first) return;
-    if (first.kind === 'exitPoll') {
-      const second = gameState.deck[1];
-      if (!second) {
-        setBusy(true);
-        try {
-          await drawAndPlace(gameState.segments[0].key);
-        } finally {
-          setBusy(false);
-        }
-        return;
-      }
-      setPending({ card: second, exitPollTriggered: true });
-    } else {
-      setPending({ card: first, exitPollTriggered: false });
+    setBusy(true);
+    try {
+      await drawCard();
+    } finally {
+      setBusy(false);
     }
   };
 
   const handlePlace = async (segmentKey: SegmentKey) => {
     setBusy(true);
     try {
-      await drawAndPlace(segmentKey);
-      setPending(null);
+      await placePendingDraw(segmentKey);
     } finally {
       setBusy(false);
     }

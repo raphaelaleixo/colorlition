@@ -108,17 +108,15 @@ function Waffle({ cards }: { cards: Card[] }) {
 export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   const { gameState } = useGame();
   const pivotBg = pivotStripes(gameState ? colorsInPlay(gameState) : [], 'vertical');
-  const scored = rows
-    .map((r) => {
-      const bd = scorePlayer(r.playerId, r.base);
-      return {
-        ...r,
-        total: bd.total,
-        positiveColors: bd.positiveColors,
-        negativeColors: bd.negativeColors,
-      };
-    })
-    .sort((a, b) => b.total - a.total);
+  const scored = rows.map((r) => {
+    const bd = scorePlayer(r.playerId, r.base);
+    return {
+      ...r,
+      total: bd.total,
+      positiveColors: bd.positiveColors,
+      negativeColors: bd.negativeColors,
+    };
+  });
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
