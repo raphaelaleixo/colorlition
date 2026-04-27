@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 import { PALETTE } from '../../theme/colors';
@@ -17,12 +17,11 @@ const LOGO_COLOR_KEYS = [
 // view. The "color" span hue is picked once per mount from the bloc palette
 // so each device gets its own accent on load.
 export function Logo({ variant = 'h1', sx }: { variant?: TypographyProps['variant']; sx?: TypographyProps['sx'] }) {
-  const logoColor = useMemo(
+  const [logoColor] = useState(
     () =>
       PALETTE[
         LOGO_COLOR_KEYS[Math.floor(Math.random() * LOGO_COLOR_KEYS.length)]
       ],
-    [],
   );
   return (
     <Typography
