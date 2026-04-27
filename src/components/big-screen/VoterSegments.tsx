@@ -1,3 +1,17 @@
+/* eslint-disable react-hooks/refs --
+ * SegmentRow detects unclaimed→claimed and claimed→unclaimed transitions during
+ * render so the very first committed paint already includes the animated
+ * overlay (no static-state flash). It also snapshots pre-claim cards into a ref
+ * so the zoom-out animation can render the segment's frozen content while the
+ * underlying state has already moved on.
+ *
+ * The render-time ref read/write pattern is intentional and load-bearing for
+ * the no-flash animation behavior. Migrating to useEffect-based detection would
+ * cause a visible one-frame flash on every claim. The risk window for this
+ * pattern (discarded renders under Concurrent React, React Compiler) is not
+ * relevant in this codebase today; revisit if either is adopted.
+ */
+
 import {
   useEffect,
   useRef,
