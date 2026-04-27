@@ -37,11 +37,13 @@ export function DrawCardReveal({
   }, [reveal, onRevealingChange]);
 
   // Start the reveal when a pending draw appears (and the exit poll overlay
-  // isn't currently occupying the centered slot).
+  // isn't currently occupying the centered slot). Effect intentionally seeds
+  // state in response to a prop change.
   useEffect(() => {
     if (reveal) return;
     if (!pendingDraw) return;
     if (exitPollRevealing) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReveal({
       card: pendingDraw.card,
       phase: 'centered',
@@ -79,14 +81,15 @@ export function DrawCardReveal({
   }, [reveal]);
 
   // Manual-advance hook (mock dev panel only): kick centered → departing on
-  // tick changes, irrespective of pendingDraw clearing.
+  // tick changes, irrespective of pendingDraw clearing. The setState here IS
+  // the effect's purpose.
   const advanceTick = revealControl?.advanceTick;
   useEffect(() => {
     if (advanceTick === undefined) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReveal((prev) =>
       prev && prev.phase === 'centered' ? { ...prev, phase: 'departing' } : prev,
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [advanceTick]);
 
   if (!reveal) return null;
