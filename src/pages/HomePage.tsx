@@ -64,9 +64,6 @@ export default function HomePage() {
       <Spectrum sx={{ mx: { xs: -3, sm: -6 } }} />
       <Stack spacing={4} sx={{ flex: 1, pt: { xs: 4, sm: 6 } }}>
         <Stack spacing={3}>
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-            Issue 2026.04 · The Coalition Question
-          </Typography>
           <Logo layout="stacked" sx={{ fontSize: { xs: 60, sm: 88 } }} />
           <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
             {BLOC_KEYS.map((key) => {
