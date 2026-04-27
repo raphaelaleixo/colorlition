@@ -100,8 +100,11 @@ export function HeadlineTicker({
   const [opacity, setOpacity] = useState(1);
   const swapTimerRef = useRef<number | null>(null);
 
+  // Headline fade animation: kick the fade-out, then swap text + fade back in
+  // after FADE_MS. The setState IS the effect's purpose.
   useEffect(() => {
     if (desired === displayed) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpacity(0);
     swapTimerRef.current = window.setTimeout(() => {
       setDisplayed(desired);
