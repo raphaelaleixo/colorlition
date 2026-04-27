@@ -68,7 +68,19 @@ export default function HomePage() {
             Issue 2026.04 · The Coalition Question
           </Typography>
           <Logo layout="stacked" sx={{ fontSize: { xs: 60, sm: 88 } }} />
-          <Divider sx={{ borderColor: 'rule.hair' }} />
+          <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            {BLOC_KEYS.map((key) => {
+              const Icon = COLOR_ICONS[key];
+              return (
+                <Box
+                  key={key}
+                  sx={{ color: PALETTE[key], fontSize: { xs: 26, sm: 32 }, display: 'flex' }}
+                >
+                  <Icon />
+                </Box>
+              );
+            })}
+          </Stack>
           <Typography
             variant="h5"
             sx={{
@@ -84,19 +96,6 @@ export default function HomePage() {
             </Box>{' '}
             A real-time card draft for 3 to 5 players, dressed up as 2026 politics.
           </Typography>
-          <Stack direction="row" spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: 'center', flexWrap: 'wrap', pt: 1 }}>
-            {BLOC_KEYS.map((key) => {
-              const Icon = COLOR_ICONS[key];
-              return (
-                <Box
-                  key={key}
-                  sx={{ color: PALETTE[key], fontSize: { xs: 26, sm: 32 }, display: 'flex' }}
-                >
-                  <Icon />
-                </Box>
-              );
-            })}
-          </Stack>
           <Stack direction="row" spacing={3} sx={{ alignItems: 'center', flexWrap: 'wrap', pt: 1 }}>
             <Button
               variant="contained"
