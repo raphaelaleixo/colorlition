@@ -1,6 +1,18 @@
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 import { FONT_SERIF } from '../../theme/typography';
+import { PALETTE } from '../../theme/colors';
+
+const DOT_COLOR_KEYS = [
+  'red',
+  'purple',
+  'green',
+  'blue',
+  'orange',
+  'yellow',
+  'grey',
+] as const;
 
 interface LogoProps {
   variant?: TypographyProps['variant'];
@@ -8,7 +20,23 @@ interface LogoProps {
   sx?: TypographyProps['sx'];
 }
 
+// "Color•lition" with the • picked once per mount from the bloc palette so
+// each device gets its own accent on load.
 export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
+  const [dotColor] = useState(
+    () => PALETTE[DOT_COLOR_KEYS[Math.floor(Math.random() * DOT_COLOR_KEYS.length)]],
+  );
+
+  const wordmark = (
+    <>
+      Color
+      <Box component="span" sx={{ color: dotColor }}>
+        •
+      </Box>
+      lition
+    </>
+  );
+
   if (layout === 'stacked') {
     return (
       <Box sx={{ display: 'inline-block', fontFamily: FONT_SERIF, ...sx }}>
@@ -33,7 +61,7 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
             lineHeight: 0.95,
           }}
         >
-          Color•lition
+          {wordmark}
         </Box>
       </Box>
     );
@@ -41,7 +69,7 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
 
   return (
     <Typography variant={variant} sx={{ fontWeight: 900, ...sx }}>
-      The Color•lition
+      The {wordmark}
     </Typography>
   );
 }
