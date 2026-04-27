@@ -83,7 +83,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
           borderColor: 'rule.ink',
         }}
       >
-        <Logo variant="h1" />
+        <Logo variant="h2" />
         <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
             <Typography variant="overline" sx={{ color: 'text.secondary' }}>

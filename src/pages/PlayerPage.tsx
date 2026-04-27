@@ -84,7 +84,7 @@ export default function PlayerPage() {
             borderColor: 'rule.hair',
           }}
         >
-          <Logo variant="h2" />
+          <Logo variant="h3" />
           <Typography
             variant="overline"
             sx={{
@@ -130,7 +130,7 @@ export default function PlayerPage() {
             borderColor: 'rule.hair',
           }}
         >
-          <Logo variant="h2" />
+          <Logo variant="h3" />
           <Typography
             variant="overline"
             sx={{
@@ -172,7 +172,7 @@ export default function PlayerPage() {
             borderColor: 'rule.hair',
           }}
         >
-          <Logo variant="h2" />
+          <Logo variant="h3" />
           <Typography
             variant="overline"
             sx={{
@@ -278,7 +278,7 @@ export default function PlayerPage() {
             borderColor: 'rule.hair',
           }}
         >
-          <Logo variant="h2" />
+          <Logo variant="h3" />
           <Typography
             variant="overline"
             sx={{

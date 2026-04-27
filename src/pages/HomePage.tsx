@@ -56,7 +56,7 @@ export default function HomePage() {
           <Typography variant="overline" sx={{ color: 'text.secondary' }}>
             Issue 2026.04 · The Coalition Question
           </Typography>
-          <Logo layout="stacked" sx={{ fontSize: { xs: 72, sm: 112 } }} />
+          <Logo layout="stacked" sx={{ fontSize: { xs: 60, sm: 88 } }} />
           <Divider sx={{ borderColor: 'rule.hair' }} />
           <Typography
             variant="h5"
