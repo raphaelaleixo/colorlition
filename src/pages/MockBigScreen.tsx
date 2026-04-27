@@ -1,19 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import { BigScreenView } from '../components/room/BigScreenView';
 import { GameContext, type GameContextValue } from '../contexts/GameContext';
-import { VoterSegments } from '../components/big-screen/VoterSegments';
-import { ExitPollReveal } from '../components/big-screen/ExitPollReveal';
-import { DrawCardReveal } from '../components/big-screen/DrawCardReveal';
-import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
-import { Leaderboard } from '../components/big-screen/Leaderboard';
-import { WinnerScreen } from '../components/big-screen/WinnerScreen';
-import { Logo } from '../components/shared/Logo';
 import { RevealControlContext } from '../components/big-screen/VoterSegments';
-import { buildMockGameContextValue, MOCK_GAME_STATE } from '../mocks/colorlitionFixture';
+import {
+  buildMockGameContextValue,
+  MOCK_GAME_STATE,
+  MOCK_ROOM_STATE,
+} from '../mocks/colorlitionFixture';
 import {
   drawCard as drawCardPure,
   placePendingDraw as placePendingDrawPure,
@@ -22,8 +20,9 @@ import {
   commitRoundEnd as commitRoundEndPure,
   canPlaceInSegment,
   canClaimSegment,
-  currentPlayerId,
 } from '../game/actions';
+import { currentPlayerId as currentPlayerIdOf } from '../game/actions';
+import type { ColorlitionGameState } from '../game/types';
 
 // Convenience for the dev panel: combine draw + place atomically so a single
 // click still produces a complete turn (mirrors the old drawAndPlace).
@@ -35,27 +34,15 @@ function drawAndPlaceCombined(
   if (!drawn.pendingDraw) return drawn; // exit poll consumed last card
   return placePendingDrawPure(drawn, segmentKey);
 }
-import type { ColorlitionGameState } from '../game/types';
 
 export default function MockBigScreen() {
   const [gameState, setGameState] = useState<ColorlitionGameState>(MOCK_GAME_STATE);
   const [revealAdvanceTick, setRevealAdvanceTick] = useState(0);
   const [minimized, setMinimized] = useState(false);
-  const [exitPollRevealing, setExitPollRevealing] = useState(false);
-  const [drawRevealing, setDrawRevealing] = useState(false);
 
   const revealControl = useMemo(
     () => ({ advanceTick: revealAdvanceTick }),
     [revealAdvanceTick],
-  );
-
-  const handleExitPollRevealingChange = useCallback(
-    (v: boolean) => setExitPollRevealing(v),
-    [],
-  );
-  const handleDrawRevealingChange = useCallback(
-    (v: boolean) => setDrawRevealing(v),
-    [],
   );
 
   const ctxValue = useMemo<GameContextValue>(() => {
@@ -103,6 +90,7 @@ export default function MockBigScreen() {
       return drawAndPlaceCombined(reordered, target.key);
     });
   }
+
   const hasPivotInDeck = gameState.deck.some((c) => c.kind === 'pivot');
   const hasGrantInDeck = gameState.deck.some((c) => c.kind === 'grant');
   const hasExitPollInDeck = gameState.deck.some((c) => c.kind === 'exitPoll');
@@ -125,7 +113,7 @@ export default function MockBigScreen() {
         if (!target || next.deck.length === 0) return prev;
         next = drawAndPlaceCombined(next, target.key);
       }
-      const cur = currentPlayerId(next);
+      const cur = currentPlayerIdOf(next);
       const forced: ColorlitionGameState = {
         ...next,
         playerState: Object.fromEntries(
@@ -163,218 +151,122 @@ export default function MockBigScreen() {
     setGameState(MOCK_GAME_STATE);
   }
 
-  const curPlayerId = gameState.turnOrder[gameState.currentPlayerIndex];
-  const mockRoomState = buildMockGameContextValue(gameState).roomState;
-
-  const nameFor = (pid: string) =>
-    mockRoomState?.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`;
-
   return (
     <GameContext.Provider value={ctxValue}>
       <RevealControlContext.Provider value={revealControl}>
-        <Stack
+        <BigScreenView roomId="MOCK" roomState={MOCK_ROOM_STATE} />
+        <Box
           sx={{
-            display: 'flex',
-            height: '100vh',
-            width: '100vw',
-            overflow: 'hidden',
-            backgroundColor: 'background.default',
-            position: 'relative',
+            position: 'fixed',
+            top: 16,
+            right: 16,
+            zIndex: (t) => t.zIndex.tooltip + 1,
+            backgroundColor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'rule.strong',
+            p: 2,
+            minWidth: minimized ? 0 : 240,
+            boxShadow: 4,
           }}
         >
-          <Stack
-            spacing={2}
-            sx={{
-              p: 3,
-              flex: 1,
-              overflow: 'auto',
-            }}
-          >
-            <Logo />
-            <Typography variant="h4" sx={{ fontWeight: 900 }}>
-              Voter Segments
-            </Typography>
-            <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
-            <VoterSegments
-              segments={gameState.segments}
-              nameFor={nameFor}
-              isPageRevealing={drawRevealing || exitPollRevealing}
-            />
-          </Stack>
-
-          <Stack
-            spacing={2}
-            sx={{
-              display: { xs: 'none', lg: 'flex' },
-              p: 3,
-              width: 360,
-              borderLeft: '1px solid',
-              borderColor: 'rule.hair',
-              overflow: 'auto',
-            }}
-          >
-            <Typography variant="h5" sx={{ fontWeight: 900 }}>
-              Leaderboard
-            </Typography>
-            <Leaderboard rows={gameState.turnOrder.map((pid) => ({
-              playerId: pid,
-              name: nameFor(pid),
-              base: gameState.playerState[pid]?.base ?? [],
-              roundStatus: gameState.playerState[pid]?.roundStatus ?? 'active',
-              isCurrent: pid === curPlayerId,
-            }))} />
-          </Stack>
-
-          {gameState.phase === 'ended' && (
-            <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-              <WinnerScreen
-                breakdowns={gameState.scoreBreakdown!}
-                winnerIds={gameState.winnerIds!}
-                nameFor={nameFor}
-              />
-            </Box>
-          )}
-
-          <Box
-            sx={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: (t) => t.zIndex.appBar,
-            }}
-          >
-            <HeadlineTicker
-              lastHeadline={gameState.lastHeadline}
-              currentPlayerName={nameFor(curPlayerId)}
-              currentPlayerIndex={gameState.currentPlayerIndex}
-              isFinalRound={gameState.phase === 'finalRound'}
-            />
-          </Box>
-
-          <ExitPollReveal
-            exitPollDrawn={gameState.exitPollDrawn}
-            onRevealingChange={handleExitPollRevealingChange}
-          />
-
-          <DrawCardReveal
-            pendingDraw={gameState.pendingDraw}
-            exitPollRevealing={exitPollRevealing}
-            onRevealingChange={handleDrawRevealingChange}
-          />
-        </Stack>
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 16,
-          right: 16,
-          zIndex: (t) => t.zIndex.tooltip + 1,
-          backgroundColor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'rule.strong',
-          p: 2,
-          minWidth: minimized ? 0 : 240,
-          boxShadow: 4,
-        }}
-      >
-        <Stack spacing={1.25}>
-          <Stack
-            direction="row"
-            sx={{ alignItems: 'center', justifyContent: 'space-between' }}
-          >
-            <Typography
-              variant="overline"
-              sx={{ fontWeight: 700, letterSpacing: '0.12em' }}
+          <Stack spacing={1.25}>
+            <Stack
+              direction="row"
+              sx={{ alignItems: 'center', justifyContent: 'space-between' }}
             >
-              Mock Controls
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={() => setMinimized((m) => !m)}
-              aria-label={minimized ? 'Expand mock controls' : 'Minimize mock controls'}
-              sx={{ ml: 1, fontSize: 14, lineHeight: 1, fontWeight: 700 }}
-            >
-              {minimized ? '+' : '−'}
-            </IconButton>
+              <Typography
+                variant="overline"
+                sx={{ fontWeight: 700, letterSpacing: '0.12em' }}
+              >
+                Mock Controls
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => setMinimized((m) => !m)}
+                aria-label={minimized ? 'Expand mock controls' : 'Minimize mock controls'}
+                sx={{ ml: 1, fontSize: 14, lineHeight: 1, fontWeight: 700 }}
+              >
+                {minimized ? '+' : '−'}
+              </IconButton>
+            </Stack>
+            {!minimized && (
+              <>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  Phase: {gameState.phase} · Round {gameState.roundNumber} · Deck{' '}
+                  {gameState.deck.length}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handlePlace}
+                  disabled={isEnded || !placeable || deckEmpty}
+                >
+                  Draw & place (next turn)
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handleDrawSpecific('pivot')}
+                  disabled={isEnded || !placeable || !hasPivotInDeck}
+                >
+                  Draw pivot
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handleDrawSpecific('grant')}
+                  disabled={isEnded || !placeable || !hasGrantInDeck}
+                >
+                  Draw grant
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handleDrawSpecific('exitPoll')}
+                  disabled={isEnded || !placeable || !hasExitPollInDeck}
+                >
+                  Draw exit poll
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleClaim}
+                  disabled={isEnded || !claimable}
+                >
+                  Current player claims
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleEndRound}
+                  disabled={isEnded}
+                >
+                  Claim last → end round
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="error"
+                  onClick={handleEndGame}
+                  disabled={isEnded}
+                >
+                  End game now
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="secondary"
+                  onClick={() => setRevealAdvanceTick((n) => n + 1)}
+                >
+                  Advance reveal
+                </Button>
+                <Button variant="text" size="small" onClick={handleReset}>
+                  Reset
+                </Button>
+              </>
+            )}
           </Stack>
-          {!minimized && (
-            <>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Phase: {gameState.phase} · Round {gameState.roundNumber} · Deck{' '}
-            {gameState.deck.length}
-          </Typography>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handlePlace}
-            disabled={isEnded || !placeable || deckEmpty}
-          >
-            Draw & place (next turn)
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => handleDrawSpecific('pivot')}
-            disabled={isEnded || !placeable || !hasPivotInDeck}
-          >
-            Draw pivot
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => handleDrawSpecific('grant')}
-            disabled={isEnded || !placeable || !hasGrantInDeck}
-          >
-            Draw grant
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => handleDrawSpecific('exitPoll')}
-            disabled={isEnded || !placeable || !hasExitPollInDeck}
-          >
-            Draw exit poll
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleClaim}
-            disabled={isEnded || !claimable}
-          >
-            Current player claims
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleEndRound}
-            disabled={isEnded}
-          >
-            Claim last → end round
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            color="error"
-            onClick={handleEndGame}
-            disabled={isEnded}
-          >
-            End game now
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            color="secondary"
-            onClick={() => setRevealAdvanceTick((n) => n + 1)}
-          >
-            Advance reveal
-          </Button>
-          <Button variant="text" size="small" onClick={handleReset}>
-            Reset
-          </Button>
-            </>
-          )}
-        </Stack>
-      </Box>
+        </Box>
       </RevealControlContext.Provider>
     </GameContext.Provider>
   );
