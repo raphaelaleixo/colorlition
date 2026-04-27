@@ -86,7 +86,7 @@ export default function HomePage() {
               component={RouterLink}
               to="/join"
               underline="hover"
-              sx={{ color: 'text.secondary' }}
+              sx={{ color: 'text.secondary', fontWeight: 700 }}
             >
               Join with code →
             </Link>
@@ -94,7 +94,7 @@ export default function HomePage() {
               component={RouterLink}
               to="/how-to-play"
               underline="hover"
-              sx={{ color: 'text.secondary' }}
+              sx={{ color: 'text.secondary', fontWeight: 700 }}
             >
               How to play →
             </Link>
