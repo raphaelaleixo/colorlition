@@ -11,7 +11,6 @@ import { useGame } from '../contexts/GameContext';
 import { FONT_SANS } from '../theme/typography';
 import { Logo } from '../components/shared/Logo';
 import { Spectrum } from '../components/shared/Spectrum';
-import { StakesGrid } from '../components/shared/StakesGrid';
 import { PageFooter } from '../components/shared/PageFooter';
 
 export default function HomePage() {
@@ -104,15 +103,6 @@ export default function HomePage() {
           </Stack>
         </Stack>
 
-        {/* "What's at Stake" block — delete this Divider + Stack + Divider trio plus
-            the StakesGrid import to remove the stat block from the page. */}
-        <Divider sx={{ borderColor: 'rule.hair' }} />
-        <Stack spacing={3}>
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-            What's at Stake
-          </Typography>
-          <StakesGrid />
-        </Stack>
         <Divider sx={{ borderColor: 'rule.hair' }} />
 
         <PageFooter />
