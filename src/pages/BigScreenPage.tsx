@@ -162,37 +162,87 @@ export default function BigScreenPage() {
           rowGap: 5,
         }}
       >
-        <Stack
-          spacing={2}
-          sx={{
-            gridColumn: { xs: '1', lg: '1' },
-            gridRow: { lg: '1' },
-          }}
-        >
-          <Stack spacing={1}>
-            <Typography variant="h4" sx={{ fontWeight: 900 }}>
-              {gameState.phase === 'ended' ? 'Game over' : 'Voter Segments'}
-            </Typography>
-            <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
-          </Stack>
-          <VoterSegments segments={gameState.segments} nameFor={nameFor} />
-        </Stack>
-        <Box
-          sx={{
-            display: { xs: 'none', lg: 'flex' },
-            flexDirection: 'column',
-            height: 360,
-            gridColumn: { lg: '1' },
-            gridRow: { lg: '2' },
-          }}
-        >
-          <ScoreChart
-            history={gameState.scoreHistory}
-            playerOrder={gameState.turnOrder}
-            nameFor={nameFor}
-            colorFor={colorFor}
-          />
-        </Box>
+        {(() => {
+          const isEnded =
+            gameState.phase === 'ended' && !!gameState.scoreBreakdown && !!gameState.winnerIds;
+          const fadeOutSx = isEnded
+            ? {
+                '@keyframes endGameFadeOut': {
+                  from: { opacity: 1 },
+                  to: { opacity: 0 },
+                },
+                animation: 'endGameFadeOut 360ms ease-out both',
+                pointerEvents: 'none' as const,
+                '@media (prefers-reduced-motion: reduce)': {
+                  animation: 'none',
+                  opacity: 0,
+                },
+              }
+            : null;
+          return (
+            <>
+              <Stack
+                spacing={2}
+                sx={{
+                  gridColumn: { xs: '1', lg: '1' },
+                  gridRow: { lg: '1' },
+                  ...fadeOutSx,
+                }}
+              >
+                <Stack spacing={1}>
+                  <Typography variant="h4" sx={{ fontWeight: 900 }}>
+                    Voter Segments
+                  </Typography>
+                  <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
+                </Stack>
+                <VoterSegments segments={gameState.segments} nameFor={nameFor} />
+              </Stack>
+              <Box
+                sx={{
+                  display: { xs: 'none', lg: 'flex' },
+                  flexDirection: 'column',
+                  height: 360,
+                  gridColumn: { lg: '1' },
+                  gridRow: { lg: '2' },
+                  ...fadeOutSx,
+                }}
+              >
+                <ScoreChart
+                  history={gameState.scoreHistory}
+                  playerOrder={gameState.turnOrder}
+                  nameFor={nameFor}
+                  colorFor={colorFor}
+                />
+              </Box>
+              {isEnded && (
+                <Box
+                  sx={{
+                    gridColumn: { xs: '1', lg: '1' },
+                    gridRow: { lg: '1 / -1' },
+                    alignSelf: 'start',
+                    overflow: 'hidden',
+                    '@keyframes endScreenSlideUp': {
+                      from: { transform: 'translateY(100%)', opacity: 0 },
+                      to: { transform: 'translateY(0)', opacity: 1 },
+                    },
+                    '& > *': {
+                      animation: 'endScreenSlideUp 480ms cubic-bezier(0.22, 1, 0.36, 1) both',
+                      '@media (prefers-reduced-motion: reduce)': {
+                        animation: 'none',
+                      },
+                    },
+                  }}
+                >
+                  <WinnerScreen
+                    breakdowns={gameState.scoreBreakdown!}
+                    winnerIds={gameState.winnerIds!}
+                    nameFor={nameFor}
+                  />
+                </Box>
+              )}
+            </>
+          );
+        })()}
         <Stack
           spacing={2}
           sx={{
@@ -205,14 +255,6 @@ export default function BigScreenPage() {
           <Leaderboard rows={rows} />
         </Stack>
       </Box>
-
-      {gameState.phase === 'ended' && gameState.scoreBreakdown && gameState.winnerIds && (
-        <WinnerScreen
-          breakdowns={gameState.scoreBreakdown}
-          winnerIds={gameState.winnerIds}
-          nameFor={nameFor}
-        />
-      )}
       </Stack>
 
       <Box

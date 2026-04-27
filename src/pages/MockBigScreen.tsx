@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import BigScreenPage from './BigScreenPage';
 import { GameContext, type GameContextValue } from '../contexts/GameContext';
 import { RevealControlContext } from '../components/big-screen/VoterSegments';
@@ -10,6 +11,7 @@ import { buildMockGameContextValue, MOCK_GAME_STATE } from '../mocks/colorlition
 import {
   drawAndPlace as drawAndPlacePure,
   claim as claimPure,
+  endRound as endRoundPure,
   canPlaceInSegment,
   canClaimSegment,
   currentPlayerId,
@@ -19,6 +21,7 @@ import type { ColorlitionGameState } from '../game/types';
 export default function MockBigScreen() {
   const [gameState, setGameState] = useState<ColorlitionGameState>(MOCK_GAME_STATE);
   const [revealAdvanceTick, setRevealAdvanceTick] = useState(0);
+  const [minimized, setMinimized] = useState(false);
   const revealControl = useMemo(
     () => ({ advanceTick: revealAdvanceTick }),
     [revealAdvanceTick],
@@ -49,7 +52,7 @@ export default function MockBigScreen() {
 
   // Draw a specific card kind by hoisting it to the front of the deck so the
   // pure drawAndPlace logic picks it up next.
-  function handleDrawSpecific(kind: 'pivot' | 'grant') {
+  function handleDrawSpecific(kind: 'pivot' | 'grant' | 'exitPoll') {
     setGameState((prev) => {
       const idx = prev.deck.findIndex((c) => c.kind === kind);
       if (idx === -1) return prev;
@@ -68,6 +71,7 @@ export default function MockBigScreen() {
   }
   const hasPivotInDeck = gameState.deck.some((c) => c.kind === 'pivot');
   const hasGrantInDeck = gameState.deck.some((c) => c.kind === 'grant');
+  const hasExitPollInDeck = gameState.deck.some((c) => c.kind === 'exitPoll');
 
   function handleClaim() {
     if (!claimable) return;
@@ -102,6 +106,13 @@ export default function MockBigScreen() {
     });
   }
 
+  // Short-circuits to the ended phase: flip exitPollDrawn so endRound branches
+  // into scoring, then call endRound directly. Any in-progress segments are
+  // discarded (endRound resets them); existing bases drive the final score.
+  function handleEndGame() {
+    setGameState((prev) => endRoundPure({ ...prev, exitPollDrawn: true }));
+  }
+
   function handleReset() {
     setGameState(MOCK_GAME_STATE);
   }
@@ -120,17 +131,32 @@ export default function MockBigScreen() {
           border: '1px solid',
           borderColor: 'rule.strong',
           p: 2,
-          minWidth: 240,
+          minWidth: minimized ? 0 : 240,
           boxShadow: 4,
         }}
       >
         <Stack spacing={1.25}>
-          <Typography
-            variant="overline"
-            sx={{ fontWeight: 700, letterSpacing: '0.12em' }}
+          <Stack
+            direction="row"
+            sx={{ alignItems: 'center', justifyContent: 'space-between' }}
           >
-            Mock Controls
-          </Typography>
+            <Typography
+              variant="overline"
+              sx={{ fontWeight: 700, letterSpacing: '0.12em' }}
+            >
+              Mock Controls
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => setMinimized((m) => !m)}
+              aria-label={minimized ? 'Expand mock controls' : 'Minimize mock controls'}
+              sx={{ ml: 1, fontSize: 14, lineHeight: 1, fontWeight: 700 }}
+            >
+              {minimized ? '+' : '−'}
+            </IconButton>
+          </Stack>
+          {!minimized && (
+            <>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             Phase: {gameState.phase} · Round {gameState.roundNumber} · Deck{' '}
             {gameState.deck.length}
@@ -162,6 +188,14 @@ export default function MockBigScreen() {
           <Button
             variant="outlined"
             size="small"
+            onClick={() => handleDrawSpecific('exitPoll')}
+            disabled={isEnded || !placeable || !hasExitPollInDeck}
+          >
+            Draw exit poll
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
             onClick={handleClaim}
             disabled={isEnded || !claimable}
           >
@@ -176,6 +210,15 @@ export default function MockBigScreen() {
             Claim last → end round
           </Button>
           <Button
+            variant="contained"
+            size="small"
+            color="error"
+            onClick={handleEndGame}
+            disabled={isEnded}
+          >
+            End game now
+          </Button>
+          <Button
             variant="outlined"
             size="small"
             color="secondary"
@@ -186,6 +229,8 @@ export default function MockBigScreen() {
           <Button variant="text" size="small" onClick={handleReset}>
             Reset
           </Button>
+            </>
+          )}
         </Stack>
       </Box>
       </RevealControlContext.Provider>
