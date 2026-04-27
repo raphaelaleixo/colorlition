@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import { RoomHeader } from '../components/shared/RoomHeader';
 
 const SCORING_ROWS: ReadonlyArray<readonly [string, string]> = [
   ['1 card', '1'],
@@ -34,20 +35,15 @@ const GLOSSARY: ReadonlyArray<readonly [string, string]> = [
 export default function HowToPlayPage() {
   return (
     <Box sx={{ p: { xs: 3, sm: 6 }, maxWidth: 760, mx: 'auto' }}>
-      <Stack spacing={4}>
-        <Stack spacing={1.5}>
-          <Link
-            component={RouterLink}
-            to="/"
-            underline="hover"
-            variant="overline"
-            sx={{ color: 'text.secondary' }}
-          >
-            ← Back
-          </Link>
+      <RoomHeader
+        slot={
           <Typography variant="overline" sx={{ color: 'text.secondary' }}>
             The Manual
           </Typography>
+        }
+      />
+      <Stack spacing={4} sx={{ pt: 4 }}>
+        <Stack spacing={1.5}>
           <Typography variant="h1">How to Play</Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
             Color-lition is a real-time card-drafting game for 2 to 5 players, dressed up
