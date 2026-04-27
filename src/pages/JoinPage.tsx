@@ -61,13 +61,7 @@ export default function JoinPage() {
 
   return (
     <Box sx={{ p: { xs: 3, sm: 6 }, maxWidth: 560, mx: 'auto', minHeight: '100dvh' }}>
-      <RoomHeader
-        slot={
-          <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-            The Newsdesk
-          </Typography>
-        }
-      />
+      <RoomHeader slot={null} />
       <Stack
         component="form"
         spacing={4}
