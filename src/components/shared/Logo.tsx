@@ -44,17 +44,14 @@ export function Logo({ variant = 'h1', layout = 'inline', sx }: LogoProps) {
             display: 'block',
             fontStyle: 'italic',
             fontWeight: 700,
-            // Closer to the wordmark size — kept slightly under so the eye
-            // still treats the wordmark as primary.
-            fontSize: '0.55em',
+            fontSize: '0.6em',
             letterSpacing: '0.02em',
             lineHeight: 1,
             // Indent so "The" sits above the "or" between the two l's of
-            // Colorlition (between "Col" and "lition"). Tuned visually for
-            // italic Playfair 900; iterate by eye if the alignment drifts.
-            pl: '1.95em',
-            // Slight overlap with the wordmark below for a tighter masthead.
-            mb: '-0.08em',
+            // Colorlition. Visually tuned for italic Playfair 900.
+            pl: '2.75em',
+            // Pull the wordmark up so "The" tucks into its top edge.
+            mb: '-0.5em',
           }}
         >
           The
