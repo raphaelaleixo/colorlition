@@ -1,0 +1,103 @@
+Color-lition: o jogo de coalizão que você joga no celular com seus amigos
+=========================================================================
+
+Imagina o seguinte: você é candidato numa eleição. Mas não tem só "esquerda
+vs direita". Tem trabalhadores, ambientalistas, mercado, segurança, tradição,
+igualdade, agronegócio. Sete blocos de interesse, sete cores. Cada um quer
+uma coisa diferente — e quer ouvido. Sua jogada é construir a coalizão certa
+pra ganhar a eleição sem se contradizer.
+
+É baseado num clássico de cartas alemão (Coloretto), mas retematizado pra
+2026: política, jornalismo, ironia, manchetes em tempo real. Cada partida
+roda em até 15 minutos, 3 a 5 jogadores, todo mundo joga pelo celular numa
+sala compartilhada — e uma tela grande (TV, monitor, projetor) fica no meio
+mostrando o estado do jogo: os Segmentos de Eleitorado, o ranking, e o
+ticker de manchetes que vai narrando o caos.
+
+
+COMO FUNCIONA, EM 30 SEGUNDOS
+
+A cada turno, você tem duas escolhas:
+
+  1) Comprar uma carta e colocar em um Segmento de Eleitorado. São cinco:
+     o Cinturão Industrial, os Profissionais Urbanos, a Fronteira Agrícola,
+     o Distrito Financeiro e a Periferia. Cada segmento aceita até 3 cartas.
+
+  2) "Reivindicar" um segmento — pegar TODAS as cartas que já estão lá pra
+     sua coalizão. Mas atenção: quando você reivindica, sua rodada acaba.
+     Os outros candidatos continuam jogando sem você.
+
+No fim do jogo, suas 3 cores com mais cartas viram pontos positivos. Todo o
+resto vira Contradições Políticas (Flip-Flops) e desconta. É aí que o
+caldo entala: quanto mais cores você junta, maior o risco de aparecer
+incoerente. Por isso o timing pra reivindicar um segmento é tudo.
+
+
+EXEMPLOS DE JOGADA
+
+- Tom tem 5 vermelhas e 3 azuis na coalizão — duas cores, ambas positivas.
+  Aparece um segmento de 3 cartas: uma vermelha, uma cinza e uma amarela.
+  Se ele reivindicar agora, leva tudo: a vermelha reforça a cor dele, o
+  cinza vira a 3ª cor (ainda positiva), e o amarelo vira a 4ª — Contradição
+  Política, desconta. O dilema é o timing: dá pra esperar o adversário
+  reivindicar primeiro? Ou alguém vai abocanhar antes?
+
+- Maria tem 4 verdes (ambientalistas) e 3 azuis (mercado) na coalizão. Tem
+  de olho um segmento com 1 verde e 1 azul — reivindicaria com prazer, é
+  só somar nas cores que ela já tem. Mas é a vez do adversário. Ele coloca
+  uma cinza (tradição) nesse mesmo segmento. Maria pode reivindicar agora
+  (cinza vira a 3ª cor dela, ainda positiva, tudo bem) ou esperar. Mas cada
+  turno que ela espera é um turno em que outro adversário pode plantar uma
+  4ª cor diferente — e aí reivindicar vira Contradição Política. Pega ou
+  larga?
+
+- A Pesquisa Boca de Urna está embaralhada no fundo do monte. Não dá pontos,
+  não vai pra coalizão de ninguém — quando alguém compra essa carta, dispara
+  a última rodada. Cada jogador joga mais um turno e o jogo acaba. A tensão
+  muda na hora: dá pra fechar a coalizão a tempo, ou tá na hora de reivindicar
+  qualquer segmento minimamente bom antes que seja tarde?
+
+- Existem dois tipos de carta especial:
+  * Os Coringas — cartas de eleitor "indeciso". No fim do jogo, o algoritmo
+    decide pra você qual cor cada Coringa vira, sempre maximizando seus
+    pontos. Pode até puxar uma 4ª cor pro topo se isso derrubar uma cor
+    fraca da sua coalizão.
+  * Os Aliados — apoios institucionais (uma figura pública, um sindicato,
+    um broker). Valem +2 pontos fixos, sem virar contradição.
+
+
+O TWIST: AS MANCHETES EM TEMPO REAL
+
+Toda vez que uma carta entra num segmento, sai uma manchete na tela grande:
+
+  "A bancada das fábricas começa a aparecer pelo Cinturão Industrial."
+  "Demanda por reforma radical agita o debate na Periferia."
+  "Investidores miram a Fronteira Agrícola para novas desregulamentações."
+
+É o jornalismo se fazendo em tempo real, conforme vocês jogam. Cada bloco
+tem sua "demanda" também — uma fala que aparece pro jogador que comprou a
+carta, e depois vai pra tela grande. ("Eu falo pelos dez mil no chão da
+fábrica." "Minha bênção pesa mais que sua lei.")
+
+
+NO FIM, VOCÊ NÃO GANHA "PRIMEIRO LUGAR". VOCÊ GANHA UM TÍTULO
+
+Cada combinação de cores no topo da sua coalizão tem um título próprio,
+baseado nas cores que dominaram. Tipo:
+
+  "Maria Costa, a Visionária da Era Tech-Equidade Vence!"
+  "Tom, o Sentinela da Produtividade Nacional Vence!"
+  "Ana, a Vanguarda Socialista Vence!"
+  "Linda, a Defensora da Fronteira Vence!"
+
+São 35 combinações de três cores, 21 de duas, 7 de uma. Cada partida
+fecha com uma manchete diferente.
+
+
+RESUMO
+
+  - 3 a 5 jogadores
+  - 5 a 15 minutos por partida
+  - Joga pelo celular, com uma tela grande no meio
+  - Estratégia + tema político + ironia + manchetes ao vivo
+  - Em desenvolvimento. Em breve, mais.
