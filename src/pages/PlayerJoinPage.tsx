@@ -101,7 +101,7 @@ function NicknameJoinView({ roomId }: { roomId: string }) {
         onSubmit={handleSubmit}
         sx={{ pt: 4 }}
       >
-        <Typography variant="h1">Join the coalition</Typography>
+        <Typography variant="h3">File your candidacy</Typography>
         <TextField
           label="Your name"
           value={name}
