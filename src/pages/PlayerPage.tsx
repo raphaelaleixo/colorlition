@@ -40,6 +40,14 @@ export default function PlayerPage() {
     if (id) loadRoom(id);
   }, [id, loadRoom]);
 
+  const isMyTurn = !!gameState
+    && gameState.turnOrder[gameState.currentPlayerIndex] === playerId
+    && (gameState.phase === 'turn' || gameState.phase === 'finalRound');
+
+  useEffect(() => {
+    if (isMyTurn) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isMyTurn]);
+
   const handleClaim = useCallback(async () => {
     if (!id || !playerId) return;
     const slotId = Number(playerId);
@@ -133,9 +141,6 @@ export default function PlayerPage() {
     );
   }
 
-  const isMyTurn =
-    gameState.turnOrder[gameState.currentPlayerIndex] === playerId &&
-    (gameState.phase === 'turn' || gameState.phase === 'finalRound');
   const myBase = gameState.playerState[playerId]?.base ?? [];
   const myRoundStatus = gameState.playerState[playerId]?.roundStatus ?? 'active';
 
