@@ -13,7 +13,27 @@ import {
 } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { RoomNotFound } from '../components/shared/RoomNotFound';
+import { RoomHeader } from '../components/shared/RoomHeader';
 import type { ColorlitionPlayerData } from '../game/types';
+
+function roomSlot(roomId: string) {
+  return (
+    <Typography
+      variant="overline"
+      sx={{
+        color: 'text.secondary',
+        fontFeatureSettings: "'tnum' 1",
+        '&.MuiTypography-overline': {
+          fontSize: 14,
+          letterSpacing: '0.12em',
+          lineHeight: 1.1,
+        },
+      }}
+    >
+      Room {roomId}
+    </Typography>
+  );
+}
 
 export default function PlayerJoinPage() {
   const { id = '' } = useParams<{ id: string }>();
@@ -73,34 +93,29 @@ function NicknameJoinView({ roomId }: { roomId: string }) {
   );
 
   return (
-    <Stack
-      component="form"
-      spacing={3}
-      onSubmit={handleSubmit}
-      sx={{ p: 4, maxWidth: 480, minHeight: '100dvh', justifyContent: 'center' }}
-    >
-      <Stack spacing={1}>
-        <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-          Room
-        </Typography>
-        <Typography variant="h2" sx={{ letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1" }}>
-          {roomId}
-        </Typography>
+    <Box sx={{ p: { xs: 3, sm: 4 }, maxWidth: 480, mx: 'auto', minHeight: '100dvh' }}>
+      <RoomHeader slot={roomSlot(roomId)} />
+      <Stack
+        component="form"
+        spacing={3}
+        onSubmit={handleSubmit}
+        sx={{ pt: 4 }}
+      >
+        <Typography variant="h1">Join the coalition</Typography>
+        <TextField
+          label="Your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          autoFocus
+          autoComplete="off"
+          disabled={busy}
+        />
+        {error && <Typography color="error">{error}</Typography>}
+        <Button type="submit" variant="contained" disabled={busy || !name.trim()} sx={{ alignSelf: 'flex-start', px: 4, py: 1.5 }}>
+          {busy ? 'Joining…' : 'Join'}
+        </Button>
       </Stack>
-      <Typography variant="h1">Join the coalition</Typography>
-      <TextField
-        label="Your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        autoFocus
-        autoComplete="off"
-        disabled={busy}
-      />
-      {error && <Typography color="error">{error}</Typography>}
-      <Button type="submit" variant="contained" disabled={busy || !name.trim()} sx={{ alignSelf: 'flex-start', px: 4, py: 1.5 }}>
-        {busy ? 'Joining…' : 'Join'}
-      </Button>
-    </Stack>
+    </Box>
   );
 }
 
@@ -111,27 +126,22 @@ interface RejoinViewProps {
 
 function RejoinView({ roomId, roomState }: RejoinViewProps) {
   return (
-    <Stack spacing={3} sx={{ p: 4, maxWidth: 480, minHeight: '100dvh', justifyContent: 'center' }}>
-      <Stack spacing={1}>
-        <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-          Room
+    <Box sx={{ p: { xs: 3, sm: 4 }, maxWidth: 480, mx: 'auto', minHeight: '100dvh' }}>
+      <RoomHeader slot={roomSlot(roomId)} />
+      <Stack spacing={3} sx={{ pt: 4 }}>
+        <Typography variant="h1">Tap your name</Typography>
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+          The game has started. Choose your spot to rejoin.
         </Typography>
-        <Typography variant="h2" sx={{ letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1" }}>
-          {roomId}
-        </Typography>
+        <PlayerSlotsGrid
+          players={roomState.players}
+          filterEmpty
+          buildSlotHref={(slotId) => buildPlayerUrl(roomId, slotId)}
+        />
+        <Button component={RouterLink} to="/" variant="text" sx={{ alignSelf: 'flex-start' }}>
+          Back to home
+        </Button>
       </Stack>
-      <Typography variant="h1">Tap your name</Typography>
-      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-        The game has started. Choose your spot to rejoin.
-      </Typography>
-      <PlayerSlotsGrid
-        players={roomState.players}
-        filterEmpty
-        buildSlotHref={(slotId) => buildPlayerUrl(roomId, slotId)}
-      />
-      <Button component={RouterLink} to="/" variant="text" sx={{ alignSelf: 'flex-start' }}>
-        Back to home
-      </Button>
-    </Stack>
+    </Box>
   );
 }
