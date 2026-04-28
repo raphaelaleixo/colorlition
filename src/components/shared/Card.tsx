@@ -144,6 +144,7 @@ export function Card({
         }}
       >
         <Typography
+          variant="inherit"
           sx={{
             fontFamily: '"Source Sans 3", system-ui, sans-serif',
             fontWeight: 700,
@@ -157,6 +158,7 @@ export function Card({
         </Typography>
         {demand && (
           <Typography
+            variant="inherit"
             sx={{
               fontWeight: 700,
               lineHeight: 1.2,
