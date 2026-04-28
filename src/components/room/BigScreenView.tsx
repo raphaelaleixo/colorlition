@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { FullscreenToggle, RoomInfoModal, type RoomState } from 'react-gameroom';
+import { FullscreenToggle, RoomInfoModal, buildJoinUrl, type RoomState } from 'react-gameroom';
 import { useGame } from '../../contexts/GameContext';
 import { VoterSegments } from '../big-screen/VoterSegments';
 import { ExitPollReveal } from '../big-screen/ExitPollReveal';
@@ -217,6 +217,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
           roomState={roomState}
           open={roomInfoOpen}
           onClose={() => setRoomInfoOpen(false)}
+          qrUrl={buildJoinUrl(roomState.roomId)}
           labels={{
             roomHeading: 'Room',
             joinLink: 'Join',

@@ -23,11 +23,6 @@ const routes: RouteObject[] = [
   { path: '/join', element: animated(<JoinPage />) },
   { path: '/room/:id', element: animated(<RoomPage />) },
   { path: '/room/:id/player', element: animated(<PlayerJoinPage />) },
-  // TODO(react-gameroom): remove once RoomInfoModal accepts a custom qrUrl override.
-  // The library's buildRejoinUrl points at /room/:id/players (plural); we route the
-  // rejoin entry as /room/:id/player. This redirect bridges the two so the modal's
-  // QR resolves correctly in the meantime.
-  { path: '/room/:id/players', element: animated(<PlayerJoinPage />) },
   { path: '/room/:id/player/:playerId', element: animated(<PlayerPage />) },
 ];
 
