@@ -1,4 +1,5 @@
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import {
@@ -11,6 +12,7 @@ import {
 } from 'react-gameroom';
 import type { ColorlitionPlayerData } from '../../game/types';
 import { useGame } from '../../contexts/GameContext';
+import { RoomHeader } from '../shared/RoomHeader';
 
 interface LobbyViewProps {
   roomId: string;
@@ -25,33 +27,54 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
 
   return (
     <Stack spacing={3} sx={{ p: 4 }}>
-      <Stack
-        direction="row"
-        spacing={3}
-        sx={{
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-          pb: 2,
-          borderBottom: '2px solid',
-          borderColor: 'rule.ink',
-        }}
-      >
-        <Stack direction="row" spacing={4} sx={{ alignItems: 'baseline' }}>
-          <Typography variant="h1">Color-lition</Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
-            <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-              Room
-            </Typography>
-            <Typography
-              variant="h2"
-              sx={{ letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1" }}
+      <RoomHeader
+        slot={
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
+              <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+                Room
+              </Typography>
+              <Typography
+                variant="h2"
+                sx={{ fontWeight: 900, letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1, 'lnum' 1" }}
+              >
+                {roomId}
+              </Typography>
+            </Stack>
+            <Box
+              sx={{
+                '& button': {
+                  fontFamily: 'inherit',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'text.primary',
+                  background: 'transparent',
+                  border: '1px solid',
+                  borderColor: 'rule.strong',
+                  borderRadius: 0,
+                  px: 1.5,
+                  py: 0.75,
+                  cursor: 'pointer',
+                  transition: 'background-color 120ms ease, color 120ms ease',
+                  '&:hover': {
+                    backgroundColor: 'text.primary',
+                    color: 'background.default',
+                  },
+                  '&:focus-visible': {
+                    outline: '2px solid',
+                    outlineColor: 'text.primary',
+                    outlineOffset: 2,
+                  },
+                },
+              }}
             >
-              {roomId}
-            </Typography>
+              <FullscreenToggle />
+            </Box>
           </Stack>
-        </Stack>
-        <FullscreenToggle />
-      </Stack>
+        }
+      />
 
       <Stack direction="row" spacing={4} sx={{ alignItems: 'flex-start' }}>
         <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} />
