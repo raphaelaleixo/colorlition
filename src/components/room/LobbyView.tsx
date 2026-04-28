@@ -15,7 +15,7 @@ import { LobbyDateline } from '../lobby/LobbyDateline';
 import { CandidateRoster } from '../lobby/CandidateRoster';
 import { LaunchCampaignBar } from '../lobby/LaunchCampaignBar';
 import { LobbyTicker } from '../lobby/LobbyTicker';
-import { useT } from '../../i18n';
+import { localizedUrl, useLocaleControls, useT } from '../../i18n';
 
 interface LobbyViewProps {
   roomId: string;
@@ -25,6 +25,8 @@ interface LobbyViewProps {
 export function LobbyView({ roomId, roomState }: LobbyViewProps) {
   const { startTheGame } = useGame();
   const t = useT();
+  const { locale } = useLocaleControls();
+  const joinUrl = localizedUrl(buildJoinUrl(roomId), locale);
 
   const readyCount = roomState.players.filter((p) => p.status === 'ready').length;
   const canStart = readyCount >= roomState.config.minPlayers;
@@ -104,7 +106,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
               alignItems: 'center',
             }}
           >
-            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={200} />
+            <RoomQRCode roomId={roomId} url={joinUrl} size={200} />
           </Box>
           <Box
             sx={{
@@ -118,7 +120,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
               alignItems: 'center',
             }}
           >
-            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={260} />
+            <RoomQRCode roomId={roomId} url={joinUrl} size={260} />
           </Box>
           <Typography
             variant="caption"
@@ -126,13 +128,13 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
           >
             {t('lobby.scanToJoinPrefix')}
             <Link
-              href={buildJoinUrl(roomId)}
+              href={joinUrl}
               target="_blank"
               rel="noopener noreferrer"
               underline="always"
               sx={{ color: 'inherit' }}
             >
-              {buildJoinUrl(roomId)}
+              {joinUrl}
             </Link>
           </Typography>
         </Stack>

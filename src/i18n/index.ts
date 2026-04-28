@@ -6,6 +6,7 @@ export {
   useLocaleControls,
   format,
   labelFor,
+  localizedUrl,
   type T,
 } from './useT';
 export {

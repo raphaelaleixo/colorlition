@@ -4,12 +4,13 @@ import enUI from './ui/en';
 import ptBRUI from './ui/pt-BR';
 import enGame from './game/en';
 import ptBRGame from './game/pt-BR';
-import type {
-  GameDict,
-  LabelKey,
-  Locale,
-  UIDict,
-  UIKey,
+import {
+  LOCALE_URL_PARAM,
+  type GameDict,
+  type LabelKey,
+  type Locale,
+  type UIDict,
+  type UIKey,
 } from './types';
 
 const UI_DICTS: Record<Locale, UIDict> = {
@@ -36,6 +37,19 @@ export function useLocaleControls() {
     throw new Error('useLocaleControls must be used within a LocaleProvider');
   }
   return ctx;
+}
+
+// Append the locale URL param to a URL so a recipient (QR scan, shared link)
+// inherits the host's language. Returns the input unchanged if it isn't a
+// parseable absolute URL.
+export function localizedUrl(url: string, locale: Locale): string {
+  try {
+    const u = new URL(url);
+    u.searchParams.set(LOCALE_URL_PARAM, locale);
+    return u.toString();
+  } catch {
+    return url;
+  }
 }
 
 // Replace {token} placeholders. Missing params leave the placeholder intact

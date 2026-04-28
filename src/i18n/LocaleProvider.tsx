@@ -6,10 +6,9 @@ import {
   type ReactNode,
 } from 'react';
 import { LocaleContext } from './LocaleContext';
-import { LOCALES, type Locale } from './types';
+import { LOCALES, LOCALE_URL_PARAM, type Locale } from './types';
 
 const STORAGE_KEY = 'colorlition.locale';
-const URL_PARAM = 'lang';
 const DEFAULT_LOCALE: Locale = 'en';
 
 // Map lowercase URL values to a canonical Locale. Accepts the canonical
@@ -27,7 +26,9 @@ function localeFromParam(raw: string): Locale | null {
 function readInitialLocale(): Locale {
   if (typeof window === 'undefined') return DEFAULT_LOCALE;
 
-  const fromUrl = new URLSearchParams(window.location.search).get(URL_PARAM);
+  const fromUrl = new URLSearchParams(window.location.search).get(
+    LOCALE_URL_PARAM,
+  );
   if (fromUrl) {
     const parsed = localeFromParam(fromUrl);
     if (parsed) return parsed;
@@ -56,6 +57,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
+    // Mirror the choice to the URL so the address bar matches the active
+    // locale and the link is shareable. We don't write the param on every
+    // mount — only in response to an explicit toggle — so bare URLs that
+    // rely on localStorage stay bare.
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set(LOCALE_URL_PARAM, next);
+      window.history.replaceState(window.history.state, '', url);
+    }
   }, []);
 
   const value = useMemo(() => ({ locale, setLocale }), [locale, setLocale]);

@@ -12,7 +12,7 @@ import { Leaderboard } from '../big-screen/Leaderboard';
 import { WinnerScreen } from '../big-screen/WinnerScreen';
 import { ScoreChart } from '../big-screen/ScoreChart';
 import { RoomHeader } from '../shared/RoomHeader';
-import { useT } from '../../i18n';
+import { localizedUrl, useLocaleControls, useT } from '../../i18n';
 import { PALETTE, PLAYER_LINE_PALETTE } from '../../theme/colors';
 import type { ColorlitionPlayerData } from '../../game/types';
 
@@ -24,6 +24,8 @@ interface BigScreenViewProps {
 export function BigScreenView({ roomState }: BigScreenViewProps) {
   const { gameState } = useGame();
   const t = useT();
+  const { locale } = useLocaleControls();
+  const joinUrl = localizedUrl(buildJoinUrl(roomState.roomId), locale);
   const [exitPollRevealing, setExitPollRevealing] = useState(false);
   const [drawRevealing, setDrawRevealing] = useState(false);
   const [roomInfoOpen, setRoomInfoOpen] = useState(false);
@@ -222,7 +224,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
           roomState={roomState}
           open={roomInfoOpen}
           onClose={() => setRoomInfoOpen(false)}
-          qrUrl={buildJoinUrl(roomState.roomId)}
+          qrUrl={joinUrl}
           labels={{
             roomHeading: t('roomInfo.heading'),
             joinLink: t('roomInfo.joinLink'),

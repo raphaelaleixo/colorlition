@@ -15,6 +15,10 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   'pt-BR': 'PT',
 };
 
+// URL search param used to override the locale on load (and mirrored back to
+// the URL when the switcher fires).
+export const LOCALE_URL_PARAM = 'lang';
+
 // Narrative content. Templates use {token} placeholders the renderer fills in.
 export type GameDict = {
   blocNames: Record<Color, string>;
