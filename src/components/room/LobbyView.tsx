@@ -81,38 +81,44 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', lg: 'auto 1fr' },
+          gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
           columnGap: 6,
           rowGap: 4,
           alignItems: 'start',
         }}
       >
-        <Stack spacing={1.5} sx={{ alignItems: { xs: 'center', lg: 'flex-start' } }}>
+        <Stack spacing={1.5}>
           <Box
             sx={{
-              display: { xs: 'inline-flex', sm: 'none' },
+              display: { xs: 'flex', sm: 'none' },
+              width: '100%',
               p: 2,
               bgcolor: 'background.paper',
               border: '1px solid',
               borderColor: 'rule.hair',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={200} />
           </Box>
           <Box
             sx={{
-              display: { xs: 'none', sm: 'inline-flex' },
+              display: { xs: 'none', sm: 'flex' },
+              width: '100%',
               p: 2.5,
               bgcolor: 'background.paper',
               border: '1px solid',
               borderColor: 'rule.hair',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={260} />
           </Box>
           <Typography
             variant="caption"
-            sx={{ color: 'text.secondary', textAlign: { xs: 'center', lg: 'left' }, fontStyle: 'normal' }}
+            sx={{ color: 'text.secondary', textAlign: 'center', fontStyle: 'normal' }}
           >
             Scan to join · or visit {window.location.origin}/join · room {roomId}
           </Typography>
