@@ -1,0 +1,312 @@
+import type { GameDict } from '../types';
+
+const en: GameDict = {
+  blocNames: {
+    red: 'Labor & Unions',
+    purple: 'Social Equality',
+    green: 'Sustainability',
+    blue: 'The Market',
+    orange: 'Agribusiness',
+    yellow: 'Security & Order',
+    grey: 'Traditionalists',
+  },
+
+  demands: {
+    red: [
+      'We want the expropriation of vacant luxury buildings',
+      'We want a 90% windfall tax on all banking profits',
+      'We want a permanent ban on all outsourcing and gig-work',
+      'We want state control of all strategic national industries',
+      'We want worker-led boards for every major company',
+      'We want a total jubilee on all consumer debts',
+      'We want a maximum wealth cap for all citizens',
+      'We want all rental properties seized for public housing',
+      'We want a total ban on inherited wealth',
+    ],
+    purple: [
+      'We want compulsory land redistribution for reparations',
+      'We want unconditional citizenship for all undocumented residents',
+      'We want the abolition of traditional police units',
+      'We want mandatory gender and racial quotas in all hiring',
+      'We want the removal of all colonial-era monuments',
+      'We want autonomous zones for indigenous self-governance',
+      'We want the legalization of all personal-use substances',
+      'We want the national flag and anthem replaced',
+      'We want a monthly reparations check for all',
+    ],
+    green: [
+      'We want the cattle industry shuttered in the Amazon',
+      'We want a permanent ban on short-haul domestic flights',
+      'We want meat and dairy taxed as luxury harmful goods',
+      'We want private land seized for mandatory nature corridors',
+      'We want a total ban on chemical fertilizers nationwide',
+      "We want life sentences for the crime of 'Ecocide'",
+      'We want hydroelectric dams dismantled to restore our rivers',
+      'We want a total ban on private jets and yachts',
+      'We want denial of climate science criminalized',
+    ],
+    blue: [
+      'We want the privatization of all water and healthcare',
+      'We want the minimum wage abolished for market flexibility',
+      'We want all state-owned lands sold to the highest bidder',
+      'We want welfare replaced with a single digital voucher',
+      'We want zero corporate taxes for the next ten years',
+      'We want AI-governance to replace the federal bureaucracy',
+      'We want the inheritance tax zeroed-out to protect families',
+      'We want the central bank privatized',
+      'We want all labor unions abolished',
+    ],
+    orange: [
+      'We want legalized private militias for property defense',
+      'We want an amnesty for all high-yield pesticide use',
+      'We want Indigenous Reserves opened for mineral mining',
+      'We want total legal immunity for rural landowners',
+      'We want urban water diverted to our crop irrigation',
+      'We want zero environmental licensing for new farms',
+      'We want the arming of all rural workers for self-defense',
+      'We want the right to sell land to foreign buyers',
+      'We want environmental laws removed from farms',
+    ],
+    yellow: [
+      'We want total legal immunity for police actions on duty',
+      'We want the criminal age lowered to 12 years old',
+      'We want full-spectrum facial recognition in all public spaces',
+      'We want extrajudicial raids authorized in conflict zones',
+      'We want offshore prison colonies for gang leadership',
+      'We want a mandatory digital ID for all public travel',
+      'We want the military deployed against strikes and protests',
+      'We want a public loyalty score for every citizen',
+      'We want all private encryption banned',
+    ],
+    grey: [
+      "We want all 'Gender-Ideology' banned from public libraries",
+      'We want mandatory religious education in all schools',
+      'We want all forms of abortion criminalized without exception',
+      'We want secular arts defunded to protect our heritage',
+      'We want mandatory prayer before every legislative session',
+      'We want a tax on childless couples to fund large families',
+      'We want a withdrawal from all international treaties',
+      'We want marriage restricted to religious union',
+      "We want all 'anti-traditional' media censored",
+    ],
+  },
+
+  pivotDemands: [
+    'I’m just tired of politics.',
+    'They’re all the same anyway.',
+    'I’ll decide on the morning of.',
+  ],
+
+  grantDemands: [
+    'I speak for the ten thousand on the factory floor.',
+    'My firm moves the markets you only read about.',
+    'My blessing carries more weight than your laws.',
+    'Order is not a suggestion; it is my mandate.',
+    'The land was here before you; I am its voice.',
+    'History will judge you by how you treat my people.',
+    'The cameras follow me, not your speeches.',
+    'I own the data; I already know how they will vote.',
+    'My family name is written on every building in this city.',
+    'I don’t choose sides; I choose winners.',
+  ],
+
+  exitPollDemand:
+    'The polls have closed — one last round before the count.',
+
+  pivotLabel: 'Undecided',
+  grantLabel: 'Ally',
+  exitPollLabel: 'Exit Poll',
+
+  headlineTemplates: {
+    red: {
+      spark: 'Union flyers begin appearing across {segment}.',
+      movement: 'A call for solidarity echoes through {segment}.',
+      friction: 'Local workers in {segment} demand a seat at the table.',
+    },
+    purple: {
+      spark: 'Equality activists mobilize for a march in {segment}.',
+      movement:
+        'A manifesto for systemic change gains traction in {segment}.',
+      friction: 'Demands for radical reform spark debate in {segment}.',
+    },
+    green: {
+      spark: 'Ecological urgency reshapes the conversation in {segment}.',
+      movement: 'Residents of {segment} call for immediate climate action.',
+      friction:
+        'Green transition goals are pushed to the forefront of {segment}.',
+    },
+    blue: {
+      spark: 'Investors eye {segment} for new deregulation trials.',
+      movement: 'The language of fiscal discipline dominates {segment}.',
+      friction: "Market forces move to restructure {segment}'s priorities.",
+    },
+    orange: {
+      spark: 'The land-owning lobby asserts its power over {segment}.',
+      movement: 'Export-led growth becomes the new focus for {segment}.',
+      friction:
+        'Demands for property rights expansion intensify in {segment}.',
+    },
+    yellow: {
+      spark: 'Calls for order lead to increased patrols in {segment}.',
+      movement: 'A new push for public safety reshapes {segment}.',
+      friction: 'Surveillance measures are proposed to secure {segment}.',
+    },
+    grey: {
+      spark: 'Voters call for a return to the heritage of {segment}.',
+      movement:
+        'Traditionalist values gain ground among {segment} elders.',
+      friction: 'A push for cultural continuity takes hold in {segment}.',
+    },
+    pivot: {
+      spark: 'A heavy silence hangs over {segment} as voters wait.',
+      movement: "The 'Silent Center' in {segment} remains neutral.",
+      friction:
+        'Undecided residents in {segment} look for a reason to care.',
+    },
+    grant: {
+      spark: 'A local power-broker lends their weight to {segment}.',
+      movement:
+        'Institutional stability increases as an Ally joins {segment}.',
+      friction:
+        'A respected figure in {segment} legitimizes the current mood.',
+    },
+  },
+
+  segmentLabels: {
+    industrial: 'Industrial Belt',
+    urban: 'Urban Professionals',
+    agricultural: 'Agricultural Frontier',
+    financial: 'Financial District',
+    periphery: 'Periphery',
+  },
+
+  singleTitles: {
+    red: "the Workers’ Champion",
+    purple: "the Social Revolutionary",
+    green: "the Eco-Radical",
+    blue: "the Market Architect",
+    orange: "the Rural Autocrat",
+    yellow: "the Iron Prefect",
+    grey: "the Holy Patriarch/Matriarch",
+  },
+
+  dualTitles: {
+    'blue+green': 'the Tech-Environmentalist',
+    'blue+grey': 'the Old Money Gentry',
+    'blue+orange': 'the Export Tycoon',
+    'blue+purple': 'the Liberal Reformist',
+    'blue+red': 'the State Capitalist',
+    'blue+yellow': 'the Fiscal Hawk',
+    'green+grey': 'the Sacred Conservationist',
+    'green+orange': 'the Sustainable Planter',
+    'green+purple': 'the Progressive Guardian',
+    'green+red': 'the Green Syndicalist',
+    'green+yellow': 'the Eco-Watchman',
+    'grey+orange': 'the Traditional Harvester',
+    'grey+purple': 'the Moral Reformer',
+    'grey+red': 'the National Worker',
+    'grey+yellow': 'the Divine Sentinel',
+    'orange+purple': 'the Agrarian Liberator',
+    'orange+red': 'the Rural Laborer',
+    'orange+yellow': 'the Frontier Defender',
+    'purple+red': 'the Socialist Vanguard',
+    'purple+yellow': 'the Inclusive Enforcer',
+    'red+yellow': 'the Orderly Unionist',
+  },
+
+  tripleTitles: {
+    'blue+green+grey': 'Preserver of the Sustainable Heritage',
+    'blue+green+orange': 'Manager of the Resource Sovereignty',
+    'blue+green+purple': 'Visionary of the Tech-Equity Era',
+    'blue+green+red': 'Strategist of the Sustainable Economy',
+    'blue+green+yellow': 'Operator of the Strategic Green Market',
+    'blue+grey+orange': 'Patron of the Aristocratic Landed-Class',
+    'blue+grey+purple': 'Statesman of the Civil Establishment',
+    'blue+grey+red': 'Anchor of the Institutional Core',
+    'blue+grey+yellow': 'Strongman of the Capital-Order Pact',
+    'blue+orange+purple': 'Broker of the Global Trade Reform',
+    'blue+orange+red': 'Director of the Industrial-Agri Complex',
+    'blue+orange+yellow': 'Architect of the Export Fortress',
+    'blue+purple+red': 'Mediator of the Modern Welfare State',
+    'blue+purple+yellow': 'Reformer of the Constitutional Guard',
+    'blue+red+yellow': 'Sentinel of National Productivity',
+    'green+grey+orange': 'Shepherd of the Sacred Soil',
+    'green+grey+purple': 'Custodian of the Pluralist Legacy',
+    'green+grey+red': 'Steward of the Ancestral Earth',
+    'green+grey+yellow': 'Enforcer of the Ecological Tradition',
+    'green+orange+purple': 'Liberator of the Shared Harvest',
+    'green+orange+red': 'Champion of the Rural-Green Alliance',
+    'green+orange+yellow': 'Scout of the Environmental Frontier',
+    'green+purple+red': 'Architect of the Social-Ecological Pact',
+    'green+purple+yellow': 'Protector of the Safe Transition',
+    'green+red+yellow': 'Commander of the Ecological Defense',
+    'grey+orange+purple': 'Representative of the Diverse Interior',
+    'grey+orange+red': "Icon of the Workers' Heartland",
+    'grey+orange+yellow': 'Grandmaster of the Conservative Heartland',
+    'grey+purple+red': 'Unity Leader of the National Front',
+    'grey+purple+yellow': 'Voice of the Moral Majority',
+    'grey+red+yellow': 'Sovereign of the Patriotic Laborers',
+    'orange+purple+red': 'Voice of the People’s Heartland',
+    'orange+purple+yellow': 'Shield of the Frontier Communities',
+    'orange+red+yellow': 'Commander of the Rural Worker-Defense',
+    'purple+red+yellow': 'Guardian of the Inclusive Peace',
+  },
+
+  unclassifiedLeaderTitle: 'the Unclassified Leader',
+  reluctantCandidateTitle: 'the Reluctant Candidate',
+
+  ambientHeadlines: [
+    'The seven blocs assemble — coalition season is upon us',
+    'Newsroom on watch as candidates take the floor',
+    'Capital stirs as the campaign trail opens',
+    'Across the country, hopefuls ready their pitches',
+    'Strategists huddle in backrooms; the field takes shape',
+    'Banners unfurled — campaign season is open for business',
+    'Press conferences booked; candidates hone their messages',
+    'Buses rev as the campaign trail comes alive',
+  ],
+
+  readyTemplates: [
+    '{name} launches campaign',
+    '{name} hits the campaign trail',
+    '{name} throws hat in the ring',
+    '{name} opens campaign HQ',
+    '{name} files candidacy',
+    '{name} kicks off the campaign',
+    '{name} plants the flag',
+  ],
+
+  openingHeadlines: [
+    'Polls open — coalition season begins',
+    'The seven blocs assemble as the chase for a mandate gets underway',
+    'Newsroom on watch as candidates take the floor',
+    'First gavel falls — opening bell rings on the coalition race',
+    'Capital stirs as the campaign trail opens',
+  ],
+
+  nextVariations: [
+    '{name} is next to act',
+    'Next on the floor: {name}',
+    'Newsroom awaits {name}',
+    '{name} on the clock',
+    'All eyes on {name}',
+    '{name} steps to the rostrum',
+    'The chamber turns to {name}',
+    'Cameras roll for {name}',
+    'Press corps leans in as {name} deliberates',
+    '{name} holds the floor',
+    'The wire awaits {name}',
+    '{name} considers the next move',
+    '{name} takes the podium',
+    'Reporters crowd around {name}',
+    '{name} weighs their options',
+  ],
+
+  finalRoundMessage: 'This is the final round',
+
+  newsroomChip: 'Headlines',
+
+  candidateFallback: 'Candidate {id}',
+};
+
+export default en;

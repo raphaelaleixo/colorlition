@@ -1,11 +1,14 @@
-import {
-  HEADLINE_TEMPLATES,
-  type HeadlineVariation,
-  type TemplateKey,
-} from './data/headlines';
-import type { Card, Headline, Segment } from './types';
+import { format } from '../i18n';
+import type { GameDict } from '../i18n';
+import type {
+  Card,
+  Headline,
+  HeadlineKind,
+  HeadlineTemplateKey,
+  Segment,
+} from './types';
 
-function templateKey(card: Card): TemplateKey | null {
+function templateKey(card: Card): HeadlineTemplateKey | null {
   switch (card.kind) {
     case 'bloc':
       return card.color;
@@ -18,7 +21,7 @@ function templateKey(card: Card): TemplateKey | null {
   }
 }
 
-const VARIATION_BY_POSITION: Record<1 | 2 | 3, HeadlineVariation> = {
+const VARIATION_BY_POSITION: Record<1 | 2 | 3, HeadlineKind> = {
   1: 'spark',
   2: 'movement',
   3: 'friction',
@@ -38,14 +41,20 @@ export function deriveHeadline(
   if (!key) return null;
 
   const variation = VARIATION_BY_POSITION[n as 1 | 2 | 3];
-  const template = HEADLINE_TEMPLATES[key][variation];
-  const text = template.replace('[Segment]', segmentAfter.label);
 
   return {
     id: `h-${roundNumber}-${segmentAfter.key}-${seq}`,
     kind: variation,
+    templateKey: key,
     segmentKey: segmentAfter.key,
     roundNumber,
-    text,
   };
+}
+
+// Render a structured headline against the active locale dict. Substitutes
+// the segment label into the template's {segment} token.
+export function renderHeadline(headline: Headline, dict: GameDict): string {
+  const template = dict.headlineTemplates[headline.templateKey][headline.kind];
+  const segment = dict.segmentLabels[headline.segmentKey];
+  return format(template, { segment });
 }

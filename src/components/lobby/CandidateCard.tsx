@@ -1,17 +1,22 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { PlayerSlot } from 'react-gameroom';
+import { format, useGameDict, useT } from '../../i18n';
+import type { UIKey } from '../../i18n';
 
 interface CandidateCardProps {
   player: PlayerSlot;
 }
 
-const STATUS_LABEL: Record<'joining' | 'ready', string> = {
-  joining: 'FILED',
-  ready: 'READY',
+const STATUS_KEY: Record<'joining' | 'ready', UIKey> = {
+  joining: 'candidate.statusFiled',
+  ready: 'candidate.statusReady',
 };
 
 export function CandidateCard({ player }: CandidateCardProps) {
+  const t = useT();
+  const dict = useGameDict();
+
   if (player.status === 'empty') {
     return (
       <Stack
@@ -25,7 +30,7 @@ export function CandidateCard({ player }: CandidateCardProps) {
         }}
       >
         <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-          Awaiting candidate
+          {t('candidate.empty')}
         </Typography>
       </Stack>
     );
@@ -43,9 +48,11 @@ export function CandidateCard({ player }: CandidateCardProps) {
       }}
     >
       <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-        {STATUS_LABEL[player.status]}
+        {t(STATUS_KEY[player.status])}
       </Typography>
-      <Typography variant="h4">{player.name ?? `Candidate ${player.id}`}</Typography>
+      <Typography variant="h4">
+        {player.name ?? format(dict.candidateFallback, { id: String(player.id) })}
+      </Typography>
     </Stack>
   );
 }

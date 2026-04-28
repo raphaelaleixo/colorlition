@@ -1,11 +1,12 @@
-import { SINGLE_TITLES, DUAL_TITLES, TRIPLE_TITLES } from './data/titles';
+import type { GameDict } from '../i18n';
 import type { Color } from './types';
 
 export function deriveVictoryTitle(
   positiveColors: Color[],
   colorCounts: Record<Color, number>,
+  dict: GameDict,
 ): string {
-  if (positiveColors.length === 0) return 'the Reluctant Candidate';
+  if (positiveColors.length === 0) return dict.reluctantCandidateTitle;
 
   // Key the title only on colors tied for the highest count among the
   // player's positives. If 4+ raw colors tie at that count, scoring already
@@ -14,18 +15,18 @@ export function deriveVictoryTitle(
   const top = positiveColors.filter((c) => colorCounts[c] === max);
 
   if (top.length === 1) {
-    return SINGLE_TITLES[top[0]] ?? 'the Unclassified Leader';
+    return dict.singleTitles[top[0]] ?? dict.unclassifiedLeaderTitle;
   }
 
   const key = top.slice().sort().join('+');
 
   if (top.length === 2) {
-    return DUAL_TITLES[key] ?? 'the Unclassified Leader';
+    return dict.dualTitles[key] ?? dict.unclassifiedLeaderTitle;
   }
 
   if (top.length === 3) {
-    return TRIPLE_TITLES[key] ?? 'the Unclassified Leader';
+    return dict.tripleTitles[key] ?? dict.unclassifiedLeaderTitle;
   }
 
-  return 'the Unclassified Leader';
+  return dict.unclassifiedLeaderTitle;
 }

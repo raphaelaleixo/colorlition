@@ -11,6 +11,7 @@ import { useGame } from '../contexts/GameContext';
 import { FONT_SANS } from '../theme/typography';
 import { COLOR_ICONS, PALETTE } from '../theme/colors';
 import type { Color } from '../game/types';
+import { useT } from '../i18n';
 import { Logo } from '../components/shared/Logo';
 import { Spectrum } from '../components/shared/Spectrum';
 import { PageFooter } from '../components/shared/PageFooter';
@@ -28,6 +29,7 @@ const BLOC_KEYS: readonly Color[] = [
 export default function HomePage() {
   const { createRoom } = useGame();
   const navigate = useNavigate();
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [hostWarningOpen, setHostWarningOpen] = useState(false);
 
@@ -89,9 +91,9 @@ export default function HomePage() {
             }}
           >
             <Box component="span" sx={{ fontWeight: 700 }}>
-              Build a coalition. Mind the contradictions.
+              {t('home.tagline.bold')}
             </Box>{' '}
-            A real-time card draft for 3 to 5 players, dressed up as 2026 politics.
+            {t('home.tagline.detail')}
           </Typography>
           <Stack direction="row" spacing={3} sx={{ alignItems: 'center', flexWrap: 'wrap', pt: 1 }}>
             <Button
@@ -101,7 +103,7 @@ export default function HomePage() {
               disabled={busy}
               sx={{ px: 4, py: 1.5 }}
             >
-              {busy ? 'Creating…' : 'Create Game'}
+              {busy ? t('home.cta.creating') : t('home.cta.create')}
             </Button>
             <Link
               component={RouterLink}
@@ -109,7 +111,7 @@ export default function HomePage() {
               underline="hover"
               sx={{ color: 'text.secondary', fontWeight: 700 }}
             >
-              Join with code →
+              {t('home.cta.join')}
             </Link>
             <Link
               component={RouterLink}
@@ -117,7 +119,7 @@ export default function HomePage() {
               underline="hover"
               sx={{ color: 'text.secondary', fontWeight: 700 }}
             >
-              How to play →
+              {t('home.cta.howToPlay')}
             </Link>
           </Stack>
         </Stack>
@@ -135,10 +137,10 @@ export default function HomePage() {
         }}
         onCancel={() => setHostWarningOpen(false)}
         labels={{
-          title: 'Heads up',
-          body: "You're about to host on what looks like a phone. The host screen works best on a larger display — a laptop or tablet.",
-          confirmLabel: 'Host anyway',
-          cancelLabel: 'Cancel',
+          title: t('hostWarning.title'),
+          body: t('hostWarning.body'),
+          confirmLabel: t('hostWarning.confirm'),
+          cancelLabel: t('common.cancel'),
         }}
       />
     </Box>

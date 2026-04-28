@@ -3,67 +3,43 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { keyframes } from '@emotion/react';
+import { format, useGameDict } from '../../i18n';
+import type { GameDict } from '../../i18n';
+import { renderHeadline } from '../../game/headlines';
 import type { Headline } from '../../game/types';
 
-const NEXT_VARIATIONS: Array<(name: string) => string> = [
-  (n) => `${n} is next to act`,
-  (n) => `Next on the floor: ${n}`,
-  (n) => `Newsroom awaits ${n}`,
-  (n) => `${n} on the clock`,
-  (n) => `All eyes on ${n}`,
-  (n) => `${n} steps to the rostrum`,
-  (n) => `The chamber turns to ${n}`,
-  (n) => `Cameras roll for ${n}`,
-  (n) => `Press corps leans in as ${n} deliberates`,
-  (n) => `${n} holds the floor`,
-  (n) => `The wire awaits ${n}`,
-  (n) => `${n} considers the next move`,
-  (n) => `${n} takes the podium`,
-  (n) => `Reporters crowd around ${n}`,
-  (n) => `${n} weighs their options`,
-];
-
-function variationIndex(name: string, turnIndex: number): number {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 997;
-  return (hash + turnIndex) % NEXT_VARIATIONS.length;
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h + s.charCodeAt(i)) % 997;
+  return h;
 }
 
-function pickNextPhrase(name: string, turnIndex: number): string {
-  const fn = NEXT_VARIATIONS[variationIndex(name, turnIndex)];
-  return fn(name);
+function pickNextPhrase(name: string, turnIndex: number, dict: GameDict): string {
+  const idx = (hashStr(name) + turnIndex) % dict.nextVariations.length;
+  return format(dict.nextVariations[idx], { name });
 }
 
-const SEP = '  •  ';
-
-const OPENING_HEADLINES = [
-  'Polls open — coalition season begins',
-  'The seven blocs assemble as the chase for a mandate gets underway',
-  'Newsroom on watch as candidates take the floor',
-  'First gavel falls — opening bell rings on the coalition race',
-  'Capital stirs as the campaign trail opens',
-];
-
-function pickOpeningHeadline(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 997;
-  return OPENING_HEADLINES[hash % OPENING_HEADLINES.length];
+function pickOpeningHeadline(name: string, dict: GameDict): string {
+  const idx = hashStr(name) % dict.openingHeadlines.length;
+  return dict.openingHeadlines[idx];
 }
 
+const SEP = '  •  ';
 const REPEATS_PER_CYCLE = 3;
-
-const FINAL_ROUND_MESSAGE = 'This is the final round';
 
 function buildNewsText(
   name: string,
   turnIndex: number,
   headline: Headline | null,
   isFinalRound: boolean,
+  dict: GameDict,
 ): string {
-  const phrase = pickNextPhrase(name, turnIndex);
-  const second = headline ? headline.text : pickOpeningHeadline(name);
+  const phrase = pickNextPhrase(name, turnIndex, dict);
+  const second = headline
+    ? renderHeadline(headline, dict)
+    : pickOpeningHeadline(name, dict);
   const segments = isFinalRound
-    ? `${phrase}${SEP}${second}${SEP}${FINAL_ROUND_MESSAGE}${SEP}`
+    ? `${phrase}${SEP}${second}${SEP}${dict.finalRoundMessage}${SEP}`
     : `${phrase}${SEP}${second}${SEP}`;
   return segments.repeat(REPEATS_PER_CYCLE);
 }
@@ -90,11 +66,13 @@ export function HeadlineTicker({
   currentPlayerIndex,
   isFinalRound = false,
 }: Props) {
+  const dict = useGameDict();
   const desired = buildNewsText(
     currentPlayerName,
     currentPlayerIndex,
     lastHeadline,
     isFinalRound,
+    dict,
   );
   const [displayed, setDisplayed] = useState(desired);
   const [opacity, setOpacity] = useState(1);
@@ -148,7 +126,7 @@ export function HeadlineTicker({
             fontSize: 18,
           }}
         >
-          Headlines
+          {dict.newsroomChip}
         </Typography>
       </Box>
 

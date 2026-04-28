@@ -9,11 +9,13 @@ import Alert from '@mui/material/Alert';
 import { HostDeviceWarningModal, isLikelyMobileHost } from 'react-gameroom';
 import { RoomHeader } from '../components/shared/RoomHeader';
 import { getRoomStatus } from '../utils/roomStatus';
+import { useT } from '../i18n';
 
 type SubmittingRole = 'host' | 'player' | null;
 
 export default function JoinPage() {
   const navigate = useNavigate();
+  const t = useT();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<SubmittingRole>(null);
@@ -29,12 +31,12 @@ export default function JoinPage() {
       const status = await getRoomStatus(trimmed);
       setSubmitting(null);
       if (status === null) {
-        setError('Room not found. Check the code and try again.');
+        setError(t('join.errorRoomNotFound'));
         return null;
       }
       return status;
     },
-    [trimmed],
+    [trimmed, t],
   );
 
   const handleResumeAsHost = useCallback(
@@ -69,9 +71,9 @@ export default function JoinPage() {
         sx={{ pt: 4 }}
       >
         <Stack spacing={1.5}>
-          <Typography variant="h1">Resume</Typography>
+          <Typography variant="h1">{t('join.title')}</Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-            Enter the room code your friends shared to jump back in.
+            {t('join.subtitle')}
           </Typography>
         </Stack>
 
@@ -82,7 +84,7 @@ export default function JoinPage() {
         )}
 
         <TextField
-          label="Room code"
+          label={t('join.codeLabel')}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           autoFocus
@@ -109,7 +111,7 @@ export default function JoinPage() {
             disabled={disabled}
             sx={{ px: 4, py: 1.5 }}
           >
-            {submitting === 'host' ? 'Resuming…' : 'Resume as host'}
+            {submitting === 'host' ? t('join.cta.hostBusy') : t('join.cta.host')}
           </Button>
           <Button
             type="button"
@@ -118,7 +120,7 @@ export default function JoinPage() {
             disabled={disabled}
             sx={{ color: 'text.secondary' }}
           >
-            {submitting === 'player' ? 'Resuming…' : 'Resume as player →'}
+            {submitting === 'player' ? t('join.cta.playerBusy') : t('join.cta.player')}
           </Button>
         </Stack>
       </Stack>
@@ -132,10 +134,10 @@ export default function JoinPage() {
         }}
         onCancel={() => setPendingHostCode(null)}
         labels={{
-          title: 'Heads up',
-          body: "You're about to host on what looks like a phone. The host screen works best on a larger display — a laptop or tablet.",
-          confirmLabel: 'Host anyway',
-          cancelLabel: 'Cancel',
+          title: t('hostWarning.title'),
+          body: t('hostWarning.body'),
+          confirmLabel: t('hostWarning.confirm'),
+          cancelLabel: t('common.cancel'),
         }}
       />
     </Box>

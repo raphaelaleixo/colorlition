@@ -10,9 +10,10 @@ import { type RoomState } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { RoomNotFound } from '../components/shared/RoomNotFound';
 import { RoomHeader } from '../components/shared/RoomHeader';
+import { format, useGameDict, useT, type T } from '../i18n';
 import type { ColorlitionPlayerData } from '../game/types';
 
-function roomSlot(roomId: string) {
+function roomSlot(roomId: string, t: T) {
   return (
     <Typography
       variant="overline"
@@ -26,7 +27,7 @@ function roomSlot(roomId: string) {
         },
       }}
     >
-      Room {roomId}
+      {t('common.roomLabel', { id: roomId })}
     </Typography>
   );
 }
@@ -63,6 +64,7 @@ export default function PlayerJoinPage() {
 function NicknameJoinView({ roomId }: { roomId: string }) {
   const navigate = useNavigate();
   const { joinRoom } = useGame();
+  const t = useT();
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,7 @@ function NicknameJoinView({ roomId }: { roomId: string }) {
       e.preventDefault();
       const trimmed = name.trim();
       if (!trimmed) {
-        setError('Enter your name');
+        setError(t('playerJoin.errorEmpty'));
         return;
       }
       setBusy(true);
@@ -85,21 +87,21 @@ function NicknameJoinView({ roomId }: { roomId: string }) {
         setBusy(false);
       }
     },
-    [joinRoom, name, navigate, roomId],
+    [joinRoom, name, navigate, roomId, t],
   );
 
   return (
     <Box sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
-      <RoomHeader slot={roomSlot(roomId)} />
+      <RoomHeader slot={roomSlot(roomId, t)} />
       <Stack
         component="form"
         spacing={3}
         onSubmit={handleSubmit}
         sx={{ pt: 4 }}
       >
-        <Typography variant="h3">File your candidacy</Typography>
+        <Typography variant="h3">{t('playerJoin.title')}</Typography>
         <TextField
-          label="Your name"
+          label={t('playerJoin.nameLabel')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoFocus
@@ -108,7 +110,7 @@ function NicknameJoinView({ roomId }: { roomId: string }) {
         />
         {error && <Typography color="error">{error}</Typography>}
         <Button type="submit" variant="contained" disabled={busy || !name.trim()} sx={{ alignSelf: 'flex-start', px: 4, py: 1.5 }}>
-          {busy ? 'Joining…' : 'Join'}
+          {busy ? t('playerJoin.submitBusy') : t('playerJoin.submit')}
         </Button>
       </Stack>
     </Box>
@@ -121,14 +123,16 @@ interface RejoinViewProps {
 }
 
 function RejoinView({ roomId, roomState }: RejoinViewProps) {
+  const t = useT();
+  const dict = useGameDict();
   const filledSlots = roomState.players.filter((p) => p.status !== 'empty');
   return (
     <Box sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
-      <RoomHeader slot={roomSlot(roomId)} />
+      <RoomHeader slot={roomSlot(roomId, t)} />
       <Stack spacing={3} sx={{ pt: 4 }}>
-        <Typography variant="h3">Tap your name</Typography>
+        <Typography variant="h3">{t('playerJoin.rejoinTitle')}</Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-          The game has started. Choose your spot to rejoin.
+          {t('playerJoin.rejoinBody')}
         </Typography>
         <Stack spacing={1.5}>
           {filledSlots.map((slot) => (
@@ -155,17 +159,17 @@ function RejoinView({ roomId, roomState }: RejoinViewProps) {
             >
               <Stack spacing={0.5}>
                 <Typography variant="overline" sx={{ color: 'inherit', opacity: 0.7 }}>
-                  {slot.status === 'ready' ? 'Ready' : 'Filed'}
+                  {slot.status === 'ready' ? t('playerJoin.statusReady') : t('playerJoin.statusFiled')}
                 </Typography>
                 <Typography variant="h4" sx={{ color: 'inherit' }}>
-                  {slot.name ?? `Candidate ${slot.id}`}
+                  {slot.name ?? format(dict.candidateFallback, { id: String(slot.id) })}
                 </Typography>
               </Stack>
             </Box>
           ))}
         </Stack>
         <Button component={RouterLink} to="/" variant="text" sx={{ alignSelf: 'flex-start' }}>
-          Back to home
+          {t('common.backToHome')}
         </Button>
       </Stack>
     </Box>

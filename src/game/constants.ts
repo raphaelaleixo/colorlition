@@ -8,13 +8,18 @@ export const COLORS = [
   'grey',
 ] as const;
 
-export const SEGMENT_NAMES = [
-  { key: 'industrial', label: 'Industrial Belt' },
-  { key: 'urban', label: 'Urban Professionals' },
-  { key: 'agricultural', label: 'Agricultural Frontier' },
-  { key: 'financial', label: 'Financial District' },
-  { key: 'periphery', label: 'Periphery' },
+// Segment keys are stable IDs; user-visible labels are resolved from the
+// active locale's GameDict at render time (see i18n/game/*.ts segmentLabels).
+export const SEGMENT_KEYS = [
+  { key: 'industrial' },
+  { key: 'urban' },
+  { key: 'agricultural' },
+  { key: 'financial' },
+  { key: 'periphery' },
 ] as const;
+
+// Backwards-compat alias — many call sites still import SEGMENT_NAMES.
+export const SEGMENT_NAMES = SEGMENT_KEYS;
 
 export const CARDS_PER_COLOR = 9;
 export const CARDS_PER_SEGMENT = 3;

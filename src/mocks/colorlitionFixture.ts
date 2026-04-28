@@ -54,7 +54,6 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
   segments: [
     {
       key: 'industrial',
-      label: 'Industrial Belt',
       cards: [
         ...blocs('purple', [4]),
         ...blocs('green', [6]),
@@ -64,25 +63,21 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
     },
     {
       key: 'urban',
-      label: 'Urban Professionals',
       cards: [...blocs('orange', [3, 4])],
       claimedBy: null,
     },
     {
       key: 'agricultural',
-      label: 'Agricultural Frontier',
       cards: [...blocs('red', [5]), ...grants([5])],
       claimedBy: null,
     },
     {
       key: 'financial',
-      label: 'Financial District',
       cards: [...pivots([3])],
       claimedBy: null,
     },
     {
       key: 'periphery',
-      label: 'Periphery',
       cards: [],
       claimedBy: '2',
     },
@@ -142,9 +137,9 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
   lastHeadline: {
     id: 'h-mock-industrial-full',
     kind: 'friction',
+    templateKey: 'red',
     segmentKey: 'industrial',
     roundNumber: 4,
-    text: 'Local workers in Industrial Belt demand a seat at the table.',
   },
   scoreHistory: [
     { roundNumber: 0, scores: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 } },

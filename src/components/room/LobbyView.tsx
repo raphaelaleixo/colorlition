@@ -15,6 +15,7 @@ import { LobbyDateline } from '../lobby/LobbyDateline';
 import { CandidateRoster } from '../lobby/CandidateRoster';
 import { LaunchCampaignBar } from '../lobby/LaunchCampaignBar';
 import { LobbyTicker } from '../lobby/LobbyTicker';
+import { useT } from '../../i18n';
 
 interface LobbyViewProps {
   roomId: string;
@@ -23,6 +24,7 @@ interface LobbyViewProps {
 
 export function LobbyView({ roomId, roomState }: LobbyViewProps) {
   const { startTheGame } = useGame();
+  const t = useT();
 
   const readyCount = roomState.players.filter((p) => p.status === 'ready').length;
   const canStart = readyCount >= roomState.config.minPlayers;
@@ -34,7 +36,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
           <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
               <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-                Room
+                {t('common.roomShort')}
               </Typography>
               <Typography
                 variant="h2"
@@ -122,7 +124,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
             variant="caption"
             sx={{ color: 'text.secondary', textAlign: { xs: 'center', lg: 'left' }, fontStyle: 'normal' }}
           >
-            Scan to join · or visit{' '}
+            {t('lobby.scanToJoinPrefix')}
             <Link
               href={buildJoinUrl(roomId)}
               target="_blank"

@@ -4,13 +4,7 @@ import Typography from "@mui/material/Typography";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { PiAsterisk, PiChartBar, PiNumberCircleTwo } from "react-icons/pi";
 import { PALETTE, COLOR_ICONS, pivotStripes } from "../../theme/colors";
-import {
-  DEMANDS,
-  EXIT_POLL_DEMAND,
-  GRANT_DEMANDS,
-  PIVOT_DEMANDS,
-  labelFor,
-} from "../../game/data/demands";
+import { useGameDict, useLabelFor } from "../../i18n";
 import { GameContext } from "../../contexts/GameContext";
 import { colorsInPlay } from "../../game/summarize";
 import type { Card as GameCard } from "../../game/types";
@@ -51,6 +45,8 @@ export function Card({
             ? PiChartBar
             : undefined;
   const ctx = useContext(GameContext);
+  const dict = useGameDict();
+  const labelFor = useLabelFor();
   const pivotBg =
     card.kind === "pivot" && ctx?.gameState
       ? pivotStripes(colorsInPlay(ctx.gameState))
@@ -89,18 +85,18 @@ export function Card({
   const demand = (() => {
     if (!showDemand) return null;
     if (card.kind === "bloc") {
-      return DEMANDS[card.color]?.[card.value] ?? null;
+      return dict.demands[card.color]?.[card.value] ?? null;
     }
     if (card.kind === "pivot") {
       const i = parseInt(card.id.replace(/^pivot-/, ""), 10) || 0;
-      return PIVOT_DEMANDS[i % PIVOT_DEMANDS.length];
+      return dict.pivotDemands[i % dict.pivotDemands.length];
     }
     if (card.kind === "grant") {
       const i = parseInt(card.id.replace(/^grant-/, ""), 10) || 0;
-      return GRANT_DEMANDS[i % GRANT_DEMANDS.length];
+      return dict.grantDemands[i % dict.grantDemands.length];
     }
     if (card.kind === "exitPoll") {
-      return EXIT_POLL_DEMAND;
+      return dict.exitPollDemand;
     }
     return null;
   })();

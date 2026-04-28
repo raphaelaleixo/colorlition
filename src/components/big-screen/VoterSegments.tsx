@@ -24,6 +24,7 @@ import Typography from '@mui/material/Typography';
 import { Card } from '../shared/Card';
 import { Section } from '../shared/Section';
 import { CARDS_PER_SEGMENT } from '../../game/constants';
+import { useT } from '../../i18n';
 import type { Segment, Card as GameCard } from '../../game/types';
 
 const CLAIM_ZOOM_MS = 600;
@@ -55,6 +56,7 @@ function ClaimedOverlay({
   name: string;
   variant: 'static' | 'animated' | 'exiting';
 }) {
+  const t = useT();
   const positioned = variant === 'animated' || variant === 'exiting';
   return (
     <Box
@@ -106,7 +108,7 @@ function ClaimedOverlay({
           fontSize: 'clamp(0.75rem, 4cqw, 1.5rem)',
         }}
       >
-        Claimed by
+        {t('segments.claimedBy')}
         <Box component="br" />
         <Box
           component="span"

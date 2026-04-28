@@ -192,13 +192,12 @@ export function claim(
 export function buildInitialGameState(
   deck: Card[],
   turnOrder: string[],
-  segmentKeys: ReadonlyArray<{ key: SegmentKey; label: string }>,
+  segmentKeys: ReadonlyArray<{ key: SegmentKey }>,
   startingHands: Record<string, Card> = {},
 ): ColorlitionGameState {
   const playerCount = turnOrder.length;
   const segments: Segment[] = segmentKeys.slice(0, playerCount).map((s) => ({
     key: s.key,
-    label: s.label,
     cards: [],
     claimedBy: null,
   }));

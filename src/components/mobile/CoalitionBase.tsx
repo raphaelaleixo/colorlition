@@ -3,17 +3,19 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { summarizeCoalition } from '../../game/summarize';
 import { chipSxFor, type ChipKey } from '../../theme/colors';
-import { labelFor, type LabelKey } from '../../game/data/demands';
+import { useLabelFor, useT } from '../../i18n';
 import { Section } from '../shared/Section';
-import type { Card as GameCard } from '../../game/types';
+import type { Card as GameCard, LabelKey } from '../../game/types';
 
 export function CoalitionBase({ base }: { base: GameCard[] }) {
   const rows = summarizeCoalition(base);
+  const labelFor = useLabelFor();
+  const t = useT();
   return (
-    <Section heading="Your Coalition" dense>
+    <Section heading={t('coalition.heading')} dense>
       {rows.length === 0 && (
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          (empty)
+          {t('coalition.empty')}
         </Typography>
       )}
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>

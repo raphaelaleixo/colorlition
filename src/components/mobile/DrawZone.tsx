@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment } from '../../game/actions';
 import { Card } from '../shared/Card';
+import { useT } from '../../i18n';
 import type {
   Card as GameCard,
   ColorlitionGameState,
@@ -29,6 +30,7 @@ export function DrawZone({
   hasClaimed?: boolean;
 }) {
   const { drawCard } = useGame();
+  const t = useT();
   const [busy, setBusy] = useState(false);
 
   const pending = gameState.pendingDraw;
@@ -149,7 +151,7 @@ export function DrawZone({
             },
           }}
         >
-          Draw
+          {t('draw.button')}
         </Button>
       ) : (
         <Stack spacing={0.5} sx={{ alignItems: 'center', px: 2 }}>
@@ -170,13 +172,13 @@ export function DrawZone({
               },
             }}
           >
-            {hasClaimed ? 'Waiting' : 'Waiting for'}
+            {hasClaimed ? t('draw.waiting') : t('draw.waitingFor')}
           </Typography>
           <Typography
             variant="h4"
             sx={{ fontWeight: 900, textAlign: 'center', lineHeight: 1.1 }}
           >
-            {hasClaimed ? 'You claimed this round' : currentPlayerName}
+            {hasClaimed ? t('draw.youClaimed') : currentPlayerName}
           </Typography>
         </Stack>
       )}

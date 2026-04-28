@@ -7,6 +7,7 @@ import { useGame } from '../../contexts/GameContext';
 import { canPlaceInSegment, canClaimSegment } from '../../game/actions';
 import { Card } from '../shared/Card';
 import { Section } from '../shared/Section';
+import { useGameDict, useT } from '../../i18n';
 import type { ColorlitionGameState, SegmentKey } from '../../game/types';
 
 function RuledDivider({ label }: { label: string }) {
@@ -23,6 +24,8 @@ function RuledDivider({ label }: { label: string }) {
 
 export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) {
   const { placePendingDraw, claim } = useGame();
+  const dict = useGameDict();
+  const t = useT();
   const [busy, setBusy] = useState(false);
 
   const pending = gameState.pendingDraw;
@@ -51,16 +54,16 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
         <Stack spacing={2}>
           {pending.exitPollTriggered && (
             <Typography variant="body1" sx={{ color: 'error.main', fontWeight: 700 }}>
-              Exit Poll triggered — FINAL ROUND
+              {t('turn.exitPollTriggered')}
             </Typography>
           )}
           <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-            You drew
+            {t('turn.youDrew')}
           </Typography>
           <Box sx={{ alignSelf: 'flex-start' }}>
             <Card card={pending.card} size="medium" showDemand />
           </Box>
-          <RuledDivider label="place in" />
+          <RuledDivider label={t('turn.placeIn')} />
           <Stack spacing={1}>
             {gameState.segments.map((s) => (
               <Button
@@ -71,7 +74,7 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
                 onClick={() => handlePlace(s.key)}
                 sx={{ py: 1.5 }}
               >
-                {s.label}
+                {dict.segmentLabels[s.key]}
               </Button>
             ))}
           </Stack>
@@ -83,7 +86,7 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
   return (
     <Section dense>
       <Stack spacing={2}>
-        <RuledDivider label="or claim" />
+        <RuledDivider label={t('turn.orClaim')} />
         <Stack spacing={1}>
           {gameState.segments.map((s) => (
             <Button
@@ -94,7 +97,7 @@ export function TurnActions({ gameState }: { gameState: ColorlitionGameState }) 
               onClick={() => handleClaim(s.key)}
               sx={{ py: 1.5 }}
             >
-              Claim {s.label}
+              {t('turn.claimSegment', { segment: dict.segmentLabels[s.key] })}
             </Button>
           ))}
         </Stack>

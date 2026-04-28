@@ -6,6 +6,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { GameProvider } from './contexts/GameContext';
+import { LocaleProvider } from './i18n';
 import { PageTransition } from './components/shared/PageTransition';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -47,11 +48,13 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <GameProvider>
-        <Suspense fallback={<RouteFallback />}>
-          <RouterProvider router={router} />
-        </Suspense>
-      </GameProvider>
+      <LocaleProvider>
+        <GameProvider>
+          <Suspense fallback={<RouteFallback />}>
+            <RouterProvider router={router} />
+          </Suspense>
+        </GameProvider>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

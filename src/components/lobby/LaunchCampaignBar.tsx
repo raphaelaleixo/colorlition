@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { isLikelyMobileHost } from 'react-gameroom';
+import { useT } from '../../i18n';
 
 interface LaunchCampaignBarProps {
   readyCount: number;
@@ -16,12 +17,11 @@ export function LaunchCampaignBar({
   canStart,
   onLaunch,
 }: LaunchCampaignBarProps) {
+  const t = useT();
   // Cached once per mount — useragent doesn't change inside a session and
   // we want to avoid re-running the sniff on every render.
   const isPhone = useMemo(() => isLikelyMobileHost(), []);
   if (isPhone) return null;
-
-  const label = `Launch Campaign · ${readyCount} of ${maxCount} candidates ready →`;
 
   return (
     <Box
@@ -63,7 +63,7 @@ export function LaunchCampaignBar({
           textTransform: 'uppercase',
         }}
       >
-        {label}
+        {t('launch.bar', { ready: readyCount, max: maxCount })}
       </Typography>
     </Box>
   );

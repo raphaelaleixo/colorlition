@@ -1,11 +1,14 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Card } from './Card';
+import { useGameDict, useT } from '../../i18n';
 import type { Segment } from '../../game/types';
 
 type Props = { segment: Segment; showDemand?: boolean };
 
 export function SegmentRow({ segment, showDemand = false }: Props) {
+  const dict = useGameDict();
+  const t = useT();
   return (
     <Stack
       direction="row"
@@ -19,7 +22,7 @@ export function SegmentRow({ segment, showDemand = false }: Props) {
       }}
     >
       <Typography variant="h5" sx={{ minWidth: 200, pt: 0.25 }}>
-        {segment.label}
+        {dict.segmentLabels[segment.key]}
       </Typography>
       <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap', flex: 1 }}>
         {segment.cards.map((c) => (
@@ -28,7 +31,7 @@ export function SegmentRow({ segment, showDemand = false }: Props) {
       </Stack>
       {segment.claimedBy !== null && (
         <Typography variant="body2" sx={{ color: 'text.secondary', pt: 0.5 }}>
-          claimed by #{segment.claimedBy}
+          {t('segments.claimedByShort', { id: segment.claimedBy })}
         </Typography>
       )}
     </Stack>

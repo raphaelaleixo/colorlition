@@ -22,6 +22,7 @@ import {
   canClaimSegment,
 } from '../game/actions';
 import { currentPlayerId as currentPlayerIdOf } from '../game/actions';
+import { useT } from '../i18n';
 import type { ColorlitionGameState } from '../game/types';
 
 // Convenience for the dev panel: combine draw + place atomically so a single
@@ -36,6 +37,7 @@ function drawAndPlaceCombined(
 }
 
 export default function MockBigScreen() {
+  const t = useT();
   const [gameState, setGameState] = useState<ColorlitionGameState>(MOCK_GAME_STATE);
   const [revealAdvanceTick, setRevealAdvanceTick] = useState(0);
   const [minimized, setMinimized] = useState(false);
@@ -178,12 +180,12 @@ export default function MockBigScreen() {
                 variant="overline"
                 sx={{ fontWeight: 700, letterSpacing: '0.12em' }}
               >
-                Mock Controls
+                {t('mock.controls')}
               </Typography>
               <IconButton
                 size="small"
                 onClick={() => setMinimized((m) => !m)}
-                aria-label={minimized ? 'Expand mock controls' : 'Minimize mock controls'}
+                aria-label={minimized ? t('mock.expand') : t('mock.minimize')}
                 sx={{ ml: 1, fontSize: 14, lineHeight: 1, fontWeight: 700 }}
               >
                 {minimized ? '+' : '−'}
@@ -192,8 +194,11 @@ export default function MockBigScreen() {
             {!minimized && (
               <>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  Phase: {gameState.phase} · Round {gameState.roundNumber} · Deck{' '}
-                  {gameState.deck.length}
+                  {t('mock.phaseInfo', {
+                    phase: gameState.phase,
+                    round: gameState.roundNumber,
+                    deck: gameState.deck.length,
+                  })}
                 </Typography>
                 <Button
                   variant="outlined"
@@ -201,7 +206,7 @@ export default function MockBigScreen() {
                   onClick={handlePlace}
                   disabled={isEnded || !placeable || deckEmpty}
                 >
-                  Draw & place (next turn)
+                  {t('mock.drawAndPlace')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -209,7 +214,7 @@ export default function MockBigScreen() {
                   onClick={() => handleDrawSpecific('pivot')}
                   disabled={isEnded || !placeable || !hasPivotInDeck}
                 >
-                  Draw pivot
+                  {t('mock.drawPivot')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -217,7 +222,7 @@ export default function MockBigScreen() {
                   onClick={() => handleDrawSpecific('grant')}
                   disabled={isEnded || !placeable || !hasGrantInDeck}
                 >
-                  Draw grant
+                  {t('mock.drawGrant')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -225,7 +230,7 @@ export default function MockBigScreen() {
                   onClick={() => handleDrawSpecific('exitPoll')}
                   disabled={isEnded || !placeable || !hasExitPollInDeck}
                 >
-                  Draw exit poll
+                  {t('mock.drawExitPoll')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -233,7 +238,7 @@ export default function MockBigScreen() {
                   onClick={handleClaim}
                   disabled={isEnded || !claimable}
                 >
-                  Current player claims
+                  {t('mock.claim')}
                 </Button>
                 <Button
                   variant="contained"
@@ -241,7 +246,7 @@ export default function MockBigScreen() {
                   onClick={handleEndRound}
                   disabled={isEnded}
                 >
-                  Claim last → end round
+                  {t('mock.endRound')}
                 </Button>
                 <Button
                   variant="contained"
@@ -250,7 +255,7 @@ export default function MockBigScreen() {
                   onClick={handleEndGame}
                   disabled={isEnded}
                 >
-                  End game now
+                  {t('mock.endGame')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -258,10 +263,10 @@ export default function MockBigScreen() {
                   color="secondary"
                   onClick={() => setRevealAdvanceTick((n) => n + 1)}
                 >
-                  Advance reveal
+                  {t('mock.advanceReveal')}
                 </Button>
                 <Button variant="text" size="small" onClick={handleReset}>
-                  Reset
+                  {t('mock.reset')}
                 </Button>
               </>
             )}

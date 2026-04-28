@@ -3,12 +3,13 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { PiAsterisk, PiNumberCircleTwo } from 'react-icons/pi';
 import { summarizeCoalition, colorsInPlay } from '../../game/summarize';
-import { labelFor, type LabelKey } from '../../game/data/demands';
+import { useLabelFor, useT } from '../../i18n';
 import { COLOR_ICONS, PALETTE, pivotStripes, type ChipKey } from '../../theme/colors';
 import type {
   Card as GameCard,
   Color,
   ColorlitionGameState,
+  LabelKey,
 } from '../../game/types';
 
 // Per-group breakdown of the player's base — one row per bloc color plus
@@ -23,11 +24,13 @@ export function CoalitionBreakdown({
 }) {
   const rows = summarizeCoalition(base);
   const pivotBg = pivotStripes(colorsInPlay(gameState));
+  const labelFor = useLabelFor();
+  const t = useT();
 
   if (rows.length === 0) {
     return (
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        No cards yet.
+        {t('breakdown.empty')}
       </Typography>
     );
   }
@@ -81,12 +84,12 @@ export function CoalitionBreakdown({
               </Typography>
               {key === 'grant' && (
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  (+2 points)
+                  {t('breakdown.allyHint')}
                 </Typography>
               )}
               {key === 'pivot' && (
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  (wildcard)
+                  {t('breakdown.pivotHint')}
                 </Typography>
               )}
             </Stack>

@@ -12,9 +12,11 @@ export type ExitPollCard = { id: string; kind: 'exitPoll' };
 
 export type Card = BlocCard | GrantCard | PivotCard | ExitPollCard;
 
+// `label` is resolved from the active locale's GameDict at render time, so
+// game state stays language-neutral and locale switches don't strand prior
+// segment labels in their original language.
 export type Segment = {
   key: SegmentKey;
-  label: string;
   cards: Card[];
   claimedBy: string | null;
 };
@@ -48,12 +50,25 @@ export type ScoreBreakdown = {
 
 export type HeadlineKind = 'spark' | 'movement' | 'friction';
 
+// templateKey identifies the narrative thread (color / pivot / grant); kind
+// identifies the position-driven variation. Together they index into
+// GameDict.headlineTemplates. Stored language-neutral so locale switches
+// re-render correctly.
+export type HeadlineTemplateKey =
+  | Color
+  | 'pivot'
+  | 'grant';
+
+// Coalition-row / chip label key — bloc colors plus the non-bloc kinds that
+// can appear in a player's base (pivot, grant) or as a card chip (exitPoll).
+export type LabelKey = Color | 'pivot' | 'grant' | 'exitPoll';
+
 export type Headline = {
   id: string;
   kind: HeadlineKind;
+  templateKey: HeadlineTemplateKey;
   segmentKey: SegmentKey;
   roundNumber: number;
-  text: string;
 };
 
 export type ScoreSnapshot = {

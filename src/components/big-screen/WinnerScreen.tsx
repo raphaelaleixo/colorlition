@@ -11,11 +11,12 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import type { Color, ScoreBreakdown } from '../../game/types';
 import { deriveVictoryTitle } from '../../game/titles';
-import { labelFor } from '../../game/data/demands';
+import { useGameDict, useLabelFor, useT } from '../../i18n';
 import { PALETTE } from '../../theme/colors';
 import { Section } from '../shared/Section';
 
 function ColoredBlocList({ colors }: { colors: Color[] }) {
+  const labelFor = useLabelFor();
   if (colors.length === 0) return <>—</>;
   return (
     <>
@@ -44,6 +45,8 @@ export function WinnerScreen({
   nameFor: (playerId: string) => string;
 }) {
   const navigate = useNavigate();
+  const dict = useGameDict();
+  const t = useT();
   return (
     <Section>
       <Stack spacing={3}>
@@ -58,31 +61,37 @@ export function WinnerScreen({
               lineHeight: 1,
             }}
           >
-            Game Over
+            {t('winner.gameOver')}
           </Typography>
           <Typography variant="h1">
             {(() => {
               const lines = winnerIds.map((id) => {
                 const breakdown = breakdowns.find((b) => b.playerId === id);
                 const title = breakdown
-                  ? deriveVictoryTitle(breakdown.positiveColors, breakdown.colorCounts)
-                  : 'the Unclassified Leader';
-                return `${nameFor(id)}, ${title} Wins!`;
+                  ? deriveVictoryTitle(
+                      breakdown.positiveColors,
+                      breakdown.colorCounts,
+                      dict,
+                    )
+                  : dict.unclassifiedLeaderTitle;
+                return t('winner.wins', { name: nameFor(id), title });
               });
-              return winnerIds.length === 1 ? lines[0] : `Co-winners: ${lines.join(' • ')}`;
+              return winnerIds.length === 1
+                ? lines[0]
+                : t('winner.coWinners', { lines: lines.join(' • ') });
             })()}
           </Typography>
         </Stack>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Player</TableCell>
-              <TableCell>Positive blocs</TableCell>
-              <TableCell align="right">Positive</TableCell>
-              <TableCell>Negative blocs</TableCell>
-              <TableCell align="right">Negative</TableCell>
-              <TableCell align="right">Grants</TableCell>
-              <TableCell align="right">Total</TableCell>
+              <TableCell>{t('winner.tableHeader.player')}</TableCell>
+              <TableCell>{t('winner.tableHeader.positiveBlocs')}</TableCell>
+              <TableCell align="right">{t('winner.tableHeader.positive')}</TableCell>
+              <TableCell>{t('winner.tableHeader.negativeBlocs')}</TableCell>
+              <TableCell align="right">{t('winner.tableHeader.negative')}</TableCell>
+              <TableCell align="right">{t('winner.tableHeader.grants')}</TableCell>
+              <TableCell align="right">{t('winner.tableHeader.total')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -113,7 +122,7 @@ export function WinnerScreen({
             onClick={() => navigate('/')}
             sx={{ alignSelf: 'flex-start' }}
           >
-            Back to Home
+            {t('common.backToHome')}
           </Button>
         </Box>
       </Stack>

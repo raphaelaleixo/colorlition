@@ -12,6 +12,7 @@ import { Leaderboard } from '../big-screen/Leaderboard';
 import { WinnerScreen } from '../big-screen/WinnerScreen';
 import { ScoreChart } from '../big-screen/ScoreChart';
 import { RoomHeader } from '../shared/RoomHeader';
+import { useT } from '../../i18n';
 import { PALETTE, PLAYER_LINE_PALETTE } from '../../theme/colors';
 import type { ColorlitionPlayerData } from '../../game/types';
 
@@ -22,6 +23,7 @@ interface BigScreenViewProps {
 
 export function BigScreenView({ roomState }: BigScreenViewProps) {
   const { gameState } = useGame();
+  const t = useT();
   const [exitPollRevealing, setExitPollRevealing] = useState(false);
   const [drawRevealing, setDrawRevealing] = useState(false);
   const [roomInfoOpen, setRoomInfoOpen] = useState(false);
@@ -34,12 +36,13 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
     [],
   );
 
-  if (!gameState) return <Typography>Loading game…</Typography>;
+  if (!gameState) return <Typography>{t('bigScreen.loading')}</Typography>;
 
   const currentPlayerId = gameState.turnOrder[gameState.currentPlayerIndex];
   const currentPlayer = roomState.players.find((p) => String(p.id) === currentPlayerId);
   const nameFor = (pid: string) =>
-    roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`;
+    roomState.players.find((p) => String(p.id) === pid)?.name ??
+    t('playerPage.fallbackPlayer', { id: pid });
 
   const colorFor = (pid: string, idx: number): string => {
     const starter = gameState.playerState[pid]?.base[0];
@@ -49,7 +52,9 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
 
   const rows = gameState.turnOrder.map((pid) => ({
     playerId: pid,
-    name: roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`,
+    name:
+      roomState.players.find((p) => String(p.id) === pid)?.name ??
+      t('playerPage.fallbackPlayer', { id: pid }),
     base: gameState.playerState[pid]?.base ?? [],
     roundStatus: gameState.playerState[pid]?.roundStatus ?? 'active',
     isCurrent: pid === currentPlayerId,
@@ -98,10 +103,10 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
                   outlineOffset: 4,
                 },
               }}
-              aria-label="Show join QR code"
+              aria-label={t('bigScreen.qrAriaLabel')}
             >
               <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-                Room
+                {t('common.roomShort')}
               </Typography>
               <Typography
                 variant="h2"
@@ -219,10 +224,10 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
           onClose={() => setRoomInfoOpen(false)}
           qrUrl={buildJoinUrl(roomState.roomId)}
           labels={{
-            roomHeading: 'Room',
-            joinLink: 'Join',
-            rejoinLink: 'Rejoin',
-            close: 'Close',
+            roomHeading: t('roomInfo.heading'),
+            joinLink: t('roomInfo.joinLink'),
+            rejoinLink: t('roomInfo.rejoinLink'),
+            close: t('roomInfo.close'),
           }}
         />
       </Box>
@@ -264,7 +269,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
               >
                 <Stack spacing={1}>
                   <Typography variant="h4" sx={{ fontWeight: 900 }}>
-                    Voter Segments
+                    {t('segments.heading')}
                   </Typography>
                   <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
                 </Stack>

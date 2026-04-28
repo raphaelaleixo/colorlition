@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { useT } from '../../i18n';
 import type { ScoreSnapshot } from '../../game/types';
 
 export type ScoreChartProps = {
@@ -69,6 +70,7 @@ type AnimState = {
 };
 
 export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreChartProps) {
+  const t = useT();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -202,7 +204,7 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
   return (
     <Stack spacing={1} sx={{ height: '100%', minHeight: 0 }}>
       <Stack spacing={1}>
-        <Typography variant="h4" sx={{ fontWeight: 900 }}>Poll Results</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 900 }}>{t('scoreChart.heading')}</Typography>
         <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
       </Stack>
       <Box ref={containerRef} sx={{ flex: '1 1 auto', minHeight: 0, position: 'relative' }}>
@@ -234,7 +236,9 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
                 letterSpacing={1.2}
                 style={{ textTransform: 'uppercase' }}
               >
-                {snap.roundNumber === 0 ? 'Start' : `R${snap.roundNumber}`}
+                {snap.roundNumber === 0
+                  ? t('scoreChart.tickStart')
+                  : t('scoreChart.tickRound', { round: snap.roundNumber })}
               </text>
             ))}
             {playerOrder.map((pid, idx) => ({ pid, idx })).reverse().map(({ pid, idx }) => {

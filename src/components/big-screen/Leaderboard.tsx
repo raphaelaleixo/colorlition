@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { scorePlayer } from '../../game/scoring';
 import { colorsInPlay } from '../../game/summarize';
 import { useGame } from '../../contexts/GameContext';
+import { useT } from '../../i18n';
 import { PALETTE, chipSxFor, pivotStripes } from '../../theme/colors';
 import type { Card, Color, PlayerRoundStatus } from '../../game/types';
 
@@ -125,6 +126,7 @@ export function CampaignRow({
   showStatus?: boolean;
 }) {
   const { gameState } = useGame();
+  const t = useT();
   const pivotBg = pivotStripes(
     gameState ? colorsInPlay(gameState) : [],
     'vertical',
@@ -194,10 +196,10 @@ export function CampaignRow({
               sx={{ color: 'inherit', fontWeight: 600 }}
             >
               {row.isCurrent
-                ? 'Current player'
+                ? t('leaderboard.currentPlayer')
                 : row.roundStatus === 'claimed'
-                  ? 'Claimed segments'
-                  : 'Current player'}
+                  ? t('leaderboard.claimedSegments')
+                  : t('leaderboard.currentPlayer')}
             </Typography>
           </Stack>
         )}
@@ -214,7 +216,7 @@ export function CampaignRow({
                   width: '100%',
                 }}
               >
-                <span>Allies</span>
+                <span>{t('leaderboard.allies')}</span>
                 <span>× {grants}</span>
               </Box>
             }
@@ -235,7 +237,7 @@ export function CampaignRow({
                   width: '100%',
                 }}
               >
-                <span>Undecided</span>
+                <span>{t('leaderboard.undecided')}</span>
                 <span>× {pivots}</span>
               </Box>
             }
@@ -253,6 +255,7 @@ export function CampaignRow({
 
 export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   const { gameState } = useGame();
+  const t = useT();
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
@@ -260,7 +263,7 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
           direction="row"
           sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
         >
-          <Typography variant="h4" sx={{ fontWeight: 900 }}>Current Campaign</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 900 }}>{t('leaderboard.heading')}</Typography>
           <Typography
             variant="overline"
             sx={{
@@ -271,7 +274,7 @@ export function Leaderboard({ rows }: { rows: LeaderRow[] }) {
               lineHeight: 1,
             }}
           >
-            Round {gameState?.roundNumber ?? 1}
+            {t('leaderboard.round', { round: gameState?.roundNumber ?? 1 })}
           </Typography>
         </Stack>
         <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />

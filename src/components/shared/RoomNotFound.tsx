@@ -2,12 +2,14 @@ import { Link as RouterLink } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { useT } from '../../i18n';
 
 interface RoomNotFoundProps {
   roomId?: string;
 }
 
 export function RoomNotFound({ roomId }: RoomNotFoundProps) {
+  const t = useT();
   return (
     <Stack
       spacing={3}
@@ -18,21 +20,21 @@ export function RoomNotFound({ roomId }: RoomNotFoundProps) {
         justifyContent: 'center',
       }}
     >
-      <Typography variant="h2">Room not found</Typography>
+      <Typography variant="h2">{t('roomNotFound.title')}</Typography>
       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
         {roomId ? (
           <>
-            No game with code{' '}
+            {t('roomNotFound.bodyPrefix')}
             <Typography
               component="span"
               sx={{ fontFamily: 'monospace', letterSpacing: '0.1em', fontWeight: 700 }}
             >
               {roomId}
             </Typography>
-            . Check the code on the host's screen.
+            {t('roomNotFound.bodySuffix')}
           </>
         ) : (
-          <>No game at this address. Check the code on the host's screen.</>
+          <>{t('roomNotFound.bodyNoCode')}</>
         )}
       </Typography>
       <Button
@@ -41,7 +43,7 @@ export function RoomNotFound({ roomId }: RoomNotFoundProps) {
         variant="contained"
         sx={{ alignSelf: 'flex-start', px: 4, py: 1.5 }}
       >
-        Back to home
+        {t('common.backToHome')}
       </Button>
     </Stack>
   );

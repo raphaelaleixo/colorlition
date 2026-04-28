@@ -51,7 +51,6 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
   if (!raw) return null;
   const segments: Segment[] = (raw.segments ?? []).map((s) => ({
     key: s.key,
-    label: s.label,
     cards: s.cards ?? [],
     claimedBy: s.claimedBy ?? null,
   }));

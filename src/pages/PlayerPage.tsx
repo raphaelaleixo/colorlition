@@ -20,6 +20,7 @@ import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
 import { LobbyTicker } from '../components/lobby/LobbyTicker';
 import { RoomHeader } from '../components/shared/RoomHeader';
+import { useT } from '../i18n';
 import type { Segment } from '../game/types';
 
 export default function PlayerPage() {
@@ -32,6 +33,7 @@ export default function PlayerPage() {
     placePendingDraw,
     claim,
   } = useGame();
+  const t = useT();
   const [nameInput, setNameInput] = useState('');
   const [claimError, setClaimError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -53,12 +55,12 @@ export default function PlayerPage() {
     if (!id || !playerId) return;
     const slotId = Number(playerId);
     if (!Number.isFinite(slotId)) {
-      setClaimError('Invalid slot id');
+      setClaimError(t('playerPage.invalidSlotId'));
       return;
     }
     const trimmed = nameInput.trim();
     if (!trimmed) {
-      setClaimError('Enter your name');
+      setClaimError(t('playerJoin.errorEmpty'));
       return;
     }
     setBusy(true);
@@ -70,39 +72,39 @@ export default function PlayerPage() {
     } finally {
       setBusy(false);
     }
-  }, [id, playerId, nameInput, claimSlot]);
+  }, [id, playerId, nameInput, claimSlot, t]);
 
-  if (!id || !playerId) return <Typography>Missing room or player id.</Typography>;
-  if (!roomState) return <Typography>Loading…</Typography>;
+  if (!id || !playerId) return <Typography>{t('playerPage.missingIds')}</Typography>;
+  if (!roomState) return <Typography>{t('common.loading')}</Typography>;
 
   const mySlot = roomState.players.find((p) => String(p.id) === playerId);
-  if (!mySlot) return <Typography>Invalid player slot.</Typography>;
+  if (!mySlot) return <Typography>{t('playerPage.invalidSlot')}</Typography>;
+
+  const seatOverline = (
+    <Typography
+      variant="overline"
+      sx={{
+        color: 'text.secondary',
+        fontFeatureSettings: "'tnum' 1",
+        '&.MuiTypography-overline': {
+          fontSize: 14,
+          letterSpacing: '0.12em',
+          lineHeight: 1.1,
+        },
+      }}
+    >
+      {t('playerPage.seatOverline', { id, playerId })}
+    </Typography>
+  );
 
   // Slot not yet claimed → show name entry.
   if (mySlot.status === 'empty') {
     return (
       <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
-        <RoomHeader
-          slot={
-            <Typography
-              variant="overline"
-              sx={{
-                color: 'text.secondary',
-                fontFeatureSettings: "'tnum' 1",
-                '&.MuiTypography-overline': {
-                  fontSize: 14,
-                  letterSpacing: '0.12em',
-                  lineHeight: 1.1,
-                },
-              }}
-            >
-              {id} · Seat {playerId}
-            </Typography>
-          }
-        />
-        <Typography>You're claiming Slot {playerId}. Enter your name:</Typography>
+        <RoomHeader slot={seatOverline} />
+        <Typography>{t('playerPage.claiming', { playerId })}</Typography>
         <TextField
-          label="Your Name"
+          label={t('playerPage.nameLabel')}
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
           disabled={busy}
@@ -110,7 +112,7 @@ export default function PlayerPage() {
         />
         {claimError && <Typography color="error">{claimError}</Typography>}
         <Button variant="contained" onClick={handleClaim} disabled={busy}>
-          {busy ? 'Joining…' : 'Join'}
+          {busy ? t('playerPage.joining') : t('playerPage.join')}
         </Button>
       </Stack>
     );
@@ -120,27 +122,10 @@ export default function PlayerPage() {
     return (
       <>
         <Stack spacing={2} sx={{ p: 2, pb: '96px', maxWidth: 480, mx: 'auto' }}>
-          <RoomHeader
-            slot={
-              <Typography
-                variant="overline"
-                sx={{
-                  color: 'text.secondary',
-                  fontFeatureSettings: "'tnum' 1",
-                  '&.MuiTypography-overline': {
-                    fontSize: 14,
-                    letterSpacing: '0.12em',
-                    lineHeight: 1.1,
-                  },
-                }}
-              >
-                {id} · Seat {playerId}
-              </Typography>
-            }
-          />
+          <RoomHeader slot={seatOverline} />
           <WaitingView
-            message={`You're ready, ${mySlot.name}`}
-            subtext="Campaign starts when the host calls it"
+            message={t('playerPage.youReady', { name: mySlot.name ?? '' })}
+            subtext={t('playerPage.youReadySub')}
           />
         </Stack>
         <Box
@@ -165,26 +150,9 @@ export default function PlayerPage() {
     const didWin = gameState.winnerIds?.includes(playerId) ?? false;
     return (
       <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
-        <RoomHeader
-          slot={
-            <Typography
-              variant="overline"
-              sx={{
-                color: 'text.secondary',
-                fontFeatureSettings: "'tnum' 1",
-                '&.MuiTypography-overline': {
-                  fontSize: 14,
-                  letterSpacing: '0.12em',
-                  lineHeight: 1.1,
-                },
-              }}
-            >
-              {id} · Seat {playerId}
-            </Typography>
-          }
-        />
+        <RoomHeader slot={seatOverline} />
         <Typography variant="h4" color={didWin ? 'success.main' : 'text.primary'}>
-          {didWin ? 'You won!' : 'Game over'}
+          {didWin ? t('playerPage.youWon') : t('playerPage.gameOver')}
         </Typography>
         <CoalitionBase base={myBase} />
       </Stack>
@@ -196,7 +164,8 @@ export default function PlayerPage() {
     (p) => String(p.id) === currentPlayerId,
   );
   const nameFor = (pid: string) =>
-    roomState.players.find((p) => String(p.id) === pid)?.name ?? `Player ${pid}`;
+    roomState.players.find((p) => String(p.id) === pid)?.name ??
+    t('playerPage.fallbackPlayer', { id: pid });
 
   const pending = gameState.pendingDraw;
   const segmentButtonSx = {
@@ -233,7 +202,7 @@ export default function PlayerPage() {
           }}
           sx={segmentButtonSx}
         >
-          Add here
+          {t('playerPage.action.add')}
         </Button>
       );
     }
@@ -258,7 +227,7 @@ export default function PlayerPage() {
           '&:hover': { backgroundColor: 'background.default' },
         }}
       >
-        Claim
+        {t('playerPage.action.claim')}
       </Button>
     );
   };
@@ -266,24 +235,7 @@ export default function PlayerPage() {
   return (
     <>
       <Stack spacing={2.5} sx={{ p: 2, pb: '96px', maxWidth: 400, mx: 'auto' }}>
-        <RoomHeader
-          slot={
-            <Typography
-              variant="overline"
-              sx={{
-                color: 'text.secondary',
-                fontFeatureSettings: "'tnum' 1",
-                '&.MuiTypography-overline': {
-                  fontSize: 14,
-                  letterSpacing: '0.12em',
-                  lineHeight: 1.1,
-                },
-              }}
-            >
-              {id} · Seat {playerId}
-            </Typography>
-          }
-        />
+        <RoomHeader slot={seatOverline} />
         <DrawZone
           gameState={gameState}
           isMyTurn={isMyTurn}
@@ -304,10 +256,10 @@ export default function PlayerPage() {
             }}
           >
             {!isMyTurn
-              ? 'voter segments'
+              ? t('playerPage.divider.voterSegments')
               : pending
-                ? 'add to a segment'
-                : 'or claim from a segment'}
+                ? t('playerPage.divider.addToSegment')
+                : t('playerPage.divider.orClaim')}
           </Typography>
           <Box sx={{ flex: 1, borderTop: '1px solid', borderColor: 'rule.hair' }} />
         </Stack>
@@ -318,7 +270,7 @@ export default function PlayerPage() {
           renderAction={renderSegmentAction}
         />
         {gameState.exitPollDrawn && (
-          <Typography variant="h6" color="warning.main">FINAL ROUND</Typography>
+          <Typography variant="h6" color="warning.main">{t('playerPage.finalRound')}</Typography>
         )}
         <Stack spacing={1.5} sx={{ mt: 1.5 }}>
           <Stack spacing={1}>
@@ -326,7 +278,7 @@ export default function PlayerPage() {
               direction="row"
               sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
             >
-              <Typography variant="h4" sx={{ fontWeight: 900 }}>Your Campaign</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900 }}>{t('playerPage.yourCampaign')}</Typography>
               <Typography
                 variant="overline"
                 sx={{
@@ -340,7 +292,7 @@ export default function PlayerPage() {
                   },
                 }}
               >
-                {scorePlayer(playerId, myBase).total} pts
+                {t('playerPage.points', { score: scorePlayer(playerId, myBase).total })}
               </Typography>
             </Stack>
             <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />

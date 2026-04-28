@@ -1,30 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { keyframes } from '@emotion/react';
 import type { PlayerSlot } from 'react-gameroom';
-
-const AMBIENT_HEADLINES = [
-  'The seven blocs assemble — coalition season is upon us',
-  'Newsroom on watch as candidates take the floor',
-  'Capital stirs as the campaign trail opens',
-  'Across the country, hopefuls ready their pitches',
-  'Strategists huddle in backrooms; the field takes shape',
-  'Banners unfurled — campaign season is open for business',
-  'Press conferences booked; candidates hone their messages',
-  'Buses rev as the campaign trail comes alive',
-];
-
-const READY_TEMPLATES: Array<(name: string) => string> = [
-  (n) => `${n} launches campaign`,
-  (n) => `${n} hits the campaign trail`,
-  (n) => `${n} throws hat in the ring`,
-  (n) => `${n} opens campaign HQ`,
-  (n) => `${n} files candidacy`,
-  (n) => `${n} kicks off the campaign`,
-  (n) => `${n} plants the flag`,
-];
+import { format, useGameDict } from '../../i18n';
+import type { GameDict } from '../../i18n';
 
 function hashStr(s: string): number {
   let h = 0;
@@ -32,15 +13,9 @@ function hashStr(s: string): number {
   return h;
 }
 
-function pickReadyPhrase(name: string): string {
-  return READY_TEMPLATES[hashStr(name) % READY_TEMPLATES.length](name);
-}
-
-function pickTwoAmbient(): [string, string] {
-  const a = Math.floor(Math.random() * AMBIENT_HEADLINES.length);
-  let b = Math.floor(Math.random() * (AMBIENT_HEADLINES.length - 1));
-  if (b >= a) b += 1;
-  return [AMBIENT_HEADLINES[a], AMBIENT_HEADLINES[b]];
+function pickReadyPhrase(name: string, dict: GameDict): string {
+  const idx = hashStr(name) % dict.readyTemplates.length;
+  return format(dict.readyTemplates[idx], { name });
 }
 
 const FADE_MS = 300;
@@ -59,14 +34,33 @@ interface LobbyTickerProps {
 }
 
 export function LobbyTicker({ players }: LobbyTickerProps) {
-  // Pick two ambient headlines once, on mount. They never change.
-  const [ambient] = useState(pickTwoAmbient);
+  const dict = useGameDict();
 
-  const readyPhrases = players
-    .filter((p) => p.status === 'ready')
-    .map((p) => pickReadyPhrase(p.name ?? `Candidate ${p.id}`));
-  const segments = [...ambient, ...readyPhrases];
-  const desired = (segments.join(SEP) + SEP).repeat(REPEATS_PER_CYCLE);
+  // Pick two ambient indices once, on mount. They never change. We hold
+  // indices not text so a locale switch surfaces translated copy without
+  // disturbing the picked pair.
+  const [ambientIndices] = useState<[number, number]>(() => {
+    const a = Math.floor(Math.random() * dict.ambientHeadlines.length);
+    let b = Math.floor(Math.random() * (dict.ambientHeadlines.length - 1));
+    if (b >= a) b += 1;
+    return [a, b];
+  });
+
+  const ambient = useMemo<[string, string]>(
+    () => [
+      dict.ambientHeadlines[ambientIndices[0]],
+      dict.ambientHeadlines[ambientIndices[1]],
+    ],
+    [dict, ambientIndices],
+  );
+
+  const desired = useMemo(() => {
+    const readyPhrases = players
+      .filter((p) => p.status === 'ready')
+      .map((p) => pickReadyPhrase(p.name ?? format(dict.candidateFallback, { id: p.id }), dict));
+    const segments = [...ambient, ...readyPhrases];
+    return (segments.join(SEP) + SEP).repeat(REPEATS_PER_CYCLE);
+  }, [players, ambient, dict]);
 
   const [displayed, setDisplayed] = useState(desired);
   const [opacity, setOpacity] = useState(1);
@@ -118,7 +112,7 @@ export function LobbyTicker({ players }: LobbyTickerProps) {
             fontSize: 18,
           }}
         >
-          Headlines
+          {dict.newsroomChip}
         </Typography>
       </Box>
       <Box
