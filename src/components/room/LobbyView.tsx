@@ -14,6 +14,7 @@ import { RoomHeader } from '../shared/RoomHeader';
 import { LobbyDateline } from '../lobby/LobbyDateline';
 import { CandidateRoster } from '../lobby/CandidateRoster';
 import { LaunchCampaignBar } from '../lobby/LaunchCampaignBar';
+import { LobbyTicker } from '../lobby/LobbyTicker';
 
 interface LobbyViewProps {
   roomId: string;
@@ -27,7 +28,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
   const canStart = readyCount >= roomState.config.minPlayers;
 
   return (
-    <Stack spacing={3} sx={{ p: 4, pb: '120px' }}>
+    <Stack spacing={3} sx={{ p: 4, pb: '200px' }}>
       <RoomHeader
         slot={
           <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
@@ -136,12 +137,23 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
         <CandidateRoster players={roomState.players} />
       </Box>
 
-      <LaunchCampaignBar
-        readyCount={readyCount}
-        maxCount={roomState.config.maxPlayers}
-        canStart={canStart}
-        onLaunch={() => startTheGame().catch(console.error)}
-      />
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: (t) => t.zIndex.appBar,
+        }}
+      >
+        <LobbyTicker players={roomState.players} />
+        <LaunchCampaignBar
+          readyCount={readyCount}
+          maxCount={roomState.config.maxPlayers}
+          canStart={canStart}
+          onLaunch={() => startTheGame().catch(console.error)}
+        />
+      </Box>
     </Stack>
   );
 }

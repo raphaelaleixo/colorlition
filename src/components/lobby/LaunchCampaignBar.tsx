@@ -30,11 +30,7 @@ export function LaunchCampaignBar({
       onClick={canStart ? onLaunch : undefined}
       disabled={!canStart}
       sx={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: (t) => t.zIndex.appBar,
+        display: 'block',
         width: '100%',
         border: 'none',
         borderTop: '1px solid',
