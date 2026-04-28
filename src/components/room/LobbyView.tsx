@@ -120,7 +120,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
             variant="caption"
             sx={{ color: 'text.secondary', textAlign: { xs: 'center', lg: 'left' }, fontStyle: 'normal' }}
           >
-            Scan to join · or visit {window.location.origin}/join · room {roomId}
+            Scan to join · or visit {buildJoinUrl(roomId)}
           </Typography>
         </Stack>
         <CandidateRoster players={roomState.players} />
