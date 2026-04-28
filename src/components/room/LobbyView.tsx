@@ -1,5 +1,6 @@
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import {
   RoomQRCode,
@@ -120,7 +121,16 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
             variant="caption"
             sx={{ color: 'text.secondary', textAlign: { xs: 'center', lg: 'left' }, fontStyle: 'normal' }}
           >
-            Scan to join · or visit {buildJoinUrl(roomId)}
+            Scan to join · or visit{' '}
+            <Link
+              href={buildJoinUrl(roomId)}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="always"
+              sx={{ color: 'inherit' }}
+            >
+              {buildJoinUrl(roomId)}
+            </Link>
           </Typography>
         </Stack>
         <CandidateRoster players={roomState.players} />
