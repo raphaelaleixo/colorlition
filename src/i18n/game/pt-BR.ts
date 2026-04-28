@@ -113,7 +113,7 @@ const ptBR: GameDict = {
     "Eu não escolho lados; escolho vencedores",
   ],
 
-  exitPollDemand: "As urnas se fecharam — uma última rodada antes da apuração",
+  exitPollDemand: "Vazaram as primeiras bocas de urna — uma última rodada antes do voto",
 
   pivotLabel: "Indeciso",
   grantLabel: "Aliado",

@@ -111,7 +111,7 @@ const en: GameDict = {
   ],
 
   exitPollDemand:
-    'The polls have closed — one last round before the count.',
+    'The first exit polls are leaking — one last round before voters decide.',
 
   pivotLabel: 'Undecided',
   grantLabel: 'Ally',
