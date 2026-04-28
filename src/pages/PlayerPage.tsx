@@ -138,7 +138,7 @@ export default function PlayerPage() {
               </Typography>
             }
           />
-          <WaitingView message="for the host" />
+          <WaitingView message={`You're ready, ${mySlot.name}`} />
         </Stack>
         <Box
           sx={{
