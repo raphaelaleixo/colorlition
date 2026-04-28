@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 interface WaitingViewProps {
   message: string;
   overline?: string;
+  subtext?: string;
 }
 
 // Card-shaped placeholder echoing DrawZone's empty state — dashed outline,
@@ -12,7 +13,7 @@ interface WaitingViewProps {
 // main message. Reuses the DrawZone visual so the player's pre-game wait
 // reads as the same kind of "card-slot is here" affordance as the in-game
 // draw zone.
-export function WaitingView({ message, overline = 'Waiting' }: WaitingViewProps) {
+export function WaitingView({ message, overline = 'Waiting', subtext }: WaitingViewProps) {
   return (
     <Box
       sx={(theme) => ({
@@ -55,6 +56,19 @@ export function WaitingView({ message, overline = 'Waiting' }: WaitingViewProps)
         >
           {message}
         </Typography>
+        {subtext && (
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              textAlign: 'center',
+              pt: 0.5,
+              maxWidth: 280,
+            }}
+          >
+            {subtext}
+          </Typography>
+        )}
       </Stack>
     </Box>
   );

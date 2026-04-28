@@ -138,7 +138,10 @@ export default function PlayerPage() {
               </Typography>
             }
           />
-          <WaitingView message={`You're ready, ${mySlot.name}`} />
+          <WaitingView
+            message={`You're ready, ${mySlot.name}`}
+            subtext="Campaign starts when the host calls it"
+          />
         </Stack>
         <Box
           sx={{
