@@ -13,6 +13,7 @@ import {
 import type { ColorlitionPlayerData } from '../../game/types';
 import { useGame } from '../../contexts/GameContext';
 import { RoomHeader } from '../shared/RoomHeader';
+import { LobbyDateline } from '../lobby/LobbyDateline';
 
 interface LobbyViewProps {
   roomId: string;
@@ -75,6 +76,8 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
           </Stack>
         }
       />
+
+      <LobbyDateline />
 
       <Stack direction="row" spacing={4} sx={{ alignItems: 'flex-start' }}>
         <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} />
