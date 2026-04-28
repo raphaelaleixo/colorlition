@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { scorePlayer } from '../../game/scoring';
 import { colorsInPlay } from '../../game/summarize';
 import { useGame } from '../../contexts/GameContext';
 import { useT } from '../../i18n';
@@ -18,9 +17,23 @@ export type LeaderRow = {
   isCurrent: boolean;
 };
 
-function orderBlocs(base: Card[], positive: Color[], negative: Color[]): Card[] {
+// Group bloc cards by color, ordered by raw bloc count desc (alpha tiebreak).
+// Pivots are NOT folded in here — the waffle only shows bloc cards, so the
+// visible ordering should reflect the visible quantities. (scorePlayer's
+// positive/negative arrays bake in pivot assignments and would order
+// differently from what's actually painted.)
+function orderBlocs(base: Card[]): Card[] {
+  const counts = new Map<Color, number>();
+  for (const card of base) {
+    if (card.kind === 'bloc') {
+      counts.set(card.color, (counts.get(card.color) ?? 0) + 1);
+    }
+  }
+  const colors = [...counts.keys()].sort(
+    (a, b) => (counts.get(b) ?? 0) - (counts.get(a) ?? 0) || a.localeCompare(b),
+  );
   const out: Card[] = [];
-  for (const color of [...positive, ...negative]) {
+  for (const color of colors) {
     for (const card of base) {
       if (card.kind === 'bloc' && card.color === color) out.push(card);
     }
@@ -28,20 +41,32 @@ function orderBlocs(base: Card[], positive: Color[], negative: Color[]): Card[] 
   return out;
 }
 
-const WAFFLE_SLOTS = 30;
+const WAFFLE_COLS = 10;
+const WAFFLE_ROWS = 3;
+const WAFFLE_SLOTS = WAFFLE_COLS * WAFFLE_ROWS;
 const BUBBLE_BASE_MS = 780;
 const BUBBLE_STAGGER_MS = 90;
+// How long an existing cell takes to glide to its new slot when colors
+// re-rank (e.g. a fresh card pushes one color past another). Slightly slower
+// than the bubble's settle so the slide reads as "thoughtful" not snap.
+const REORDER_MS = 480;
+const CELL_W_PCT = 100 / WAFFLE_COLS;
+const CELL_H_PCT = 100 / WAFFLE_ROWS;
 
+// Cells are absolutely positioned and keyed by card.id, so when `cards`
+// re-orders (color groups re-rank by quantity) each cell's transform
+// changes and CSS transitions slide it to its new slot. A static backdrop
+// of WAFFLE_SLOTS rule.hair tiles fills any unclaimed slot; real cards
+// overlay matching slots. 1px padding on every tile lets the parent's
+// (paper) background show through, producing the original 2px seam.
 function Waffle({ cards }: { cards: Card[] }) {
   const visible = cards.slice(0, WAFFLE_SLOTS);
-  const empty = Math.max(0, WAFFLE_SLOTS - visible.length);
 
   const seenIds = useRef<Set<string>>(new Set(visible.map((c) => c.id)));
   // Track which card ids are new since the previous render to drive the
-  // highlight animation. Reading the ref in useMemo is render-phase, but the
-  // alternative (storing in state) would cause an extra re-render every time
-  // `visible` changes, which is exactly what this ref pattern was chosen to
-  // avoid.
+  // bubble-up animation. Reading the ref in useMemo is render-phase, but
+  // the alternative (storing in state) would cause an extra re-render every
+  // time `visible` changes, which is exactly what this ref pattern avoids.
   const newIds = useMemo(() => {
     const fresh = new Set<string>();
     // eslint-disable-next-line react-hooks/refs
@@ -52,14 +77,21 @@ function Waffle({ cards }: { cards: Card[] }) {
     seenIds.current = new Set(visible.map((c) => c.id));
   });
 
+  const tileSx = {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    width: `${CELL_W_PCT}%`,
+    height: `${CELL_H_PCT}%`,
+    padding: '1px',
+    boxSizing: 'border-box' as const,
+  };
+
   let bubbleIdx = 0;
   return (
     <Box
       sx={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(10, 1fr)',
-        gridTemplateRows: 'repeat(3, 1fr)',
-        gap: '2px',
+        position: 'relative',
         flexShrink: 0,
         height: 60,
         aspectRatio: '10 / 3',
@@ -87,28 +119,63 @@ function Waffle({ cards }: { cards: Card[] }) {
         },
       }}
     >
+      {Array.from({ length: WAFFLE_SLOTS }).map((_, i) => {
+        const col = i % WAFFLE_COLS;
+        const row = Math.floor(i / WAFFLE_COLS);
+        return (
+          <Box
+            key={`empty-${i}`}
+            sx={{
+              ...tileSx,
+              transform: `translate(${col * 100}%, ${row * 100}%)`,
+              pointerEvents: 'none',
+            }}
+          >
+            <Box
+              sx={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rule.hair',
+              }}
+            />
+          </Box>
+        );
+      })}
       {visible.map((card, i) => {
+        const col = i % WAFFLE_COLS;
+        const row = Math.floor(i / WAFFLE_COLS);
         const isNew = newIds.has(card.id);
         const delay = isNew ? bubbleIdx++ * BUBBLE_STAGGER_MS : 0;
         return (
           <Box
-            key={`${card.id}-${i}`}
+            key={card.id}
             sx={{
-              backgroundColor: card.kind === 'bloc' ? PALETTE[card.color] : 'rule.hair',
-              transformOrigin: 'center bottom',
-              animation: isNew
-                ? `waffleBubbleUp ${BUBBLE_BASE_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1) ${delay}ms both`
-                : 'none',
+              ...tileSx,
+              transform: `translate(${col * 100}%, ${row * 100}%)`,
+              transition: `transform ${REORDER_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1)`,
               '@media (prefers-reduced-motion: reduce)': {
-                animation: 'none',
+                transition: 'none',
               },
             }}
-          />
+          >
+            <Box
+              sx={{
+                width: '100%',
+                height: '100%',
+                backgroundColor:
+                  card.kind === 'bloc' ? PALETTE[card.color] : 'rule.hair',
+                transformOrigin: 'center bottom',
+                animation: isNew
+                  ? `waffleBubbleUp ${BUBBLE_BASE_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1) ${delay}ms both`
+                  : 'none',
+                '@media (prefers-reduced-motion: reduce)': {
+                  animation: 'none',
+                },
+              }}
+            />
+          </Box>
         );
       })}
-      {Array.from({ length: empty }).map((_, i) => (
-        <Box key={`empty-${i}`} sx={{ backgroundColor: 'rule.hair' }} />
-      ))}
     </Box>
   );
 }
@@ -131,7 +198,6 @@ export function CampaignRow({
     gameState ? colorsInPlay(gameState) : [],
     'vertical',
   );
-  const bd = scorePlayer(row.playerId, row.base);
   const grants = row.base.filter((c) => c.kind === 'grant').length;
   const pivots = row.base.filter((c) => c.kind === 'pivot').length;
 
@@ -148,7 +214,7 @@ export function CampaignRow({
         '&:last-of-type': { borderBottom: 'none' },
       }}
     >
-      <Waffle cards={orderBlocs(row.base, bd.positiveColors, bd.negativeColors)} />
+      <Waffle cards={orderBlocs(row.base)} />
       <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'center' }}>
         {showName && (
           <Typography
