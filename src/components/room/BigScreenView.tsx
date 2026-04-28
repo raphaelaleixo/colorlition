@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { FullscreenToggle, type RoomState } from 'react-gameroom';
+import { FullscreenToggle, RoomInfoModal, type RoomState } from 'react-gameroom';
 import { useGame } from '../../contexts/GameContext';
 import { VoterSegments } from '../big-screen/VoterSegments';
 import { ExitPollReveal } from '../big-screen/ExitPollReveal';
@@ -24,6 +24,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
   const { gameState } = useGame();
   const [exitPollRevealing, setExitPollRevealing] = useState(false);
   const [drawRevealing, setDrawRevealing] = useState(false);
+  const [roomInfoOpen, setRoomInfoOpen] = useState(false);
   const handleExitPollRevealingChange = useCallback(
     (v: boolean) => setExitPollRevealing(v),
     [],
@@ -75,13 +76,43 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
       <RoomHeader
         slot={
           <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
+            <Stack
+              component="button"
+              type="button"
+              onClick={() => setRoomInfoOpen(true)}
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: 'flex-end',
+                background: 'transparent',
+                border: 'none',
+                p: 0,
+                m: 0,
+                cursor: 'pointer',
+                color: 'inherit',
+                font: 'inherit',
+                '&:hover .room-code-value': { textDecoration: 'underline' },
+                '&:focus-visible': {
+                  outline: '2px solid',
+                  outlineColor: 'text.primary',
+                  outlineOffset: 4,
+                },
+              }}
+              aria-label="Show join QR code"
+            >
               <Typography variant="overline" sx={{ color: 'text.secondary' }}>
                 Room
               </Typography>
               <Typography
                 variant="h2"
-                sx={{ fontWeight: 900, letterSpacing: '0.15em', fontFeatureSettings: "'tnum' 1, 'lnum' 1" }}
+                className="room-code-value"
+                sx={{
+                  fontWeight: 900,
+                  letterSpacing: '0.15em',
+                  fontFeatureSettings: "'tnum' 1, 'lnum' 1",
+                  textDecorationThickness: '2px',
+                  textUnderlineOffset: '6px',
+                }}
               >
                 {roomState.roomId}
               </Typography>
@@ -120,6 +151,80 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
           </Stack>
         }
       />
+      <Box
+        sx={{
+          '& > dialog': {
+            border: '1px solid',
+            borderColor: 'rule.strong',
+            backgroundColor: 'background.paper',
+            color: 'text.primary',
+            fontFamily: 'inherit',
+            p: 4,
+            maxWidth: 360,
+            width: '90vw',
+            position: 'relative',
+            '&::backdrop': { backgroundColor: 'rgba(20, 18, 14, 0.55)' },
+            '& h3': {
+              fontFamily: '"Playfair Display", serif',
+              fontWeight: 700,
+              fontSize: 22,
+              letterSpacing: '0.02em',
+              m: 0,
+              mb: 2,
+              pr: 4,
+            },
+            '& [data-room-info-qr]': {
+              display: 'flex',
+              justifyContent: 'center',
+              py: 2,
+              borderTop: '1px solid',
+              borderBottom: '1px solid',
+              borderColor: 'rule.hair',
+            },
+            '& [data-room-info-links]': {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0.5,
+              mt: 2,
+              '& a': {
+                color: 'text.primary',
+                textDecoration: 'none',
+                fontSize: 13,
+                py: 0.75,
+                borderBottom: '1px solid',
+                borderColor: 'rule.hair',
+                '&:hover': { textDecoration: 'underline' },
+                '&:last-of-type': { borderBottom: 'none' },
+              },
+            },
+            '& [data-room-info-close]': {
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              background: 'transparent',
+              border: 'none',
+              fontSize: 18,
+              lineHeight: 1,
+              cursor: 'pointer',
+              color: 'text.secondary',
+              p: 1,
+              '&:hover': { color: 'text.primary' },
+            },
+          },
+        }}
+      >
+        <RoomInfoModal
+          roomState={roomState}
+          open={roomInfoOpen}
+          onClose={() => setRoomInfoOpen(false)}
+          labels={{
+            roomHeading: 'Room',
+            joinLink: 'Join',
+            rejoinLink: 'Rejoin',
+            close: 'Close',
+          }}
+        />
+      </Box>
       <Box
         sx={{
           display: 'grid',
