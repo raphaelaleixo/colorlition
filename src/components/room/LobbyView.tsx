@@ -3,10 +3,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import {
-  PlayerSlotsGrid,
   RoomQRCode,
   FullscreenToggle,
-  buildPlayerUrl,
   buildJoinUrl,
   type RoomState,
 } from 'react-gameroom';
@@ -14,6 +12,7 @@ import type { ColorlitionPlayerData } from '../../game/types';
 import { useGame } from '../../contexts/GameContext';
 import { RoomHeader } from '../shared/RoomHeader';
 import { LobbyDateline } from '../lobby/LobbyDateline';
+import { CandidateRoster } from '../lobby/CandidateRoster';
 
 interface LobbyViewProps {
   roomId: string;
@@ -81,13 +80,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
 
       <Stack direction="row" spacing={4} sx={{ alignItems: 'flex-start' }}>
         <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} />
-        <Stack spacing={1}>
-          <Typography variant="h6">Players</Typography>
-          <PlayerSlotsGrid
-            players={roomState.players}
-            buildSlotHref={(slotId) => buildPlayerUrl(roomId, slotId)}
-          />
-        </Stack>
+        <CandidateRoster players={roomState.players} />
       </Stack>
 
       <Button
