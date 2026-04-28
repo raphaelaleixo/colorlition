@@ -1,7 +1,6 @@
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import {
   RoomQRCode,
   FullscreenToggle,
@@ -13,6 +12,7 @@ import { useGame } from '../../contexts/GameContext';
 import { RoomHeader } from '../shared/RoomHeader';
 import { LobbyDateline } from '../lobby/LobbyDateline';
 import { CandidateRoster } from '../lobby/CandidateRoster';
+import { LaunchCampaignBar } from '../lobby/LaunchCampaignBar';
 
 interface LobbyViewProps {
   roomId: string;
@@ -26,7 +26,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
   const canStart = readyCount >= roomState.config.minPlayers;
 
   return (
-    <Stack spacing={3} sx={{ p: 4 }}>
+    <Stack spacing={3} sx={{ p: 4, pb: '120px' }}>
       <RoomHeader
         slot={
           <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
@@ -104,13 +104,12 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
         <CandidateRoster players={roomState.players} />
       </Box>
 
-      <Button
-        variant="contained"
-        onClick={() => startTheGame().catch(console.error)}
-        disabled={!canStart}
-      >
-        Start Game ({readyCount}/{roomState.config.maxPlayers})
-      </Button>
+      <LaunchCampaignBar
+        readyCount={readyCount}
+        maxCount={roomState.config.maxPlayers}
+        canStart={canStart}
+        onLaunch={() => startTheGame().catch(console.error)}
+      />
     </Stack>
   );
 }
