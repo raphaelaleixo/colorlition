@@ -68,11 +68,7 @@ export function WinnerScreen({
               const lines = winnerIds.map((id) => {
                 const breakdown = breakdowns.find((b) => b.playerId === id);
                 const title = breakdown
-                  ? deriveVictoryTitle(
-                      breakdown.positiveColors,
-                      breakdown.colorCounts,
-                      dict,
-                    )
+                  ? deriveVictoryTitle(breakdown.rawColorCounts, dict)
                   : dict.unclassifiedLeaderTitle;
                 return t('winner.wins', { name: nameFor(id), title });
               });

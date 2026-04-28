@@ -39,6 +39,9 @@ export type PerPlayerState = {
 export type ScoreBreakdown = {
   playerId: string;
   colorCounts: Record<Color, number>;
+  // Bloc counts excluding pivot assignments — used by the victory title so
+  // wilds don't flip a player's identity to a color they never drafted.
+  rawColorCounts: Record<Color, number>;
   pivotAssignments: Color[];
   positiveColors: Color[];
   negativeColors: Color[];

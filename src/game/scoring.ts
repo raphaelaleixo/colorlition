@@ -91,6 +91,7 @@ export function scorePlayer(playerId: string, base: Card[]): ScoreBreakdown {
   return {
     playerId,
     colorCounts: best.counts,
+    rawColorCounts: baseCounts,
     pivotAssignments: best.assignment,
     positiveColors: best.positiveColors,
     negativeColors: best.negativeColors,
