@@ -6,11 +6,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import {
-  PlayerSlotsGrid,
-  buildPlayerUrl,
-  type RoomState,
-} from 'react-gameroom';
+import { type RoomState } from 'react-gameroom';
 import { useGame } from '../contexts/GameContext';
 import { RoomNotFound } from '../components/shared/RoomNotFound';
 import { RoomHeader } from '../components/shared/RoomHeader';
@@ -125,19 +121,49 @@ interface RejoinViewProps {
 }
 
 function RejoinView({ roomId, roomState }: RejoinViewProps) {
+  const filledSlots = roomState.players.filter((p) => p.status !== 'empty');
   return (
     <Box sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
       <RoomHeader slot={roomSlot(roomId)} />
       <Stack spacing={3} sx={{ pt: 4 }}>
-        <Typography variant="h1">Tap your name</Typography>
+        <Typography variant="h3">Tap your name</Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary' }}>
           The game has started. Choose your spot to rejoin.
         </Typography>
-        <PlayerSlotsGrid
-          players={roomState.players}
-          filterEmpty
-          buildSlotHref={(slotId) => buildPlayerUrl(roomId, slotId)}
-        />
+        <Stack spacing={1.5}>
+          {filledSlots.map((slot) => (
+            <Box
+              key={slot.id}
+              component={RouterLink}
+              to={`/room/${roomId}/player/${slot.id}`}
+              sx={{
+                display: 'block',
+                p: 2,
+                minHeight: 72,
+                border: '1px solid',
+                borderColor: 'rule.strong',
+                bgcolor: 'background.paper',
+                color: 'text.primary',
+                textDecoration: 'none',
+                transition: 'background-color 120ms ease, color 120ms ease',
+                '&:hover, &:focus-visible': {
+                  backgroundColor: 'text.primary',
+                  color: 'background.default',
+                  outline: 'none',
+                },
+              }}
+            >
+              <Stack spacing={0.5}>
+                <Typography variant="overline" sx={{ color: 'inherit', opacity: 0.7 }}>
+                  {slot.status === 'ready' ? 'Ready' : 'Filed'}
+                </Typography>
+                <Typography variant="h4" sx={{ color: 'inherit' }}>
+                  {slot.name ?? `Candidate ${slot.id}`}
+                </Typography>
+              </Stack>
+            </Box>
+          ))}
+        </Stack>
         <Button component={RouterLink} to="/" variant="text" sx={{ alignSelf: 'flex-start' }}>
           Back to home
         </Button>
