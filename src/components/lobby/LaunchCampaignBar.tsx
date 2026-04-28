@@ -35,13 +35,13 @@ export function LaunchCampaignBar({
         border: 'none',
         borderTop: '1px solid',
         borderColor: 'rule.strong',
-        bgcolor: 'text.primary',
-        color: 'background.default',
+        bgcolor: 'background.paper',
+        color: 'text.primary',
         py: 2.5,
         px: 3,
         textAlign: 'center',
         cursor: canStart ? 'pointer' : 'not-allowed',
-        opacity: canStart ? 1 : 0.4,
+        opacity: canStart ? 1 : 0.5,
         transition: 'opacity 160ms ease',
         '&:hover': canStart
           ? { opacity: 0.9 }
