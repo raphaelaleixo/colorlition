@@ -67,7 +67,7 @@ const en = {
   'playerPage.divider.voterSegments': 'voter segments',
   'playerPage.divider.addToSegment': 'add to a segment',
   'playerPage.divider.orClaim': 'or claim from a segment',
-  'playerPage.action.add': 'Add here',
+  'playerPage.action.add': 'Add',
   'playerPage.action.claim': 'Claim',
   'playerPage.finalRound': 'FINAL ROUND',
   'playerPage.yourCampaign': 'Your Campaign',
@@ -141,7 +141,8 @@ const en = {
 
   // LobbyView
   'lobby.dateline': 'CAMPAIGN 2026 · DAY ZERO · CANDIDATES CONVENING',
-  'lobby.scanToJoinPrefix': 'Scan to join · or visit ',
+  'lobby.scanToJoinPrefix': 'Scan to join · or ',
+  'lobby.accessHere': 'access here',
 
   // CandidateCard
   'candidate.statusFiled': 'FILED',

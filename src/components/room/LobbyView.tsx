@@ -134,7 +134,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
               underline="always"
               sx={{ color: 'inherit' }}
             >
-              {joinUrl}
+              {t('lobby.accessHere')}
             </Link>
           </Typography>
         </Stack>

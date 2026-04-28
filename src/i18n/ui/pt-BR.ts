@@ -71,7 +71,7 @@ const ptBR: UIDict = {
   'playerPage.divider.voterSegments': 'segmentos eleitorais',
   'playerPage.divider.addToSegment': 'adicionar a um segmento',
   'playerPage.divider.orClaim': 'ou reivindicar de um segmento',
-  'playerPage.action.add': 'Colocar aqui',
+  'playerPage.action.add': 'Adicionar',
   'playerPage.action.claim': 'Reivindicar',
   'playerPage.finalRound': 'RODADA FINAL',
   'playerPage.yourCampaign': 'Sua campanha',
@@ -146,7 +146,8 @@ const ptBR: UIDict = {
   // LobbyView
   'lobby.dateline':
     'CAMPANHA 2026 · DIA ZERO · CANDIDATOS SE REÚNEM',
-  'lobby.scanToJoinPrefix': 'Escaneie para entrar · ou acesse ',
+  'lobby.scanToJoinPrefix': 'Escaneie para entrar · ou ',
+  'lobby.accessHere': 'acesse aqui',
 
   // CandidateCard
   'candidate.statusFiled': 'REGISTRADO',
