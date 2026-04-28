@@ -18,6 +18,7 @@ import { CoalitionBreakdown } from '../components/mobile/CoalitionBreakdown';
 import { CampaignRow } from '../components/big-screen/Leaderboard';
 import { HeadlineTicker } from '../components/big-screen/HeadlineTicker';
 import { VoterSegments } from '../components/big-screen/VoterSegments';
+import { LobbyTicker } from '../components/lobby/LobbyTicker';
 import { RoomHeader } from '../components/shared/RoomHeader';
 import type { Segment } from '../game/types';
 
@@ -117,27 +118,40 @@ export default function PlayerPage() {
 
   if (!gameState) {
     return (
-      <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
-        <RoomHeader
-          slot={
-            <Typography
-              variant="overline"
-              sx={{
-                color: 'text.secondary',
-                fontFeatureSettings: "'tnum' 1",
-                '&.MuiTypography-overline': {
-                  fontSize: 14,
-                  letterSpacing: '0.12em',
-                  lineHeight: 1.1,
-                },
-              }}
-            >
-              {id} · Seat {playerId}
-            </Typography>
-          }
-        />
-        <WaitingView message="Waiting for the host to start the game…" />
-      </Stack>
+      <>
+        <Stack spacing={2} sx={{ p: 2, pb: '96px', maxWidth: 480, mx: 'auto' }}>
+          <RoomHeader
+            slot={
+              <Typography
+                variant="overline"
+                sx={{
+                  color: 'text.secondary',
+                  fontFeatureSettings: "'tnum' 1",
+                  '&.MuiTypography-overline': {
+                    fontSize: 14,
+                    letterSpacing: '0.12em',
+                    lineHeight: 1.1,
+                  },
+                }}
+              >
+                {id} · Seat {playerId}
+              </Typography>
+            }
+          />
+          <WaitingView message="for the host" />
+        </Stack>
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: (t) => t.zIndex.appBar,
+          }}
+        >
+          <LobbyTicker players={roomState.players} />
+        </Box>
+      </>
     );
   }
 
