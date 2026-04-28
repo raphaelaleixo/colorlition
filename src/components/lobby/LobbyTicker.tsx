@@ -17,13 +17,13 @@ const AMBIENT_HEADLINES = [
 ];
 
 const READY_TEMPLATES: Array<(name: string) => string> = [
-  (n) => `${n} is ready`,
-  (n) => `${n} locks in their bid`,
-  (n) => `${n} confirms their ticket`,
-  (n) => `${n} declares ready`,
-  (n) => `${n} signs on the dotted line`,
-  (n) => `${n} suits up`,
-  (n) => `${n} steps to the rostrum`,
+  (n) => `${n} launches campaign`,
+  (n) => `${n} hits the campaign trail`,
+  (n) => `${n} throws hat in the ring`,
+  (n) => `${n} opens campaign HQ`,
+  (n) => `${n} files candidacy`,
+  (n) => `${n} kicks off the campaign`,
+  (n) => `${n} plants the flag`,
 ];
 
 function hashStr(s: string): number {
