@@ -21,10 +21,12 @@ export function DrawZone({
   gameState,
   isMyTurn,
   currentPlayerName,
+  hasClaimed = false,
 }: {
   gameState: ColorlitionGameState;
   isMyTurn: boolean;
   currentPlayerName: string;
+  hasClaimed?: boolean;
 }) {
   const { drawCard } = useGame();
   const [busy, setBusy] = useState(false);
@@ -87,7 +89,7 @@ export function DrawZone({
         borderRadius: 1.5,
         outline: showCard ? 'none' : `1px dashed ${theme.palette.rule.strong}`,
         outlineOffset: '-1px',
-        backgroundColor: 'background.default',
+        backgroundColor: 'background.paper',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -127,12 +129,14 @@ export function DrawZone({
         <Button
           variant="contained"
           color="primary"
-          size="small"
+          size="large"
           onClick={handleDraw}
           disabled={busy || !canDraw}
           sx={{
-            minWidth: 84,
-            py: 0.75,
+            minWidth: 132,
+            py: 1.5,
+            px: 3.5,
+            fontSize: '1rem',
             fontWeight: 700,
             letterSpacing: '0.04em',
             '@keyframes buttonFadeIn': {
@@ -166,13 +170,13 @@ export function DrawZone({
               },
             }}
           >
-            Waiting for
+            {hasClaimed ? 'Waiting' : 'Waiting for'}
           </Typography>
           <Typography
             variant="h4"
             sx={{ fontWeight: 900, textAlign: 'center', lineHeight: 1.1 }}
           >
-            {currentPlayerName}
+            {hasClaimed ? 'You claimed this round' : currentPlayerName}
           </Typography>
         </Stack>
       )}

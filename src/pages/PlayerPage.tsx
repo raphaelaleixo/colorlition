@@ -240,8 +240,8 @@ export default function PlayerPage() {
     if (!canClaimSegment(segment)) return null;
     return (
       <Button
-        variant="contained"
-        color="claim"
+        variant="outlined"
+        color="primary"
         size="small"
         disabled={actionBusy}
         onClick={async () => {
@@ -252,7 +252,11 @@ export default function PlayerPage() {
             setActionBusy(false);
           }
         }}
-        sx={segmentButtonSx}
+        sx={{
+          ...segmentButtonSx,
+          backgroundColor: 'background.paper',
+          '&:hover': { backgroundColor: 'background.default' },
+        }}
       >
         Claim
       </Button>
@@ -284,6 +288,7 @@ export default function PlayerPage() {
           gameState={gameState}
           isMyTurn={isMyTurn}
           currentPlayerName={currentPlayer?.name ?? currentPlayerId}
+          hasClaimed={myRoundStatus === 'claimed'}
         />
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <Box sx={{ flex: 1, borderTop: '1px solid', borderColor: 'rule.hair' }} />
@@ -312,14 +317,6 @@ export default function PlayerPage() {
           singleColumn
           renderAction={renderSegmentAction}
         />
-        {myRoundStatus === 'claimed' && (
-          <Typography
-            variant="body1"
-            sx={{ color: 'text.secondary' }}
-          >
-            You claimed this round. Waiting…
-          </Typography>
-        )}
         {gameState.exitPollDrawn && (
           <Typography variant="h6" color="warning.main">FINAL ROUND</Typography>
         )}
@@ -365,6 +362,7 @@ export default function PlayerPage() {
                 isCurrent: isMyTurn,
               }}
               showName={false}
+              showStatus={false}
             />
           </Box>
           <CoalitionBreakdown base={myBase} gameState={gameState} />

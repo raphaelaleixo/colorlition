@@ -118,9 +118,11 @@ function Waffle({ cards }: { cards: Card[] }) {
 export function CampaignRow({
   row,
   showName = true,
+  showStatus = true,
 }: {
   row: LeaderRow;
   showName?: boolean;
+  showStatus?: boolean;
 }) {
   const { gameState } = useGame();
   const pivotBg = pivotStripes(
@@ -155,48 +157,50 @@ export function CampaignRow({
             {row.name}
           </Typography>
         )}
-        <Stack
-          direction="row"
-          spacing={0.75}
-          aria-hidden={!(row.isCurrent || row.roundStatus === 'claimed')}
-          sx={{
-            alignItems: 'center',
-            color: row.isCurrent ? '#1F7540' : '#911414',
-            visibility:
-              row.isCurrent || row.roundStatus === 'claimed' ? 'visible' : 'hidden',
-            ...(row.isCurrent && {
-              '@keyframes currentPlayerPulse': {
-                '0%, 100%': { opacity: 0.55 },
-                '50%': { opacity: 1 },
-              },
-              animation: 'currentPlayerPulse 1.4s ease-in-out infinite',
-              '@media (prefers-reduced-motion: reduce)': {
-                animation: 'none',
-              },
-            }),
-          }}
-        >
-          <Box
+        {showStatus && (
+          <Stack
+            direction="row"
+            spacing={0.75}
+            aria-hidden={!(row.isCurrent || row.roundStatus === 'claimed')}
             sx={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              backgroundColor: 'currentColor',
-              flexShrink: 0,
+              alignItems: 'center',
+              color: row.isCurrent ? '#1F7540' : '#911414',
+              visibility:
+                row.isCurrent || row.roundStatus === 'claimed' ? 'visible' : 'hidden',
+              ...(row.isCurrent && {
+                '@keyframes currentPlayerPulse': {
+                  '0%, 100%': { opacity: 0.55 },
+                  '50%': { opacity: 1 },
+                },
+                animation: 'currentPlayerPulse 1.4s ease-in-out infinite',
+                '@media (prefers-reduced-motion: reduce)': {
+                  animation: 'none',
+                },
+              }),
             }}
-          />
-          <Typography
-            variant="caption"
-            noWrap
-            sx={{ color: 'inherit', fontWeight: 600 }}
           >
-            {row.isCurrent
-              ? 'Current player'
-              : row.roundStatus === 'claimed'
-                ? 'Claimed segments'
-                : 'Current player'}
-          </Typography>
-        </Stack>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: 'currentColor',
+                flexShrink: 0,
+              }}
+            />
+            <Typography
+              variant="caption"
+              noWrap
+              sx={{ color: 'inherit', fontWeight: 600 }}
+            >
+              {row.isCurrent
+                ? 'Current player'
+                : row.roundStatus === 'claimed'
+                  ? 'Claimed segments'
+                  : 'Current player'}
+            </Typography>
+          </Stack>
+        )}
       </Stack>
       <Stack spacing={0.5} sx={{ minWidth: 90, justifyContent: 'center' }}>
         {grants > 0 && (
