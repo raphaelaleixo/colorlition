@@ -11,7 +11,6 @@ import {
   canPlaceInSegment,
 } from '../game/actions';
 import { scorePlayer } from '../game/scoring';
-import { CoalitionBase } from '../components/mobile/CoalitionBase';
 import { WaitingView } from '../components/mobile/WaitingView';
 import { DrawZone } from '../components/mobile/DrawZone';
 import { CoalitionBreakdown } from '../components/mobile/CoalitionBreakdown';
@@ -149,12 +148,60 @@ export default function PlayerPage() {
   if (gameState.phase === 'ended') {
     const didWin = gameState.winnerIds?.includes(playerId) ?? false;
     return (
-      <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
+      <Stack spacing={2.5} sx={{ p: 2, pb: '32px', maxWidth: 400, mx: 'auto' }}>
         <RoomHeader slot={seatOverline} />
         <Typography variant="h4" color={didWin ? 'success.main' : 'text.primary'}>
           {didWin ? t('playerPage.youWon') : t('playerPage.gameOver')}
         </Typography>
-        <CoalitionBase base={myBase} />
+        <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+          <Stack spacing={1}>
+            <Stack
+              direction="row"
+              sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
+            >
+              <Typography variant="h4" sx={{ fontWeight: 900 }}>
+                {t('playerPage.yourCampaign')}
+              </Typography>
+              <Typography
+                variant="overline"
+                sx={{
+                  color: 'text.secondary',
+                  letterSpacing: '0.14em',
+                  '&.MuiTypography-overline': {
+                    fontSize: 18,
+                    fontWeight: 700,
+                    lineHeight: 1,
+                    fontFeatureSettings: "'tnum' 1, 'lnum' 1",
+                  },
+                }}
+              >
+                {t('playerPage.points', { score: scorePlayer(playerId, myBase).total })}
+              </Typography>
+            </Stack>
+            <Box sx={{ borderBottom: '1px solid', borderColor: 'rule.hair' }} />
+          </Stack>
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'rule.hair',
+            }}
+          >
+            <CampaignRow
+              row={{
+                playerId,
+                name: '',
+                base: myBase,
+                roundStatus: 'active',
+                isCurrent: false,
+              }}
+              showName={false}
+              showStatus={false}
+            />
+          </Box>
+          <CoalitionBreakdown base={myBase} gameState={gameState} />
+        </Stack>
       </Stack>
     );
   }
