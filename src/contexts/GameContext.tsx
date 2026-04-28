@@ -39,6 +39,7 @@ import {
   placePendingDraw as placePendingDrawPure,
   claim as claimPure,
   commitRoundEnd as commitRoundEndPure,
+  acknowledgeExitPoll as acknowledgeExitPollPure,
 } from '../game/actions';
 
 const ROUND_END_HOLD_MS = 2400;
@@ -68,6 +69,7 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
     turnOrder: raw.turnOrder ?? [],
     playerState,
     exitPollDrawn: raw.exitPollDrawn ?? false,
+    exitPollAcknowledged: raw.exitPollAcknowledged ?? false,
     winnerIds: raw.winnerIds ?? null,
     scoreBreakdown: raw.scoreBreakdown ?? null,
     lastHeadline: raw.lastHeadline ?? null,
@@ -91,6 +93,7 @@ export interface GameContextValue {
   drawCard: () => Promise<void>;
   placePendingDraw: (segmentKey: SegmentKey) => Promise<void>;
   claim: (segmentKey: SegmentKey) => Promise<void>;
+  acknowledgeExitPoll: () => Promise<void>;
 }
 
 export const GameContext = createContext<GameContextValue | null>(null);
@@ -253,6 +256,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
   }, [roomState, gameState]);
 
+  const acknowledgeExitPoll = useCallback(async () => {
+    if (!roomState || !gameState) return;
+    if (!gameState.exitPollDrawn || gameState.exitPollAcknowledged) return;
+    const nextGame = acknowledgeExitPollPure(gameState);
+    await update(ref(database, `rooms/${roomState.roomId}/game`), nextGame);
+  }, [roomState, gameState]);
+
   // Hold the all-segments-claimed tableau briefly, then commit the reset.
   // Every connected client schedules the same write — Firebase resolves with
   // last-write-wins on identical content, so duplicate fires are harmless.
@@ -281,6 +291,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         drawCard,
         placePendingDraw,
         claim,
+        acknowledgeExitPoll,
       }}
     >
       {children}

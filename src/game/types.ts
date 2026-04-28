@@ -89,6 +89,10 @@ export type ColorlitionGameState = {
   phase: Phase;
   deck: Card[];
   exitPollDrawn: boolean;
+  // Flips true once the active player taps Continue on the Exit Poll reveal.
+  // Gates the Big Screen's ExitPollReveal departure and the deferred next-card
+  // draw, keeping the reveal and the subsequent DrawCardReveal sequential.
+  exitPollAcknowledged: boolean;
   segments: Segment[];
   turnOrder: string[];
   currentPlayerIndex: number;

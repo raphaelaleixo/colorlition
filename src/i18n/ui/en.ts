@@ -80,6 +80,10 @@ const en = {
   'turn.orClaim': 'or claim',
   'turn.claimSegment': 'Claim {segment}',
 
+  // ExitPoll acknowledgement (mobile)
+  'exitPoll.continue': 'Continue',
+  'exitPoll.waitingFor': '{name} is reviewing the Exit Poll…',
+
   // DrawZone
   'draw.button': 'Draw',
   'draw.waiting': 'Waiting',
@@ -271,6 +275,7 @@ const en = {
   'mock.drawPivot': 'Draw pivot',
   'mock.drawGrant': 'Draw grant',
   'mock.drawExitPoll': 'Draw exit poll',
+  'mock.ackExitPoll': 'Ack exit poll',
   'mock.claim': 'Current player claims',
   'mock.endRound': 'Claim last → end round',
   'mock.endGame': 'End game now',

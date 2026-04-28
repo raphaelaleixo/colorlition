@@ -1,67 +1,51 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { Card } from '../shared/Card';
-import { RevealControlContext } from './revealControl';
 import type { ExitPollCard } from '../../game/types';
 
-const REVEAL_HOLD_MS = 1200;
 const REVEAL_OUT_MS = 380;
 
 const EXIT_POLL_CARD: ExitPollCard = { id: 'exit-poll-reveal', kind: 'exitPoll' };
 
 type Phase = 'centered' | 'departing' | null;
 
+// Stays centered until the active player taps Continue on their mobile,
+// flipping `exitPollAcknowledged` true. Then plays the depart animation
+// and clears. No auto-depart timer — the moment is meant to hold.
 export function ExitPollReveal({
   exitPollDrawn,
+  exitPollAcknowledged,
   onRevealingChange,
 }: {
   exitPollDrawn: boolean;
+  exitPollAcknowledged: boolean;
   onRevealingChange?: (revealing: boolean) => void;
 }) {
-  const prevDrawnRef = useRef(exitPollDrawn);
-  const [phase, setPhase] = useState<Phase>(null);
-  const revealControl = useContext(RevealControlContext);
-  const isManualReveal = revealControl !== null;
+  const [phase, setPhase] = useState<Phase>(
+    exitPollDrawn && !exitPollAcknowledged ? 'centered' : null,
+  );
 
-  // Notify the parent so adjacent reveals (e.g. the segment-card reveal
-  // for the second card drawn in this turn) can hold until we're done.
+  // Render-phase transitions: enter when the trigger flips, depart when ack
+  // flips. setState during render is intentional — it lets the overlay paint
+  // on the very next commit (a useEffect would cause a one-frame flash before
+  // the centered animation kicks in, and trips lints in the other direction).
+  if (exitPollDrawn && !exitPollAcknowledged && phase === null) {
+    setPhase('centered');
+  } else if (exitPollAcknowledged && phase === 'centered') {
+    setPhase('departing');
+  }
+
+  // Notify the parent so adjacent reveals (e.g. the deferred follow-up card
+  // reveal) can hold until our depart animation completes.
   useEffect(() => {
     onRevealingChange?.(phase !== null);
   }, [phase, onRevealingChange]);
 
-  // Detect false→true transition during render so the overlay paints on the
-  // very next commit. Render-phase ref read/write is intentional — using
-  // useEffect would cause a one-frame static flash before the centered
-  // animation kicks in.
-  // eslint-disable-next-line react-hooks/refs
-  if (!prevDrawnRef.current && exitPollDrawn && phase === null) {
-    setPhase('centered');
-  }
-  // eslint-disable-next-line react-hooks/refs
-  prevDrawnRef.current = exitPollDrawn;
-
   useEffect(() => {
-    if (phase === 'centered') {
-      if (isManualReveal) return; // wait for an external advance trigger
-      const t = setTimeout(() => setPhase('departing'), REVEAL_HOLD_MS);
-      return () => clearTimeout(t);
-    }
-    if (phase === 'departing') {
-      const t = setTimeout(() => setPhase(null), REVEAL_OUT_MS);
-      return () => clearTimeout(t);
-    }
-  }, [phase, isManualReveal]);
-
-  // Manual-advance hook (mock dev panel only): when advanceTick changes during
-  // the centered phase, kick the flow into departing. The setState here IS the
-  // effect's purpose.
-  const advanceTick = revealControl?.advanceTick;
-  useEffect(() => {
-    if (advanceTick === undefined) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (phase === 'centered') setPhase('departing');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [advanceTick]);
+    if (phase !== 'departing') return;
+    const t = setTimeout(() => setPhase(null), REVEAL_OUT_MS);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   if (phase === null) return null;
 

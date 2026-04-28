@@ -84,6 +84,10 @@ const ptBR: UIDict = {
   'turn.orClaim': 'ou reivindicar',
   'turn.claimSegment': 'Reivindicar {segment}',
 
+  // ExitPoll acknowledgement (mobile)
+  'exitPoll.continue': 'Continuar',
+  'exitPoll.waitingFor': '{name} está olhando a boca de urna…',
+
   // DrawZone
   'draw.button': 'Comprar',
   'draw.waiting': 'Aguardando',
@@ -277,6 +281,7 @@ const ptBR: UIDict = {
   'mock.drawPivot': 'Comprar indeciso',
   'mock.drawGrant': 'Comprar aliado',
   'mock.drawExitPoll': 'Comprar boca de urna',
+  'mock.ackExitPoll': 'Confirmar boca de urna',
   'mock.claim': 'Jogador atual reivindica',
   'mock.endRound': 'Reivindicar último → encerrar rodada',
   'mock.endGame': 'Encerrar partida agora',

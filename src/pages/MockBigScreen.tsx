@@ -18,6 +18,7 @@ import {
   claim as claimPure,
   enterRoundEnd as enterRoundEndPure,
   commitRoundEnd as commitRoundEndPure,
+  acknowledgeExitPoll as acknowledgeExitPollPure,
   canPlaceInSegment,
   canClaimSegment,
 } from '../game/actions';
@@ -60,6 +61,9 @@ export default function MockBigScreen() {
       claim: async (segmentKey) => {
         setGameState((prev) => claimPure(prev, segmentKey));
       },
+      acknowledgeExitPoll: async () => {
+        setGameState((prev) => acknowledgeExitPollPure(prev));
+      },
     };
   }, [gameState]);
 
@@ -74,13 +78,12 @@ export default function MockBigScreen() {
   }
 
   // Draw a specific card kind by hoisting it to the front of the deck so the
-  // pure drawAndPlace logic picks it up next.
+  // pure drawAndPlace logic picks it up next. Exit Poll is special: it only
+  // flips flags on draw — placement is deferred to the ack step.
   function handleDrawSpecific(kind: 'pivot' | 'grant' | 'exitPoll') {
     setGameState((prev) => {
       const idx = prev.deck.findIndex((c) => c.kind === kind);
       if (idx === -1) return prev;
-      const target = prev.segments.find(canPlaceInSegment);
-      if (!target) return prev;
       const reordered: ColorlitionGameState = {
         ...prev,
         deck: [
@@ -89,8 +92,17 @@ export default function MockBigScreen() {
           ...prev.deck.slice(idx + 1),
         ],
       };
+      if (kind === 'exitPoll') {
+        return drawCardPure(reordered);
+      }
+      const target = reordered.segments.find(canPlaceInSegment);
+      if (!target) return prev;
       return drawAndPlaceCombined(reordered, target.key);
     });
+  }
+
+  function handleAcknowledgeExitPoll() {
+    setGameState((prev) => acknowledgeExitPollPure(prev));
   }
 
   const hasPivotInDeck = gameState.deck.some((c) => c.kind === 'pivot');
@@ -228,9 +240,21 @@ export default function MockBigScreen() {
                   variant="outlined"
                   size="small"
                   onClick={() => handleDrawSpecific('exitPoll')}
-                  disabled={isEnded || !placeable || !hasExitPollInDeck}
+                  disabled={isEnded || !hasExitPollInDeck}
                 >
                   {t('mock.drawExitPoll')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleAcknowledgeExitPoll}
+                  disabled={
+                    isEnded ||
+                    !gameState.exitPollDrawn ||
+                    gameState.exitPollAcknowledged
+                  }
+                >
+                  {t('mock.ackExitPoll')}
                 </Button>
                 <Button
                   variant="outlined"

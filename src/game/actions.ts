@@ -98,40 +98,66 @@ export function commitRoundEnd(state: ColorlitionGameState): ColorlitionGameStat
 // Pop a card from the deck and park it on shared state as `pendingDraw`. The
 // player picks a placement target in a separate action (`placePendingDraw`),
 // which lets the big screen render the medium-card reveal during the gap.
-// Exit Poll is consumed in this step: it triggers final round and we re-draw
-// the next card so the player still gets a placeable card on their turn.
+//
+// Exit Poll is special: drawing it only flips `exitPollDrawn` + `phase`. The
+// next-card draw is deferred to `acknowledgeExitPoll` so the Big Screen's
+// ExitPollReveal can play to completion before the DrawCardReveal kicks in
+// (otherwise both reveals race on the same atomic state update and the
+// Exit Poll card gets visually obscured).
 export function drawCard(state: ColorlitionGameState): ColorlitionGameState {
   const next = deepClone(state);
   if (next.pendingDraw) return next; // already drew; UI should prevent this
   if (next.deck.length === 0) return next;
 
-  let card = next.deck.shift() as Card;
-  let exitPollTriggered = false;
+  const card = next.deck.shift() as Card;
 
   if (card.kind === 'exitPoll') {
     next.exitPollDrawn = true;
+    next.exitPollAcknowledged = false;
     next.phase = 'finalRound';
-    exitPollTriggered = true;
-    if (next.deck.length === 0) {
-      // Exit Poll was the last card: nothing left to draw; skip placement.
-      return advanceTurn(next);
-    }
-    card = next.deck.shift() as Card;
+    return next;
   }
 
-  // Implicit Exit Poll: if popping this card emptied the deck, fire the
-  // final-round trigger now so the big screen's ExitPollReveal plays before
-  // (rather than colliding with) the DrawCardReveal for this same draw.
+  // Implicit Exit Poll: a normal card just emptied the deck without the
+  // explicit card surfacing. Defensive — shouldn't happen in normal play
+  // since the Exit Poll is always inserted into the deck. Push the card
+  // back so acknowledgeExitPoll picks it up via the same deferred path
+  // as the explicit case (avoids a race between the two reveals).
   if (next.deck.length === 0 && !next.exitPollDrawn) {
+    next.deck.push(card);
     next.exitPollDrawn = true;
+    next.exitPollAcknowledged = false;
     next.phase = 'finalRound';
-    exitPollTriggered = true;
+    return next;
   }
 
   next.pendingDraw = {
     playerId: currentPlayerId(next),
     card,
-    exitPollTriggered,
+    exitPollTriggered: false,
+  };
+  return next;
+}
+
+// Active player's "Continue" tap after the Exit Poll is drawn. Flips the ack
+// flag (so the Big Screen reveal departs) and performs the deferred draw so
+// the player still gets a placeable card on their turn. If the deck is empty
+// (Exit Poll was the last card), advance the turn instead.
+export function acknowledgeExitPoll(
+  state: ColorlitionGameState,
+): ColorlitionGameState {
+  if (!state.exitPollDrawn || state.exitPollAcknowledged) return state;
+  const next = deepClone(state);
+  next.exitPollAcknowledged = true;
+
+  if (next.deck.length === 0) {
+    return advanceTurn(next);
+  }
+  const card = next.deck.shift() as Card;
+  next.pendingDraw = {
+    playerId: currentPlayerId(next),
+    card,
+    exitPollTriggered: true,
   };
   return next;
 }
@@ -210,6 +236,7 @@ export function buildInitialGameState(
     phase: 'turn',
     deck,
     exitPollDrawn: false,
+    exitPollAcknowledged: false,
     segments,
     turnOrder,
     currentPlayerIndex: 0,

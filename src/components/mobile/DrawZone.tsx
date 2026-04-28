@@ -10,7 +10,10 @@ import { useT } from '../../i18n';
 import type {
   Card as GameCard,
   ColorlitionGameState,
+  ExitPollCard,
 } from '../../game/types';
+
+const EXIT_POLL_CARD: ExitPollCard = { id: 'exit-poll-mobile', kind: 'exitPoll' };
 
 const ENTER_MS = 320;
 const EXIT_MS = 380;
@@ -29,14 +32,17 @@ export function DrawZone({
   currentPlayerName: string;
   hasClaimed?: boolean;
 }) {
-  const { drawCard } = useGame();
+  const { drawCard, acknowledgeExitPoll } = useGame();
   const t = useT();
   const [busy, setBusy] = useState(false);
 
   const pending = gameState.pendingDraw;
+  const exitPollPendingAck =
+    gameState.exitPollDrawn && !gameState.exitPollAcknowledged;
   const canDraw =
     isMyTurn &&
     !pending &&
+    !exitPollPendingAck &&
     gameState.deck.length > 0 &&
     gameState.segments.some(canPlaceInSegment);
 
@@ -81,9 +87,18 @@ export function DrawZone({
     }
   };
 
-  const showCard = reveal !== null;
+  const handleAcknowledge = async () => {
+    setBusy(true);
+    try {
+      await acknowledgeExitPoll();
+    } finally {
+      setBusy(false);
+    }
+  };
 
-  return (
+  const showCard = reveal !== null || exitPollPendingAck;
+
+  const slot = (
     <Box
       sx={(theme) => ({
         width: '100%',
@@ -99,7 +114,26 @@ export function DrawZone({
         boxSizing: 'border-box',
       })}
     >
-      {reveal ? (
+      {exitPollPendingAck ? (
+        <Box
+          sx={{
+            width: '100%',
+            transformOrigin: 'center center',
+            '@keyframes exitPollMobileEnter': {
+              '0%': { opacity: 0, transform: 'scale(0.5)' },
+              '70%': { opacity: 1, transform: 'scale(1.06)' },
+              '100%': { opacity: 1, transform: 'scale(1)' },
+            },
+            animation: 'exitPollMobileEnter 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+            '@media (prefers-reduced-motion: reduce)': {
+              animation: 'none',
+              opacity: 1,
+            },
+          }}
+        >
+          <Card card={EXIT_POLL_CARD} size="medium" showDemand fluid />
+        </Box>
+      ) : reveal ? (
         <Box
           sx={{
             width: '100%',
@@ -184,4 +218,44 @@ export function DrawZone({
       )}
     </Box>
   );
+
+  if (exitPollPendingAck) {
+    return (
+      <Stack spacing={1.5}>
+        {slot}
+        {isMyTurn ? (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={handleAcknowledge}
+            disabled={busy}
+            sx={{
+              py: 1.5,
+              px: 3.5,
+              fontSize: '1rem',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+            }}
+          >
+            {t('exitPoll.continue')}
+          </Button>
+        ) : (
+          <Typography
+            variant="overline"
+            sx={{
+              color: 'text.secondary',
+              letterSpacing: '0.14em',
+              fontWeight: 700,
+              textAlign: 'center',
+            }}
+          >
+            {t('exitPoll.waitingFor', { name: currentPlayerName })}
+          </Typography>
+        )}
+      </Stack>
+    );
+  }
+
+  return slot;
 }

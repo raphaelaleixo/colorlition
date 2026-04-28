@@ -51,6 +51,7 @@ export const MOCK_GAME_STATE: ColorlitionGameState = {
   phase: 'turn',
   deck: MOCK_DECK,
   exitPollDrawn: false,
+  exitPollAcknowledged: false,
   segments: [
     {
       key: 'industrial',
@@ -181,5 +182,6 @@ export function buildMockGameContextValue(
     drawCard: NOOP_ASYNC,
     placePendingDraw: NOOP_ASYNC,
     claim: NOOP_ASYNC,
+    acknowledgeExitPoll: NOOP_ASYNC,
   };
 }

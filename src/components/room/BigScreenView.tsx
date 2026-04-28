@@ -360,6 +360,7 @@ export function BigScreenView({ roomState }: BigScreenViewProps) {
 
       <ExitPollReveal
         exitPollDrawn={gameState.exitPollDrawn}
+        exitPollAcknowledged={gameState.exitPollAcknowledged}
         onRevealingChange={handleExitPollRevealingChange}
       />
 
