@@ -6,14 +6,14 @@ import { keyframes } from '@emotion/react';
 import type { PlayerSlot } from 'react-gameroom';
 
 const AMBIENT_HEADLINES = [
-  'Newsroom on watch as candidates take the floor',
   'The seven blocs assemble — coalition season is upon us',
-  "Polling booths primed; tonight's contest awaits its candidates",
-  'Press corps pours in; a long evening of speculation begins',
-  'First gavel falls — opening bell rings on the coalition race',
-  'Voter segments hold their breath; alliances yet unmade',
-  'Pollsters check their models one final time',
+  'Newsroom on watch as candidates take the floor',
   'Capital stirs as the campaign trail opens',
+  'Across the country, hopefuls ready their pitches',
+  'Strategists huddle in backrooms; the field takes shape',
+  'Banners unfurled — campaign season is open for business',
+  'Press conferences booked; candidates hone their messages',
+  'Buses rev as the campaign trail comes alive',
 ];
 
 const READY_TEMPLATES: Array<(name: string) => string> = [
