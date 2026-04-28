@@ -93,7 +93,7 @@ function NicknameJoinView({ roomId }: { roomId: string }) {
   );
 
   return (
-    <Box sx={{ p: { xs: 3, sm: 4 }, maxWidth: 480, mx: 'auto', minHeight: '100dvh' }}>
+    <Box sx={{ p: 2, maxWidth: 480 }}>
       <RoomHeader slot={roomSlot(roomId)} />
       <Stack
         component="form"
@@ -126,7 +126,7 @@ interface RejoinViewProps {
 
 function RejoinView({ roomId, roomState }: RejoinViewProps) {
   return (
-    <Box sx={{ p: { xs: 3, sm: 4 }, maxWidth: 480, mx: 'auto', minHeight: '100dvh' }}>
+    <Box sx={{ p: 2, maxWidth: 480 }}>
       <RoomHeader slot={roomSlot(roomId)} />
       <Stack spacing={3} sx={{ pt: 4 }}>
         <Typography variant="h1">Tap your name</Typography>
