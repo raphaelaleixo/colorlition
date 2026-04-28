@@ -16,96 +16,57 @@ const AMBIENT_HEADLINES = [
   'Capital stirs as the campaign trail opens',
 ];
 
-const JOIN_TEMPLATES: Array<(name: string) => string> = [
-  (n) => `${n} files candidacy`,
-  (n) => `${n} joins the race`,
+const READY_TEMPLATES: Array<(name: string) => string> = [
+  (n) => `${n} is ready`,
+  (n) => `${n} locks in their bid`,
+  (n) => `${n} confirms their ticket`,
+  (n) => `${n} declares ready`,
+  (n) => `${n} signs on the dotted line`,
+  (n) => `${n} suits up`,
   (n) => `${n} steps to the rostrum`,
-  (n) => `${n} enters the chamber`,
-  (n) => `${n} declares — the field grows by one`,
-  (n) => `Cameras pivot as ${n} arrives`,
-  (n) => `${n} files paperwork; coalition watch begins`,
 ];
 
-function pickJoinHeadline(name: string, seed: number): string {
-  let hash = seed;
-  for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i)) % 997;
-  return JOIN_TEMPLATES[hash % JOIN_TEMPLATES.length](name);
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h + s.charCodeAt(i)) % 997;
+  return h;
 }
 
-const AMBIENT_INTERVAL_MS = 9000;
-const JOIN_HEADLINE_DURATION_MS = 9000;
+function pickReadyPhrase(name: string): string {
+  return READY_TEMPLATES[hashStr(name) % READY_TEMPLATES.length](name);
+}
+
+function pickTwoAmbient(): [string, string] {
+  const a = Math.floor(Math.random() * AMBIENT_HEADLINES.length);
+  let b = Math.floor(Math.random() * (AMBIENT_HEADLINES.length - 1));
+  if (b >= a) b += 1;
+  return [AMBIENT_HEADLINES[a], AMBIENT_HEADLINES[b]];
+}
+
 const FADE_MS = 300;
 const SECONDS_PER_CHAR = 0.18;
 const MIN_DURATION_S = 15;
 const SEP = '  •  ';
-const REPEATS_PER_CYCLE = 3;
+const REPEATS_PER_CYCLE = 2;
 
 const scroll = keyframes`
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 `;
 
-function joinedIds(players: readonly PlayerSlot[]): Set<string> {
-  return new Set(
-    players.filter((p) => p.status !== 'empty').map((p) => String(p.id)),
-  );
-}
-
 interface LobbyTickerProps {
   players: readonly PlayerSlot[];
 }
 
 export function LobbyTicker({ players }: LobbyTickerProps) {
-  const [ambientIndex, setAmbientIndex] = useState(0);
-  const [transient, setTransient] = useState<string | null>(null);
-  const transientTimerRef = useRef<number | null>(null);
-  const prevIdsRef = useRef<Set<string>>(joinedIds(players));
-  const initializedRef = useRef(false);
+  // Pick two ambient headlines once, on mount. They never change.
+  const [ambient] = useState(pickTwoAmbient);
 
-  useEffect(() => {
-    const currentIds = joinedIds(players);
-    if (!initializedRef.current) {
-      initializedRef.current = true;
-      prevIdsRef.current = currentIds;
-      return;
-    }
-    const newIds: string[] = [];
-    currentIds.forEach((id) => {
-      if (!prevIdsRef.current.has(id)) newIds.push(id);
-    });
-    prevIdsRef.current = currentIds;
-    if (newIds.length === 0) return;
-
-    const justJoined = players.find((p) => String(p.id) === newIds[0]);
-    const name = justJoined?.name ?? 'A candidate';
-    setTransient(pickJoinHeadline(name, Date.now() & 0x7fff));
-
-    if (transientTimerRef.current !== null) {
-      window.clearTimeout(transientTimerRef.current);
-    }
-    transientTimerRef.current = window.setTimeout(() => {
-      setTransient(null);
-      transientTimerRef.current = null;
-    }, JOIN_HEADLINE_DURATION_MS);
-  }, [players]);
-
-  useEffect(() => {
-    return () => {
-      if (transientTimerRef.current !== null) {
-        window.clearTimeout(transientTimerRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setAmbientIndex((i) => i + 1);
-    }, AMBIENT_INTERVAL_MS);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const text = transient ?? AMBIENT_HEADLINES[ambientIndex % AMBIENT_HEADLINES.length];
-  const desired = (text + SEP).repeat(REPEATS_PER_CYCLE);
+  const readyPhrases = players
+    .filter((p) => p.status === 'ready')
+    .map((p) => pickReadyPhrase(p.name ?? `Candidate ${p.id}`));
+  const segments = [...ambient, ...readyPhrases];
+  const desired = (segments.join(SEP) + SEP).repeat(REPEATS_PER_CYCLE);
 
   const [displayed, setDisplayed] = useState(desired);
   const [opacity, setOpacity] = useState(1);
