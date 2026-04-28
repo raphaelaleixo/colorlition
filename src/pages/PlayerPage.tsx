@@ -200,7 +200,7 @@ export default function PlayerPage() {
               showStatus={false}
             />
           </Box>
-          <CoalitionBreakdown base={myBase} gameState={gameState} />
+          <CoalitionBreakdown base={myBase} />
         </Stack>
       </Stack>
     );
@@ -364,7 +364,7 @@ export default function PlayerPage() {
               showStatus={false}
             />
           </Box>
-          <CoalitionBreakdown base={myBase} gameState={gameState} />
+          <CoalitionBreakdown base={myBase} />
         </Stack>
       </Stack>
 

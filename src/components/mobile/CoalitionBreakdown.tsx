@@ -2,28 +2,25 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { PiAsterisk, PiNumberCircleTwo } from 'react-icons/pi';
-import { summarizeCoalition, colorsInPlay } from '../../game/summarize';
+import { summarizeCoalition } from '../../game/summarize';
+import { scorePlayer } from '../../game/scoring';
 import { useLabelFor, useT } from '../../i18n';
 import { COLOR_ICONS, PALETTE, pivotStripes, type ChipKey } from '../../theme/colors';
-import type {
-  Card as GameCard,
-  Color,
-  ColorlitionGameState,
-  LabelKey,
-} from '../../game/types';
+import type { Card as GameCard, Color, LabelKey } from '../../game/types';
 
 // Per-group breakdown of the player's base — one row per bloc color plus
 // rows for Allies (grants) and Undecided (pivots) when present. Mirrors the
 // chip key system used elsewhere so colors and icons stay consistent.
 export function CoalitionBreakdown({
   base,
-  gameState,
 }: {
   base: GameCard[];
-  gameState: ColorlitionGameState;
 }) {
   const rows = summarizeCoalition(base);
-  const pivotBg = pivotStripes(colorsInPlay(gameState));
+  // Stripes show where each Undecided is currently helping (one stripe per
+  // pivot, in the assigned color). The chip only renders when pivots > 0, so
+  // the assignments array is non-empty wherever the chip background is used.
+  const pivotBg = pivotStripes(scorePlayer('__breakdown__', base).pivotAssignments);
   const labelFor = useLabelFor();
   const t = useT();
 

@@ -3,8 +3,8 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { colorsInPlay } from '../../game/summarize';
 import { useGame } from '../../contexts/GameContext';
+import { scorePlayer } from '../../game/scoring';
 import { useT } from '../../i18n';
 import { PALETTE, chipSxFor, pivotStripes } from '../../theme/colors';
 import type { Card, Color, PlayerRoundStatus } from '../../game/types';
@@ -192,14 +192,16 @@ export function CampaignRow({
   showName?: boolean;
   showStatus?: boolean;
 }) {
-  const { gameState } = useGame();
   const t = useT();
-  const pivotBg = pivotStripes(
-    gameState ? colorsInPlay(gameState) : [],
-    'vertical',
-  );
   const grants = row.base.filter((c) => c.kind === 'grant').length;
   const pivots = row.base.filter((c) => c.kind === 'pivot').length;
+  // Stripes show this player's pivot assignments — one stripe per Undecided,
+  // colored where it's currently helping. Computed only when there are pivots
+  // to display (the chip itself is gated on pivots > 0).
+  const pivotBg =
+    pivots > 0
+      ? pivotStripes(scorePlayer(row.playerId, row.base).pivotAssignments, 'vertical')
+      : PALETTE.pivot;
 
   return (
     <Stack
