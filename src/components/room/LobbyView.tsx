@@ -81,18 +81,18 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
+          gridTemplateColumns: { xs: '1fr', lg: 'auto 1fr' },
           columnGap: 6,
           rowGap: 4,
           alignItems: 'start',
         }}
       >
-        <Stack spacing={1.5}>
+        <Stack spacing={1.5} sx={{ alignItems: { xs: 'center', lg: 'flex-start' } }}>
           <Box
             sx={{
               display: { xs: 'flex', sm: 'none' },
-              width: '100%',
-              p: 2,
+              width: 240,
+              height: 240,
               bgcolor: 'background.paper',
               border: '1px solid',
               borderColor: 'rule.hair',
@@ -105,8 +105,8 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
           <Box
             sx={{
               display: { xs: 'none', sm: 'flex' },
-              width: '100%',
-              p: 2.5,
+              width: 400,
+              height: 400,
               bgcolor: 'background.paper',
               border: '1px solid',
               borderColor: 'rule.hair',
@@ -118,7 +118,7 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
           </Box>
           <Typography
             variant="caption"
-            sx={{ color: 'text.secondary', textAlign: 'center', fontStyle: 'normal' }}
+            sx={{ color: 'text.secondary', textAlign: { xs: 'center', lg: 'left' }, fontStyle: 'normal' }}
           >
             Scan to join · or visit {window.location.origin}/join · room {roomId}
           </Typography>
