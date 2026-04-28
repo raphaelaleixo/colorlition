@@ -88,11 +88,27 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
         }}
       >
         <Stack spacing={1.5} sx={{ alignItems: { xs: 'center', lg: 'flex-start' } }}>
-          <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={240} />
+          <Box
+            sx={{
+              display: { xs: 'inline-flex', sm: 'none' },
+              p: 2,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'rule.hair',
+            }}
+          >
+            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={200} />
           </Box>
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={400} />
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
+              p: 2.5,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'rule.hair',
+            }}
+          >
+            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={260} />
           </Box>
           <Typography
             variant="caption"
