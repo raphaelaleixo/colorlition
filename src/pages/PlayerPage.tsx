@@ -80,7 +80,7 @@ export default function PlayerPage() {
   // Slot not yet claimed → show name entry.
   if (mySlot.status === 'empty') {
     return (
-      <Stack spacing={2} sx={{ p: 2, maxWidth: 480 }}>
+      <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
         <RoomHeader
           slot={
             <Typography
@@ -117,7 +117,7 @@ export default function PlayerPage() {
 
   if (!gameState) {
     return (
-      <Stack spacing={2} sx={{ p: 2 }}>
+      <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
         <RoomHeader
           slot={
             <Typography
@@ -147,7 +147,7 @@ export default function PlayerPage() {
   if (gameState.phase === 'ended') {
     const didWin = gameState.winnerIds?.includes(playerId) ?? false;
     return (
-      <Stack spacing={2} sx={{ p: 2 }}>
+      <Stack spacing={2} sx={{ p: 2, maxWidth: 480, mx: 'auto' }}>
         <RoomHeader
           slot={
             <Typography
