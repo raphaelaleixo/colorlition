@@ -78,10 +78,31 @@ export function LobbyView({ roomId, roomState }: LobbyViewProps) {
 
       <LobbyDateline />
 
-      <Stack direction="row" spacing={4} sx={{ alignItems: 'flex-start' }}>
-        <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} />
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', lg: 'auto 1fr' },
+          columnGap: 6,
+          rowGap: 4,
+          alignItems: 'start',
+        }}
+      >
+        <Stack spacing={1.5} sx={{ alignItems: { xs: 'center', lg: 'flex-start' } }}>
+          <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={240} />
+          </Box>
+          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+            <RoomQRCode roomId={roomId} url={buildJoinUrl(roomId)} size={400} />
+          </Box>
+          <Typography
+            variant="caption"
+            sx={{ color: 'text.secondary', textAlign: { xs: 'center', lg: 'left' }, fontStyle: 'normal' }}
+          >
+            Scan to join · or visit {window.location.origin}/join · room {roomId}
+          </Typography>
+        </Stack>
         <CandidateRoster players={roomState.players} />
-      </Stack>
+      </Box>
 
       <Button
         variant="contained"
