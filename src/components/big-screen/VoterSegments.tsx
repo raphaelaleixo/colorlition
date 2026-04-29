@@ -29,6 +29,9 @@ import type { Segment, Card as GameCard } from '../../game/types';
 const CLAIM_ZOOM_MS = 600;
 const CLAIM_EXIT_MS = 420;
 const SLOT_IN_MS = 380;
+// Every segment row reserves space for this many slots so capacity-1 / -2 rows
+// (2-player mode) keep the same card sizing as full capacity-3 rows.
+const VISIBLE_SLOTS = 3;
 
 function CardSlot() {
   return (
@@ -44,6 +47,21 @@ function CardSlot() {
         outlineOffset: '-1px',
         backgroundColor: 'background.default',
       })}
+    />
+  );
+}
+
+// Invisible placeholder used past a segment's capacity. Holds the same flex
+// share as a real slot so the row width stays constant across capacities,
+// without suggesting an interactable target.
+function SpacerSlot() {
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        minWidth: 0,
+        aspectRatio: '7 / 10',
+      }}
     />
   );
 }
@@ -231,6 +249,7 @@ function SegmentRow({
     0,
     segment.capacity - snapshotRef.current.length,
   );
+  const lockedSlots = Math.max(0, VISIBLE_SLOTS - segment.capacity);
 
   // While an arrival is queued behind the page reveal, render the new card's
   // slot as empty so the small card doesn't pop in before the reveal exits.
@@ -272,6 +291,9 @@ function SegmentRow({
               {Array.from({ length: snapshotPad }).map((_, i) => (
                 <CardSlot key={`pad-${i}`} />
               ))}
+              {Array.from({ length: lockedSlots }).map((_, i) => (
+                <SpacerSlot key={`locked-${i}`} />
+              ))}
             </>
           ) : claimed ? (
             <ClaimedOverlay
@@ -312,6 +334,9 @@ function SegmentRow({
               {hideLastCard && <CardSlot key="reveal-placeholder" />}
               {Array.from({ length: emptySlots }).map((_, i) => (
                 <CardSlot key={`empty-${i}`} />
+              ))}
+              {Array.from({ length: lockedSlots }).map((_, i) => (
+                <SpacerSlot key={`locked-${i}`} />
               ))}
             </>
           )}
