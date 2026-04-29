@@ -179,6 +179,14 @@ export default function HowToPlayPage() {
 
         <Divider sx={{ borderColor: 'rule.hair' }} />
 
+        <Section title={t('howTo.section.twoPlayer')} overline={t('howTo.section.twoPlayerOver')}>
+          <Typography variant="body1">
+            {t('howTo.twoPlayer.body')}
+          </Typography>
+        </Section>
+
+        <Divider sx={{ borderColor: 'rule.hair' }} />
+
         <Section title={t('howTo.section.glossary')} overline={t('howTo.section.glossaryOver')}>
           <Box component="dl" sx={{ m: 0, display: 'grid', rowGap: 1.5 }}>
             {GLOSSARY.map(([termKey, defKey]) => (

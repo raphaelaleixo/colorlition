@@ -230,6 +230,10 @@ const en = {
     ' on the big screen show this calculation in real time as cards land.',
   'howTo.finalRound.body':
     'The Exit Poll is shuffled into the bottom 15 cards of the deck. The moment it is drawn, every player who has not yet claimed gets one final action — then the game ends and scoring begins. Watch your Base before then: a fourth color sneaking into it can flip from positive to negative on a single late draw.',
+  'howTo.section.twoPlayer': 'Two-Player Variant',
+  'howTo.section.twoPlayerOver': 'Tighter coalition fight',
+  'howTo.twoPlayer.body':
+    'When only two candidates run, the deck drops two colors (one from red/green/purple, one from blue/orange/yellow/grey) so the field tightens. Each campaign opens with two starting blocs, all four globally distinct. Three voter segments hold 1, 2, and 3 blocs respectively — the round ends when both candidates claim, and any blocs left in the unclaimed segment are discarded.',
   'howTo.glossary.interestBloc.term': 'Interest Bloc',
   'howTo.glossary.interestBloc.def':
     'A colored card representing a voter group with a "We want…" demand.',

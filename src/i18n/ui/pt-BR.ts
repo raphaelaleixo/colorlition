@@ -237,6 +237,10 @@ const ptBR: UIDict = {
     ' ao vivo na tela grande mostra esse cálculo em tempo real conforme as cartas são jogadas.',
   'howTo.finalRound.body':
     'A Boca de Urna fica embaralhada nas 15 últimas cartas do baralho. No instante em que ela é comprada, todo jogador que ainda não reivindicou tem uma ação final — e então a partida acaba e a contagem começa. Vigie sua Base até lá: uma quarta cor entrando sorrateiramente pode virar de positiva para negativa numa única compra tardia.',
+  'howTo.section.twoPlayer': 'Variante para Dois Candidatos',
+  'howTo.section.twoPlayerOver': 'Disputa de coalizão mais apertada',
+  'howTo.twoPlayer.body':
+    'Quando apenas dois candidatos disputam, o baralho perde duas cores (uma entre vermelho/verde/roxo, outra entre azul/laranja/amarelo/cinza), apertando o tabuleiro. Cada campanha começa com dois blocos iniciais, todos os quatro de cores distintas. Três segmentos de eleitores comportam 1, 2 e 3 blocos respectivamente — a rodada termina quando ambos os candidatos reivindicam, e quaisquer blocos no segmento não reivindicado são descartados.',
   'howTo.glossary.interestBloc.term': 'Bloco de Interesse',
   'howTo.glossary.interestBloc.def':
     'Uma carta colorida representando um grupo de eleitores com uma demanda — o "Queremos…".',
