@@ -36,8 +36,8 @@ export const EXCLUDE_COLOR_AT_PLAYERS = 3;
 export const MAX_PLAYERS = 5;
 export const TOP_POSITIVE_COLORS = 3;
 
-const WARM_GROUP: Color[] = ['red', 'green', 'purple'];
-const COOL_GROUP: Color[] = ['blue', 'orange', 'yellow', 'grey'];
+const EXCLUSION_GROUP_A: Color[] = ['red', 'green', 'purple'];
+const EXCLUSION_GROUP_B: Color[] = ['blue', 'orange', 'yellow', 'grey'];
 
 function pickOne<T>(pool: T[]): T {
   return pool[Math.floor(Math.random() * pool.length)];
@@ -47,8 +47,8 @@ function pickOne<T>(pool: T[]): T {
 // group) so the deck doesn't tilt entirely warm or entirely cool. 3 players
 // drops one random color (existing rule). 4+ keep the full deck.
 export function excludedColorsFor(playerCount: number): Color[] {
-  if (playerCount === 2) return [pickOne(WARM_GROUP), pickOne(COOL_GROUP)];
-  if (playerCount === 3) return [pickOne([...COLORS])];
+  if (playerCount === 2) return [pickOne(EXCLUSION_GROUP_A), pickOne(EXCLUSION_GROUP_B)];
+  if (playerCount === 3) return [pickOne(Array.from(COLORS))];
   return [];
 }
 
@@ -59,6 +59,9 @@ export function segmentLayoutFor(
   playerCount: number,
 ): { key: SegmentKey; capacity: number }[] {
   if (playerCount === 2) {
+    // 2-player layout uses the first three named segments (industrial, urban,
+    // agricultural). Reordering SEGMENT_KEYS would change which segments these
+    // capacities map to.
     return [
       { key: SEGMENT_KEYS[0].key, capacity: 1 },
       { key: SEGMENT_KEYS[1].key, capacity: 2 },
