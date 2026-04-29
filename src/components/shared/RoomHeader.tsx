@@ -1,7 +1,9 @@
 import { type ReactNode } from 'react';
 import Stack from '@mui/material/Stack';
+import Link from '@mui/material/Link';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { type Theme } from '@mui/material/styles';
+import { Link as RouterLink } from 'react-router-dom';
 import { Logo } from './Logo';
 
 interface RoomHeaderProps {
@@ -32,11 +34,18 @@ export function RoomHeader({ slot }: RoomHeaderProps) {
         borderColor: 'rule.ink',
       }}
     >
-      {isLarge ? (
-        <Logo layout="stacked" sx={{ fontSize: 36 }} />
-      ) : (
-        <Logo variant="h3" />
-      )}
+      <Link
+        component={RouterLink}
+        to="/"
+        underline="none"
+        sx={{ color: 'inherit', display: 'inline-flex' }}
+      >
+        {isLarge ? (
+          <Logo layout="stacked" sx={{ fontSize: 36 }} />
+        ) : (
+          <Logo variant="h3" />
+        )}
+      </Link>
       {slot}
     </Stack>
   );
