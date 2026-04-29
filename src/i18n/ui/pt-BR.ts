@@ -16,7 +16,7 @@ const ptBR: UIDict = {
   'home.tagline.bold':
     'Monte uma coalizão. Vigie as contradições.',
   'home.tagline.detail':
-    'Um draft de cartas em tempo real para 3 a 5 jogadores, vestido com a roupagem da política de 2026.',
+    'Um draft de cartas em tempo real para 2 a 5 jogadores, vestido com a roupagem da política de 2026.',
   'home.cta.create': 'Criar partida',
   'home.cta.creating': 'Criando…',
   'home.cta.join': 'Entrar com código →',

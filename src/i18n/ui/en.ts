@@ -14,7 +14,7 @@ const en = {
   // Home
   'home.tagline.bold': 'Build a coalition. Mind the contradictions.',
   'home.tagline.detail':
-    'A real-time card draft for 3 to 5 players, dressed up as 2026 politics.',
+    'A real-time card draft for 2 to 5 players, dressed up as 2026 politics.',
   'home.cta.create': 'Create Game',
   'home.cta.creating': 'Creating…',
   'home.cta.join': 'Join with code →',
