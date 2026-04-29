@@ -27,7 +27,9 @@ export function buildDeck(excluded: Color[] = []): Card[] {
   for (let i = 0; i < PIVOTS_IN_DECK; i++) {
     deck.push({ id: `pivot-${i}`, kind: 'pivot' });
   }
-  // 7 colors × 9 = 63 blocs full deck. 5 colors → 45, 6 colors → 54.
+  // Full deck: 63 blocs (7 colors × 9) + 10 grants + 3 pivots = 76 cards.
+  // With 1 color excluded (3p): 54 blocs → 67 cards.
+  // With 2 colors excluded (2p): 45 blocs → 58 cards.
   return deck;
 }
 
@@ -45,6 +47,11 @@ export function pickStartingHands(
       `pickStartingHands: ${playerIds.length} players × ${cardsPerPlayer} cards = ${required} colors needed, only ${available.length} available`,
     );
   }
+  // shuffledColors is a flat list of `playerIds.length × cardsPerPlayer`
+  // distinct colors. We index it as [player0_c0, player0_c1, player1_c0, ...]
+  // via `playerIdx * cardsPerPlayer + cardIdx` in the loop below — that's
+  // why the inner pick reaches into a single shared array rather than
+  // partitioning per-player up front.
   const shuffledColors = shuffle(available).slice(0, required);
   const remaining = deck.slice();
   const hands: Record<string, Card[]> = {};

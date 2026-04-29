@@ -30,6 +30,7 @@ import {
   MAX_PLAYERS,
   excludedColorsFor,
   segmentLayoutFor,
+  handsPerPlayerFor,
 } from '../game/constants';
 import {
   buildDeck,
@@ -58,6 +59,7 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
     key: s.key,
     cards: s.cards ?? [],
     claimedBy: s.claimedBy ?? null,
+    // 3: every game written before the capacity field existed used uniform-3 segments.
     capacity: s.capacity ?? 3,
   }));
   const playerState: Record<string, PerPlayerState> = {};
@@ -222,7 +224,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
 
     const excluded = excludedColorsFor(turnOrder.length);
-    const cardsPerPlayer = turnOrder.length === 2 ? 2 : 1;
+    const cardsPerPlayer = handsPerPlayerFor(turnOrder.length);
     const layout = segmentLayoutFor(turnOrder.length);
 
     const fullDeck = buildDeck(excluded);

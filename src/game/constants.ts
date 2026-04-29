@@ -71,3 +71,9 @@ export function segmentLayoutFor(
     capacity: 3,
   }));
 }
+
+// Per-arity starting hand size. 2 players draw 2 starting blocs each; 3+
+// players draw 1 each.
+export function handsPerPlayerFor(playerCount: number): number {
+  return playerCount === 2 ? 2 : 1;
+}
