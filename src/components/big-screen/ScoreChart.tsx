@@ -85,11 +85,26 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
     // Only animate when a snapshot is actually appended. Skip first non-empty
     // load (prev.length === 0), resets (shrinks), and same-length re-renders
     // (e.g. Firebase rebuilds the array on every card placement).
+    //
+    // CRITICAL: do NOT cancel an in-progress raf in the early-return paths.
+    // Firebase rebroadcasts produce new history references with identical
+    // content on every game action, which re-fires this effect mid-animation.
+    // Killing the raf there would freeze the line at whatever t it had
+    // reached. The animation owns its own raf lifecycle (canceled by tick()
+    // when complete, by the next animation start, or by the unmount effect).
     if (prev.length === 0 || history.length <= prev.length) {
       prevHistoryRef.current = history;
-      if (history.length < prev.length) setAnimState(null);
+      if (history.length < prev.length) {
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+        }
+        setAnimState(null);
+      }
       return;
     }
+
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
 
     const from = prev;
     prevHistoryRef.current = history;
@@ -106,17 +121,24 @@ export function ScoreChart({ history, playerOrder, nameFor, colorFor }: ScoreCha
         setAnimState({ from, to: history, fromYMax, toYMax, t: eased });
         rafRef.current = requestAnimationFrame(tick);
       } else {
+        rafRef.current = null;
         setAnimState(null);
       }
     };
 
     setAnimState({ from, to: history, fromYMax, toYMax, t: 0 });
     rafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
   }, [history, playerOrder]);
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    },
+    [],
+  );
 
   useLayoutEffect(() => {
     const el = containerRef.current;
