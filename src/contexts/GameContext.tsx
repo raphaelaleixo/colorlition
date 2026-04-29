@@ -25,13 +25,17 @@ import {
   type RoomState,
 } from 'react-gameroom';
 import { database } from '../firebase';
-import { MIN_PLAYERS, MAX_PLAYERS, SEGMENT_NAMES, EXCLUDE_COLOR_AT_PLAYERS } from '../game/constants';
+import {
+  MIN_PLAYERS,
+  MAX_PLAYERS,
+  excludedColorsFor,
+  segmentLayoutFor,
+} from '../game/constants';
 import {
   buildDeck,
   shuffle,
   placeExitPoll,
   pickStartingHands,
-  pickRandomColor,
 } from '../game/deck';
 import {
   buildInitialGameState,
@@ -54,6 +58,7 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
     key: s.key,
     cards: s.cards ?? [],
     claimedBy: s.claimedBy ?? null,
+    capacity: s.capacity ?? 3,
   }));
   const playerState: Record<string, PerPlayerState> = {};
   for (const [pid, ps] of Object.entries(raw.playerState ?? {})) {
@@ -216,18 +221,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
       throw new Error(`Need at least ${MIN_PLAYERS} players to start`);
     }
 
-    // At EXCLUDE_COLOR_AT_PLAYERS (= 3), drop one random color from the deck entirely.
-    const excludedColor =
-      turnOrder.length === EXCLUDE_COLOR_AT_PLAYERS ? pickRandomColor() : undefined;
+    const excluded = excludedColorsFor(turnOrder.length);
+    const cardsPerPlayer = turnOrder.length === 2 ? 2 : 1;
+    const layout = segmentLayoutFor(turnOrder.length);
 
-    // Build deck (with any excluded color gone), deal one starting bloc to each
-    // player (each a distinct color, not the excluded one), then shuffle and
-    // place the Exit Poll in the remaining deck.
-    const fullDeck = buildDeck(excludedColor);
-    const { deck: afterDealing, hands } = pickStartingHands(fullDeck, turnOrder, excludedColor);
+    const fullDeck = buildDeck(excluded);
+    const { deck: afterDealing, hands } = pickStartingHands(
+      fullDeck,
+      turnOrder,
+      excluded,
+      cardsPerPlayer,
+    );
     const finalDeck = placeExitPoll(shuffle(afterDealing));
 
-    const newGameState = buildInitialGameState(finalDeck, turnOrder, SEGMENT_NAMES, hands);
+    const newGameState = buildInitialGameState(finalDeck, turnOrder, layout, hands);
 
     await set(ref(database, `rooms/${roomId}/room`), started);
     await set(ref(database, `rooms/${roomId}/game`), newGameState);

@@ -19,6 +19,7 @@ export type Segment = {
   key: SegmentKey;
   cards: Card[];
   claimedBy: string | null;
+  capacity: number;
 };
 
 export type Phase =

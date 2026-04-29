@@ -1,4 +1,3 @@
-import { CARDS_PER_SEGMENT } from './constants';
 import { computeWinners, scorePlayer } from './scoring';
 import type { ColorlitionGameState, SegmentKey, Card, Segment, ScoreSnapshot } from './types';
 import { deriveHeadline } from './headlines';
@@ -24,7 +23,7 @@ export function currentPlayerId(state: ColorlitionGameState): string {
 }
 
 export function canPlaceInSegment(segment: Segment): boolean {
-  return segment.cards.length < CARDS_PER_SEGMENT && segment.claimedBy === null;
+  return segment.cards.length < segment.capacity && segment.claimedBy === null;
 }
 
 export function canClaimSegment(segment: Segment): boolean {
@@ -218,19 +217,19 @@ export function claim(
 export function buildInitialGameState(
   deck: Card[],
   turnOrder: string[],
-  segmentKeys: ReadonlyArray<{ key: SegmentKey }>,
-  startingHands: Record<string, Card> = {},
+  layout: ReadonlyArray<{ key: SegmentKey; capacity: number }>,
+  startingHands: Record<string, Card[]> = {},
 ): ColorlitionGameState {
-  const playerCount = turnOrder.length;
-  const segments: Segment[] = segmentKeys.slice(0, playerCount).map((s) => ({
+  const segments: Segment[] = layout.map((s) => ({
     key: s.key,
     cards: [],
     claimedBy: null,
+    capacity: s.capacity,
   }));
   const playerState: ColorlitionGameState['playerState'] = {};
   for (const pid of turnOrder) {
-    const starter = startingHands[pid];
-    playerState[pid] = { base: starter ? [starter] : [], roundStatus: 'active' };
+    const starters = startingHands[pid] ?? [];
+    playerState[pid] = { base: [...starters], roundStatus: 'active' };
   }
   return {
     phase: 'turn',

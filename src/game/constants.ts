@@ -26,13 +26,11 @@ export const SEGMENT_KEYS = [
 export const SEGMENT_NAMES = SEGMENT_KEYS;
 
 export const CARDS_PER_COLOR = 9;
-export const CARDS_PER_SEGMENT = 3;
 export const GRANTS_IN_DECK = 10;
 export const PIVOTS_IN_DECK = 3;
 export const GRANT_VALUE = 2;
 export const EXIT_POLL_BOTTOM_WINDOW = 15;
 export const MIN_PLAYERS = 2;
-export const EXCLUDE_COLOR_AT_PLAYERS = 3;
 export const MAX_PLAYERS = 5;
 export const TOP_POSITIVE_COLORS = 3;
 
@@ -70,6 +68,6 @@ export function segmentLayoutFor(
   }
   return SEGMENT_KEYS.slice(0, playerCount).map((s) => ({
     key: s.key,
-    capacity: CARDS_PER_SEGMENT,
+    capacity: 3,
   }));
 }

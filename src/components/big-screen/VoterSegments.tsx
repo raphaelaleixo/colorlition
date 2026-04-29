@@ -23,7 +23,6 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Card } from '../shared/Card';
 import { Section } from '../shared/Section';
-import { CARDS_PER_SEGMENT } from '../../game/constants';
 import { useT } from '../../i18n';
 import type { Segment, Card as GameCard } from '../../game/types';
 
@@ -227,10 +226,10 @@ function SegmentRow({
   }, [exitingClaimedBy]);
 
   const showZoom = claimed && animating;
-  const emptySlots = Math.max(0, CARDS_PER_SEGMENT - segment.cards.length);
+  const emptySlots = Math.max(0, segment.capacity - segment.cards.length);
   const snapshotPad = Math.max(
     0,
-    CARDS_PER_SEGMENT - snapshotRef.current.length,
+    segment.capacity - snapshotRef.current.length,
   );
 
   // While an arrival is queued behind the page reveal, render the new card's
