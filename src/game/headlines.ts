@@ -21,12 +21,6 @@ function templateKey(card: Card): HeadlineTemplateKey | null {
   }
 }
 
-const VARIATION_BY_POSITION: Record<1 | 2 | 3, HeadlineKind> = {
-  1: 'spark',
-  2: 'movement',
-  3: 'friction',
-};
-
 export function deriveHeadline(
   _segmentBefore: Segment,
   segmentAfter: Segment,
@@ -35,12 +29,24 @@ export function deriveHeadline(
   seq: number,
 ): Headline | null {
   const n = segmentAfter.cards.length;
-  if (n < 1 || n > 3) return null;
+  if (n < 1) return null;
 
   const key = templateKey(placedCard);
   if (!key) return null;
 
-  const variation = VARIATION_BY_POSITION[n as 1 | 2 | 3];
+  // Full-segment placements always fire the ironic-dictionary "friction"
+  // variant. Capacity-1 rows collapse spark+friction into friction-only;
+  // capacity-2 rows skip "movement".
+  let variation: HeadlineKind;
+  if (n >= segmentAfter.capacity) {
+    variation = 'friction';
+  } else if (n === 1) {
+    variation = 'spark';
+  } else if (n === 2) {
+    variation = 'movement';
+  } else {
+    return null;
+  }
 
   return {
     id: `h-${roundNumber}-${segmentAfter.key}-${seq}`,
