@@ -18,7 +18,7 @@ export function PageFooter() {
         <Typography variant="body2" sx={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
           {t('footer.madeByPrefix')}
           <Link
-            href="https://aleixo.me"
+            href="https://ludoratory.com"
             target="_blank"
             rel="noopener noreferrer"
             sx={{ color: 'inherit' }}
