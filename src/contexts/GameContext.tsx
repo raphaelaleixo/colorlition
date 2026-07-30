@@ -78,7 +78,13 @@ function normalizeGameState(raw: ColorlitionGameState | null | undefined): Color
     exitPollDrawn: raw.exitPollDrawn ?? false,
     exitPollAcknowledged: raw.exitPollAcknowledged ?? false,
     winnerIds: raw.winnerIds ?? null,
-    scoreBreakdown: raw.scoreBreakdown ?? null,
+    scoreBreakdown:
+      raw.scoreBreakdown?.map((b) => ({
+        ...b,
+        pivotAssignments: b.pivotAssignments ?? [],
+        positiveColors: b.positiveColors ?? [],
+        negativeColors: b.negativeColors ?? [],
+      })) ?? null,
     lastHeadline: raw.lastHeadline ?? null,
     scoreHistory: (raw.scoreHistory ?? []).map((s) => ({
       roundNumber: s.roundNumber,
